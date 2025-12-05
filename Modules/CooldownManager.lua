@@ -216,6 +216,7 @@ function BCDM:SetupCooldownManager()
     for _, cooldownViewer in ipairs(CooldownManagerViewers) do
         hooksecurefunc(_G[cooldownViewer], "RefreshLayout", function() if InCombatLockdown() then return end SkinCooldownManager() PositionCooldownViewers() SizeIconsInCooldownViewer("EssentialCooldownViewer") SizeIconsInCooldownViewer("UtilityCooldownViewer") SizeIconsInCooldownViewer("BuffIconCooldownViewer") BCDM:SetPowerBarWidth() BCDM:SetCastBarWidth() AdjustCooldownManagerStrata() end)
     end
+    BCDM:SetupCentreBuffs()
 end
 
 function BCDM:UpdateCooldownViewer(cooldownViewer)

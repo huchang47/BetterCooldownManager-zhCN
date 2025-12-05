@@ -2,4 +2,5 @@
      <Script file="CooldownManager.lua"/>
      <Script file="PowerBar.lua"/>
      <Script file="CastBar.lua"/>
+     <Script file="CentreBuffs.lua"/>
 </Ui>

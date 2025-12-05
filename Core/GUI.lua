@@ -289,7 +289,9 @@ local function DrawCooldownSettings(parentContainer, cooldownViewer)
         CentreBuffsHorizontally:SetLabel("Centre Buffs Horizontally")
         CentreBuffsHorizontally:SetValue(CooldownViewerDB.CentreHorizontally)
         CentreBuffsHorizontally:SetRelativeWidth(1)
-        CentreBuffsHorizontally:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.CentreHorizontally = value BCDM:UpdateCooldownViewer(cooldownViewer) end)
+        CentreBuffsHorizontally:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.CentreHorizontally = value BCDM:UpdateCentreBuffs() end)
+        CentreBuffsHorizontally:SetCallback("OnEnter", function() GameTooltip:SetOwner(CentreBuffsHorizontally.frame, "ANCHOR_CURSOR") GameTooltip:SetText("Thank you |cFF8080FFLazarpaky|r for this addition!") end)
+        CentreBuffsHorizontally:SetCallback("OnLeave", function() GameTooltip:Hide() end)
         ToggleContainer:AddChild(CentreBuffsHorizontally)
     end
 
