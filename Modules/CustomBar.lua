@@ -94,7 +94,7 @@ local CustomSpells = {
 
 BCDM.CustomSpells = CustomSpells
 
-function CreateCustomCustomIcon(spellId)
+function CreateCustomIcon(spellId)
     local CooldownManagerDB = BCDM.db.profile
     local GeneralDB = CooldownManagerDB.General
     local CustomDB = CooldownManagerDB.Custom
@@ -164,7 +164,7 @@ local LayoutConfig = {
     RIGHT       = { anchor="RIGHT",     offsetMultiplier=0.5, isCenter=true },
 }
 
-function LayoutCustomCustomIcons()
+function LayoutCustomIcons()
     local CustomDB = BCDM.db.profile.Custom
     local icons = BCDM.CustomBar
     if #icons == 0 then return end
@@ -207,12 +207,12 @@ function LayoutCustomCustomIcons()
     CustomContainer:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     CustomContainer:SetScript("OnEvent", function(self, event, ...)
         if event == "PLAYER_SPECIALIZATION_CHANGED" then
-            BCDM:ResetCustomCustomIcons()
+            BCDM:ResetCustomIcons()
         end
     end)
 end
 
-function BCDM:SetupCustomCustomIcons()
+function BCDM:SetupCustomIcons()
     local CooldownManagerDB = BCDM.db.profile
     wipe(BCDM.CustomFrames)
     wipe(BCDM.CustomBar)
@@ -221,15 +221,15 @@ function BCDM:SetupCustomCustomIcons()
     local spellList = CooldownManagerDB.Custom.CustomSpells[class] or {}
     for spellId, isActive in pairs(spellList) do
         if spellId and isActive then
-            local frame = CreateCustomCustomIcon(spellId)
+            local frame = CreateCustomIcon(spellId)
             BCDM.CustomFrames[spellId] = frame
             table.insert(BCDM.CustomBar, frame)
         end
     end
-    LayoutCustomCustomIcons()
+    LayoutCustomIcons()
 end
 
-function BCDM:ResetCustomCustomIcons()
+function BCDM:ResetCustomIcons()
     local CooldownManagerDB = BCDM.db.profile
     -- Can we even destroy frames?
     for spellId, frame in pairs(BCDM.CustomFrames) do
@@ -249,12 +249,12 @@ function BCDM:ResetCustomCustomIcons()
     local spellList = CooldownManagerDB.Custom.CustomSpells[class] or {}
     for spellId, isActive in pairs(spellList) do
         if spellId and isActive then
-            local frame = CreateCustomCustomIcon(spellId)
+            local frame = CreateCustomIcon(spellId)
             BCDM.CustomFrames[spellId] = frame
             table.insert(BCDM.CustomBar, frame)
         end
     end
-    LayoutCustomCustomIcons()
+    LayoutCustomIcons()
 end
 
 function BCDM:UpdateCustomIcons()
@@ -275,7 +275,7 @@ function BCDM:UpdateCustomIcons()
             icon.Charges:SetShadowOffset(GeneralDB.Shadows.OffsetX, GeneralDB.Shadows.OffsetY)
         end
     end
-    LayoutCustomCustomIcons()
+    LayoutCustomIcons()
 end
 
 local SpellsChangedEventFrame = CreateFrame("Frame")
@@ -283,7 +283,7 @@ SpellsChangedEventFrame:RegisterEvent("SPELLS_CHANGED")
 SpellsChangedEventFrame:SetScript("OnEvent", function(self, event, ...)
     if event == "SPELLS_CHANGED" then
         if InCombatLockdown() then return end
-        BCDM:ResetCustomCustomIcons()
+        BCDM:ResetCustomIcons()
     end
 end)
 
@@ -310,7 +310,7 @@ function BCDM:AddCustomSpell(value)
     local _, class = UnitClass("player")
     if not profileDB.Custom.CustomSpells[class] then profileDB.Custom.CustomSpells[class] = {} end
     profileDB.Custom.CustomSpells[class][spellId] = true
-    BCDM:ResetCustomCustomIcons()
+    BCDM:ResetCustomIcons()
 end
 
 function BCDM:RemoveCustomSpell(value)
@@ -321,5 +321,5 @@ function BCDM:RemoveCustomSpell(value)
     local _, class = UnitClass("player")
     if not profileDB.Custom.CustomSpells[class] then profileDB.Custom.CustomSpells[class] = {} end
     profileDB.Custom.CustomSpells[class][spellId] = nil
-    BCDM:ResetCustomCustomIcons()
+    BCDM:ResetCustomIcons()
 end

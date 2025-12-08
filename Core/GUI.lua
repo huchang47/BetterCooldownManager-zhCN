@@ -136,6 +136,14 @@ local function FetchSpellInformation(spellId)
     end
 end
 
+local function FetchItemInformation(itemId)
+    local itemName = C_Item.GetItemInfo(itemId)
+    local itemTexture = select(10, C_Item.GetItemInfo(itemId))
+    if itemName then
+        return string.format("|T%s:20:20|t %s", itemTexture, itemName)
+    end
+end
+
 local function AddAnchor(anchorGroup, key, label)
     for _, existingKey in ipairs(anchorGroup[2]) do if existingKey == key then return end end
     anchorGroup[1][key] = label
@@ -658,7 +666,7 @@ local function DrawCooldownSettings(parentContainer, cooldownViewer)
     return ScrollFrame
 end
 
-local function DrawCustomSettings(parentContainer)
+local function DrawCustomBarSettings(parentContainer)
     local CooldownManagerDB = BCDM.db.profile
     local CooldownViewerDB = CooldownManagerDB[BCDM.CooldownViewerToDB["CustomCooldownViewer"]]
 
@@ -803,10 +811,6 @@ local function DrawCustomSettings(parentContainer)
     Charges_FontSize:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.FontSize = value BCDM:UpdateCooldownViewer("CustomCooldownViewer") end)
     ChargesContainer:AddChild(Charges_FontSize)
 
-    ------------------------------------------------------------
-    -- Custom Ability Section
-    ------------------------------------------------------------
-
     local SupportedCustomContainer = AG:Create("InlineGroup")
     SupportedCustomContainer:SetTitle("Custom")
     SupportedCustomContainer:SetFullWidth(true)
@@ -826,7 +830,7 @@ local function DrawCustomSettings(parentContainer)
             CustomCheckBox:SetLabel(FetchSpellInformation(spellID))
             CustomCheckBox:SetRelativeWidth(0.33)
             CustomCheckBox:SetValue(profile[spellID])
-            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID] = value BCDM:ResetCustomCustomIcons() end)
+            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID] = value BCDM:ResetCustomIcons() end)
             CustomCheckBox:SetCallback("OnEnter", function() GameTooltip:SetOwner(CustomCheckBox.frame, "ANCHOR_CURSOR") GameTooltip:SetSpellByID(spellID) end)
             CustomCheckBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
             BCDMGUI.classContainer:AddChild(CustomCheckBox)
@@ -881,6 +885,226 @@ local function DrawCustomSettings(parentContainer)
     BCDMGUI.classContainer = classContainer
 
     BuildCustomSpellList()
+    ScrollFrame:DoLayout()
+
+    return ScrollFrame
+end
+
+local function DrawItemBarSettings(parentContainer)
+    local CooldownManagerDB = BCDM.db.profile
+    local CooldownViewerDB = CooldownManagerDB[BCDM.CooldownViewerToDB["ItemCooldownViewer"]]
+
+    local ScrollFrame = AG:Create("ScrollFrame")
+    ScrollFrame:SetLayout("Flow")
+    ScrollFrame:SetFullWidth(true)
+    ScrollFrame:SetFullHeight(true)
+    parentContainer:AddChild(ScrollFrame)
+
+    local LayoutContainer = AG:Create("InlineGroup")
+    LayoutContainer:SetTitle("Layout Settings")
+    LayoutContainer:SetFullWidth(true)
+    LayoutContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(LayoutContainer)
+
+    local Viewer_AnchorFrom = AG:Create("Dropdown")
+    Viewer_AnchorFrom:SetLabel("Anchor From")
+    Viewer_AnchorFrom:SetList(Anchors[1], Anchors[2])
+    Viewer_AnchorFrom:SetValue(CooldownViewerDB.Anchors[1])
+    Viewer_AnchorFrom:SetRelativeWidth(0.5)
+    Viewer_AnchorFrom:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Anchors[1] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_AnchorFrom)
+
+    local Viewer_AnchorTo = AG:Create("Dropdown")
+    Viewer_AnchorTo:SetLabel("Anchor To")
+    Viewer_AnchorTo:SetList(Anchors[1], Anchors[2])
+    Viewer_AnchorTo:SetValue(CooldownViewerDB.Anchors[3])
+    Viewer_AnchorTo:SetRelativeWidth(0.5)
+    Viewer_AnchorTo:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Anchors[3] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_AnchorTo)
+
+    local Viewer_AnchorParent = AG:Create("EditBox")
+    Viewer_AnchorParent:SetLabel("Anchor Parent Frame")
+    Viewer_AnchorParent:SetText(CooldownViewerDB.Anchors[2])
+    Viewer_AnchorParent:SetRelativeWidth(0.5)
+    Viewer_AnchorParent:SetCallback("OnEnterPressed", function(_, _, value) CooldownViewerDB.Anchors[2] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_AnchorParent)
+
+    if C_AddOns.IsAddOnLoaded("UnhaltedUnitFrames") then
+        AddAnchor(ParentAnchors.Custom, "UUF_Player", "|cFF8080FFUnhalted|r Unit Frames - Player")
+        AddAnchor(ParentAnchors.Custom, "UUF_Target", "|cFF8080FFUnhalted|r Unit Frames - Target")
+    end
+
+    local ParentSelector = AG:Create("Dropdown")
+    ParentSelector:SetLabel("Parent Selector")
+    ParentSelector:SetList(ParentAnchors.Custom[1], ParentAnchors.Custom[2])
+    ParentSelector:SetValue(CooldownViewerDB.Anchors[2])
+    ParentSelector:SetRelativeWidth(0.5)
+    ParentSelector:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Anchors[2] = value Viewer_AnchorParent:SetText(value) BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(ParentSelector)
+
+    local GrowthDirection = AG:Create("Dropdown")
+    GrowthDirection:SetLabel("Growth Direction")
+    GrowthDirection:SetList({ ["LEFT"] = "Left", ["RIGHT"] = "Right", })
+    GrowthDirection:SetValue(CooldownViewerDB.GrowthDirection)
+    GrowthDirection:SetRelativeWidth(1)
+    GrowthDirection:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.GrowthDirection = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(GrowthDirection)
+
+    local Viewer_OffsetX = AG:Create("Slider")
+    Viewer_OffsetX:SetLabel("Offset X")
+    Viewer_OffsetX:SetValue(CooldownViewerDB.Anchors[4])
+    Viewer_OffsetX:SetSliderValues(-2000, 2000, 1)
+    Viewer_OffsetX:SetRelativeWidth(0.25)
+    Viewer_OffsetX:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Anchors[4] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_OffsetX)
+
+    local Viewer_OffsetY = AG:Create("Slider")
+    Viewer_OffsetY:SetLabel("Offset Y")
+    Viewer_OffsetY:SetValue(CooldownViewerDB.Anchors[5])
+    Viewer_OffsetY:SetSliderValues(-2000, 2000, 1)
+    Viewer_OffsetY:SetRelativeWidth(0.25)
+    Viewer_OffsetY:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Anchors[5] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_OffsetY)
+
+    local Viewer_IconWidth = AG:Create("Slider")
+    Viewer_IconWidth:SetLabel("Icon Width")
+    Viewer_IconWidth:SetValue(CooldownViewerDB.IconSize[1])
+    Viewer_IconWidth:SetSliderValues(16, 128, 1)
+    Viewer_IconWidth:SetRelativeWidth(0.25)
+    Viewer_IconWidth:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.IconSize[1] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_IconWidth)
+
+    local Viewer_IconHeight = AG:Create("Slider")
+    Viewer_IconHeight:SetLabel("Icon Height")
+    Viewer_IconHeight:SetValue(CooldownViewerDB.IconSize[2])
+    Viewer_IconHeight:SetSliderValues(16, 128, 1)
+    Viewer_IconHeight:SetRelativeWidth(0.25)
+    Viewer_IconHeight:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.IconSize[2] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    LayoutContainer:AddChild(Viewer_IconHeight)
+
+    local ChargesContainer = AG:Create("InlineGroup")
+    ChargesContainer:SetTitle("Charges Settings")
+    ChargesContainer:SetFullWidth(true)
+    ChargesContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(ChargesContainer)
+
+    local Charges_AnchorFrom = AG:Create("Dropdown")
+    Charges_AnchorFrom:SetLabel("Anchor From")
+    Charges_AnchorFrom:SetList(Anchors[1], Anchors[2])
+    Charges_AnchorFrom:SetValue(CooldownViewerDB.Count.Anchors[1])
+    Charges_AnchorFrom:SetRelativeWidth(0.33)
+    Charges_AnchorFrom:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.Anchors[1] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_AnchorFrom)
+
+    local Charges_AnchorTo = AG:Create("Dropdown")
+    Charges_AnchorTo:SetLabel("Anchor To")
+    Charges_AnchorTo:SetList(Anchors[1], Anchors[2])
+    Charges_AnchorTo:SetValue(CooldownViewerDB.Count.Anchors[2])
+    Charges_AnchorTo:SetRelativeWidth(0.33)
+    Charges_AnchorTo:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.Anchors[2] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_AnchorTo)
+
+    local Charges_Colour = AG:Create("ColorPicker")
+    Charges_Colour:SetLabel("Font Colour")
+    Charges_Colour:SetColor(unpack(CooldownViewerDB.Count.Colour))
+    Charges_Colour:SetRelativeWidth(0.33)
+    Charges_Colour:SetCallback("OnValueChanged", function(_, _, r, g, b) CooldownViewerDB.Count.Colour = {r, g, b} BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_Colour)
+
+    local Charges_OffsetX = AG:Create("Slider")
+    Charges_OffsetX:SetLabel("Offset X")
+    Charges_OffsetX:SetValue(CooldownViewerDB.Count.Anchors[3])
+    Charges_OffsetX:SetSliderValues(-200, 200, 1)
+    Charges_OffsetX:SetRelativeWidth(0.33)
+    Charges_OffsetX:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.Anchors[3] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_OffsetX)
+
+    local Charges_OffsetY = AG:Create("Slider")
+    Charges_OffsetY:SetLabel("Offset Y")
+    Charges_OffsetY:SetValue(CooldownViewerDB.Count.Anchors[4])
+    Charges_OffsetY:SetSliderValues(-200, 200, 1)
+    Charges_OffsetY:SetRelativeWidth(0.33)
+    Charges_OffsetY:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.Anchors[4] = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_OffsetY)
+
+    local Charges_FontSize = AG:Create("Slider")
+    Charges_FontSize:SetLabel("Font Size")
+    Charges_FontSize:SetValue(CooldownViewerDB.Count.FontSize)
+    Charges_FontSize:SetSliderValues(8, 40, 1)
+    Charges_FontSize:SetRelativeWidth(0.33)
+    Charges_FontSize:SetCallback("OnValueChanged", function(_, _, value) CooldownViewerDB.Count.FontSize = value BCDM:UpdateCooldownViewer("ItemCooldownViewer") end)
+    ChargesContainer:AddChild(Charges_FontSize)
+
+    local SupportedCustomContainer = AG:Create("InlineGroup")
+    SupportedCustomContainer:SetTitle("Custom")
+    SupportedCustomContainer:SetFullWidth(true)
+    SupportedCustomContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(SupportedCustomContainer)
+
+    local function BuildCustomItemsList()
+        local profile = BCDM.db.profile.Items.CustomItems or {}
+        BCDMGUI.itemContainer:ReleaseChildren()
+        for itemId in pairs(profile) do
+            local CustomCheckBox = AG:Create("CheckBox")
+            CustomCheckBox:SetLabel(FetchItemInformation(itemId))
+            CustomCheckBox:SetRelativeWidth(0.33)
+            CustomCheckBox:SetValue(profile[itemId])
+            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[itemId] = value BCDM:ResetItemIcons() end)
+            CustomCheckBox:SetCallback("OnEnter", function() GameTooltip:SetOwner(CustomCheckBox.frame, "ANCHOR_CURSOR") GameTooltip:SetItemByID(itemId) end)
+            CustomCheckBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+            BCDMGUI.itemContainer:AddChild(CustomCheckBox)
+        end
+    end
+
+    local function GetCustomItemList()
+        local CustomItems = {}
+        local profile = BCDM.db.profile.Items.CustomItems
+        local defaults = BCDM.CustomItems
+        for itemId in pairs(profile) do
+            if not defaults[itemId] then
+                CustomItems[itemId] = FetchItemInformation(itemId)
+            end
+        end
+        return CustomItems
+    end
+
+    local function RefreshRemoveDropdown()
+        local list = GetCustomItemList()
+        RemoveCustomDropdown:SetList(list)
+        RemoveCustomDropdown:SetValue(nil)
+
+        if next(list) == nil then
+            RemoveCustomDropdown:SetDisabled(true)
+        else
+            RemoveCustomDropdown:SetDisabled(false)
+        end
+    end
+
+    local AddCustomEditBox = AG:Create("EditBox")
+    AddCustomEditBox:SetLabel("ItemID")
+    AddCustomEditBox:SetRelativeWidth(0.5)
+    AddCustomEditBox:SetCallback("OnEnterPressed", function() local input = AddCustomEditBox:GetText() if not input or input == "" then return end BCDM:AddCustomItem(input) BCDM:Print("Added: " .. FetchItemInformation(input)) RefreshRemoveDropdown() BuildCustomItemsList() AddCustomEditBox:SetText("") AddCustomEditBox:ClearFocus() end)
+    AddCustomEditBox:SetCallback("OnEnter", function() GameTooltip:SetOwner(AddCustomEditBox.frame, "ANCHOR_CURSOR") GameTooltip:SetText("|cFF8080FFItemID|r is required for this to function.") end)
+    AddCustomEditBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+    SupportedCustomContainer:AddChild(AddCustomEditBox)
+
+    RemoveCustomDropdown = AG:Create("Dropdown")
+    RemoveCustomDropdown:SetLabel("Remove Item")
+    RemoveCustomDropdown:SetRelativeWidth(0.5)
+    RemoveCustomDropdown:SetCallback("OnValueChanged", function(_, _, itemId) if not itemId then return end BCDM:RemoveCustomItem(itemId) BCDM:Print("Removed: " .. FetchItemInformation(itemId)) RefreshRemoveDropdown() BuildCustomItemsList() end)
+    SupportedCustomContainer:AddChild(RemoveCustomDropdown)
+
+    RefreshRemoveDropdown()
+
+    local itemContainer = AG:Create("InlineGroup")
+    itemContainer:SetTitle("Items")
+    itemContainer:SetFullWidth(true)
+    itemContainer:SetLayout("Flow")
+    SupportedCustomContainer:AddChild(itemContainer)
+    BCDMGUI.itemContainer = itemContainer
+
+    BuildCustomItemsList()
+
     ScrollFrame:DoLayout()
 
     return ScrollFrame
@@ -1589,8 +1813,10 @@ function BCDM:CreateGUI()
             DrawCooldownSettings(Wrapper, "UtilityCooldownViewer")
         elseif MainGroup == "Buffs" then
             DrawCooldownSettings(Wrapper, "BuffIconCooldownViewer")
-        elseif MainGroup == "Custom" then
-            DrawCustomSettings(Wrapper, "CustomCooldownViewer")
+        elseif MainGroup == "CustomBar" then
+            DrawCustomBarSettings(Wrapper)
+        elseif MainGroup == "ItemBar" then
+            DrawItemBarSettings(Wrapper)
         elseif MainGroup == "CastBar" then
             DrawCastBarSettings(Wrapper)
         elseif MainGroup == "PowerBar" then
@@ -1609,7 +1835,8 @@ function BCDM:CreateGUI()
         { text = "Essential", value = "Essential"},
         { text = "Utility", value = "Utility"},
         { text = "Buffs", value = "Buffs"},
-        { text = "Custom", value = "Custom"},
+        { text = "Custom Bar", value = "CustomBar"},
+        { text = "Item Bar", value = "ItemBar"},
         { text = "Cast Bar", value = "CastBar"},
         { text = "Power Bar", value = "PowerBar"},
         { text = "Secondary Bar", value = "SecondaryBar"},

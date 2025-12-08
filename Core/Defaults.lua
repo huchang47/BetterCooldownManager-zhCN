@@ -110,6 +110,18 @@ BCDM.Defaults = {
             },
             CustomSpells = {}
         },
+        Items = {
+            IconSize = {36, 36},
+            Anchors = {"TOPLEFT", "UUF_Player", "BOTTOMLEFT", 0, -1},
+            GrowthDirection = "RIGHT",
+            Spacing = 1,
+            Count = {
+                FontSize = 12,
+                Colour = {1, 1, 1},
+                Anchors = {"BOTTOMRIGHT", "BOTTOMRIGHT", 0, 3}
+            },
+            CustomItems = {}
+        },
         PowerBar = {
             Height = 13,
             FGTexture = "Better Blizzard",

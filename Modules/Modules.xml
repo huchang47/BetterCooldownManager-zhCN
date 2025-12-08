@@ -5,4 +5,5 @@
      <Script file="CastBar.lua"/>
      <Script file="CentreBuffs.lua"/>
      <Script file="CustomBar.lua"/>
+     <Script file="ItemBar.lua"/>
 </Ui>

@@ -8,6 +8,7 @@ BCDMG = BCDMG or {}
 BCDM.AddOnName = C_AddOns.GetAddOnMetadata("BetterCooldownManager", "Title")
 
 BCDM.CustomBar = {}
+BCDM.ItemBar = {}
 
 BCDM.Icon = "Interface\\AddOns\\BetterCooldownManager\\Media\\Logo.png"
 
@@ -18,6 +19,7 @@ BCDM.CooldownViewerToDB = {
     ["UtilityCooldownViewer"] = "Utility",
     ["BuffIconCooldownViewer"] = "Buffs",
     ["CustomCooldownViewer"] = "Custom",
+    ["ItemCooldownViewer"] = "Items",
 }
 
 BCDM.LayoutConfig = {
@@ -115,7 +117,7 @@ function BCDM:UpdateBCDM()
     BCDM:UpdatePowerBar()
     BCDM:UpdateSecondaryPowerBar()
     BCDM:RefreshAllViewers()
-    BCDM:ResetCustomCustomIcons()
+    BCDM:ResetCustomIcons()
 end
 
 function BCDM:CreatePrompt(title, text, onAccept, onCancel, acceptText, cancelText)

@@ -10,13 +10,15 @@ function AddOn:OnInitialize()
     end
     if BCDM.db.global.UseGlobalProfile then BCDM.db:SetProfile(BCDM.db.global.GlobalProfile or "Default") end
     BCDM:CopyCustomSpellsToDB()
+    BCDM:CopyCustomItemsToDB()
 end
 
 local WaitForAddOns = CreateFrame("Frame")
 WaitForAddOns:RegisterEvent("PLAYER_LOGIN")
 WaitForAddOns:SetScript("OnEvent", function(self)
     if C_AddOns.IsAddOnLoaded("UnhaltedUnitFrames") then
-        BCDM:SetupCustomCustomIcons()
+        BCDM:SetupCustomIcons()
+        BCDM:SetupItemIcons()
     end
     self:UnregisterEvent("PLAYER_LOGIN")
 end)
