@@ -15,6 +15,12 @@ local CustomItems = {
 
 BCDM.CustomItems = CustomItems
 
+local function FetchItemData(itemId)
+    local itemCount = C_Item.GetItemCount(itemId)
+    local startTime, durationTime = C_Item.GetItemCooldown(itemId)
+    return itemCount, startTime, durationTime
+end
+
 function CreateItemIcon(itemId)
     local CooldownManagerDB = BCDM.db.profile
     local GeneralDB = CooldownManagerDB.General
@@ -41,6 +47,8 @@ function CreateItemIcon(itemId)
     customItemIcon.Count:SetTextColor(ItemDB.Count.Colour[1], ItemDB.Count.Colour[2], ItemDB.Count.Colour[3], 1)
     customItemIcon.Count:SetShadowColor(GeneralDB.Shadows.Colour[1], GeneralDB.Shadows.Colour[2], GeneralDB.Shadows.Colour[3], GeneralDB.Shadows.Colour[4])
     customItemIcon.Count:SetShadowOffset(GeneralDB.Shadows.OffsetX, GeneralDB.Shadows.OffsetY)
+    local itemCount = FetchItemData(itemId)
+    customItemIcon.Count:SetText(tostring(itemCount))
 
     customItemIcon.Cooldown = CreateFrame("Cooldown", nil, customItemIcon, "CooldownFrameTemplate")
     customItemIcon.Cooldown:SetAllPoints(customItemIcon)
@@ -52,8 +60,7 @@ function CreateItemIcon(itemId)
 
     customItemIcon:HookScript("OnEvent", function(self, event, ...)
         if event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_ENTERING_WORLD" or event == "ITEM_COUNT_CHANGED" then
-            local itemCount = C_Item.GetItemCount(itemId)
-            local startTime, durationTime = C_Item.GetItemCooldown(itemId)
+            local _itemCount, startTime, durationTime = FetchItemData(itemId)
             if itemCount then
                 customItemIcon.Count:SetText(tostring(itemCount))
                 customItemIcon.Cooldown:SetCooldown(startTime, durationTime)
@@ -73,6 +80,14 @@ function CreateItemIcon(itemId)
     customItemIcon.Icon:SetPoint("BOTTOMRIGHT", customItemIcon, "BOTTOMRIGHT", -1, 1)
     customItemIcon.Icon:SetTexCoord((GeneralDB.IconZoom) * 0.5, 1 - (GeneralDB.IconZoom) * 0.5, (GeneralDB.IconZoom) * 0.5, 1 - (GeneralDB.IconZoom) * 0.5)
     customItemIcon.Icon:SetTexture(select(10, C_Item.GetItemInfo(itemId)))
+
+    if itemCount <= 0 then
+        customItemIcon.Icon:SetDesaturated(true)
+        customItemIcon.Count:SetText("")
+    else
+        customItemIcon.Icon:SetDesaturated(false)
+        customItemIcon.Count:SetText(tostring(itemCount))
+    end
 
     return customItemIcon
 end
