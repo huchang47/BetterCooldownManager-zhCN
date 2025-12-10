@@ -829,6 +829,7 @@ local function DrawCustomBarSettings(parentContainer)
         local iconOrder = {}
         for spellID, data in pairs(profile) do table.insert(iconOrder, { spellID = spellID, layoutIndex = data.layoutIndex or 9999 }) end
         table.sort(iconOrder, function(a, b) return a.layoutIndex < b.layoutIndex end)
+
         for _, entry in ipairs(iconOrder) do
             local spellID = entry.spellID
 
@@ -841,7 +842,7 @@ local function DrawCustomBarSettings(parentContainer)
             CustomCheckBox:SetLabel("|cFFFFCC00" .. (profile[spellID].layoutIndex) .. "|r - " .. FetchSpellInformation(spellID))
             CustomCheckBox:SetRelativeWidth(0.4)
             CustomCheckBox:SetValue(profile[spellID].isActive)
-            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID].isActive = value BCDM:ResetCustomIcons() end)
+            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID].isActive = value BCDM:ResetCustomIcons() BuildCustomSpellList() end)
             CustomCheckBox:SetCallback("OnEnter", function() GameTooltip:SetOwner(CustomCheckBox.frame, "ANCHOR_CURSOR") GameTooltip:SetSpellByID(spellID) end)
             CustomCheckBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
             SpellContainer:AddChild(CustomCheckBox)
@@ -850,24 +851,26 @@ local function DrawCustomBarSettings(parentContainer)
             MoveUpButton:SetText("Up")
             MoveUpButton:SetRelativeWidth(0.2)
             MoveUpButton:SetCallback("OnClick", function() BCDM:MoveCustomSpell(spellID, -1) BuildCustomSpellList() end)
+            MoveUpButton:SetDisabled(entry.layoutIndex == 1 or not profile[spellID].isActive)
             SpellContainer:AddChild(MoveUpButton)
 
             local MoveDownButton = AG:Create("Button")
             MoveDownButton:SetText("Down")
             MoveDownButton:SetRelativeWidth(0.2)
             MoveDownButton:SetCallback("OnClick", function() BCDM:MoveCustomSpell(spellID, 1) BuildCustomSpellList() end)
+            MoveDownButton:SetDisabled(entry.layoutIndex == #iconOrder or not profile[spellID].isActive)
             SpellContainer:AddChild(MoveDownButton)
 
             local DeleteSpellButton = AG:Create("Button")
             DeleteSpellButton:SetText("X")
             DeleteSpellButton:SetRelativeWidth(0.2)
             DeleteSpellButton:SetCallback("OnClick", function() BCDM:RemoveCustomSpell(spellID) BCDM:Print("Removed: " .. FetchSpellInformation(spellID)) BuildCustomSpellList() end)
+            DeleteSpellButton:SetDisabled(not profile[spellID].isActive)
             SpellContainer:AddChild(DeleteSpellButton)
         end
 
         ScrollFrame:DoLayout()
     end
-
 
     local AddCustomEditBox = AG:Create("EditBox")
     AddCustomEditBox:SetLabel("SpellID / Spell Name")
