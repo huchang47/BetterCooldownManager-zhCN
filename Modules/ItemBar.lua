@@ -61,15 +61,15 @@ function CreateItemIcon(itemId)
     customItemIcon:HookScript("OnEvent", function(self, event, ...)
         if event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_ENTERING_WORLD" or event == "ITEM_COUNT_CHANGED" then
             local _itemCount, startTime, durationTime = FetchItemData(itemId)
-            if itemCount then
-                customItemIcon.Count:SetText(tostring(itemCount))
+            if _itemCount then
+                customItemIcon.Count:SetText(tostring(_itemCount))
                 customItemIcon.Cooldown:SetCooldown(startTime, durationTime)
-                if itemCount <= 0 then
+                if _itemCount <= 0 then
                     customItemIcon.Icon:SetDesaturated(true)
                     customItemIcon.Count:SetText("")
                 else
                     customItemIcon.Icon:SetDesaturated(false)
-                    customItemIcon.Count:SetText(tostring(itemCount))
+                    customItemIcon.Count:SetText(tostring(_itemCount))
                 end
             end
         end
