@@ -818,12 +818,14 @@ local function DrawCustomBarSettings(parentContainer)
     ScrollFrame:AddChild(SupportedCustomContainer)
 
     local playerClass = select(2, UnitClass("player"))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
 
     local infoTag = CreateInfoTag( "Below are all the abilities for " .. ClassToPrettyClass[playerClass] .. ". Check the ones you want to track in the |cFF8080FFCustom Cooldown Viewer|r." )
     SupportedCustomContainer:AddChild(infoTag)
 
     local function BuildCustomSpellList()
-        local profile = BCDM.db.profile.Custom.CustomSpells[playerClass] or {}
+        local profile = BCDM.db.profile.Custom.CustomSpells[playerClass][specName:upper()] or {}
+        DevTool:AddData(profile)
         BCDMGUI.classContainer:ReleaseChildren()
         for spellID in pairs(profile) do
             local SpellContainer = AG:Create("SimpleGroup")
@@ -834,15 +836,15 @@ local function DrawCustomBarSettings(parentContainer)
             local CustomCheckBox = AG:Create("CheckBox")
             CustomCheckBox:SetLabel(FetchSpellInformation(spellID))
             CustomCheckBox:SetRelativeWidth(0.5)
-            CustomCheckBox:SetValue(profile[spellID])
-            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID] = value BCDM:ResetCustomIcons() end)
+            CustomCheckBox:SetValue(profile[spellID].isActive)
+            CustomCheckBox:SetCallback("OnValueChanged", function(_, _, value) profile[spellID].isActive = value BCDM:ResetCustomIcons() end)
             CustomCheckBox:SetCallback("OnEnter", function() GameTooltip:SetOwner(CustomCheckBox.frame, "ANCHOR_CURSOR") GameTooltip:SetSpellByID(spellID) end)
             CustomCheckBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
             SpellContainer:AddChild(CustomCheckBox)
 
             local LayoutIndexSlider = AG:Create("Slider")
             LayoutIndexSlider:SetLabel("Order Number")
-            LayoutIndexSlider:SetValue(1)
+            LayoutIndexSlider:SetValue(profile[spellID].layoutIndex)
             LayoutIndexSlider:SetSliderValues(1, 12, 1)
             LayoutIndexSlider:SetRelativeWidth(0.5)
             LayoutIndexSlider:SetCallback("OnValueChanged", function(_, _, value)  end)
