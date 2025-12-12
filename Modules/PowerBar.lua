@@ -60,7 +60,7 @@ local function CreatePowerBar()
         if max > 0 then
             PowerBar.StatusBar:SetMinMaxValues(0, max)
             PowerBar.StatusBar:SetValue(current)
-            PowerBar.StatusBar.Value:SetText(isMana and string.format("%.0f%%", UnitPowerPercent("player", Enum.PowerType.Mana, false, true)) or current)
+            PowerBar.StatusBar.Value:SetText(isMana and string.format("%.0f%%", UnitPowerPercent("player", Enum.PowerType.Mana, false, CurveConstants.ScaleTo100)) or current)
             PowerBar.StatusBar:SetStatusBarColor(FetchPowerBarColour("player"))
         end
     end
