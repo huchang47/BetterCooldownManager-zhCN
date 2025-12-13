@@ -312,8 +312,8 @@ local LayoutConfig = {
 function LayoutCustomIcons()
     local CustomDB = BCDM.db.profile.Custom
     local icons = BCDM.CustomBar
-    if not BCDM.CustomContainer then BCDM.CustomContainer = CreateFrame("Frame", "CustomCooldownViewer", UIParent) end
     if #icons == 0 then return end
+    if not BCDM.CustomContainer then BCDM.CustomContainer = CreateFrame("Frame", "CustomCooldownViewer", UIParent) end
 
     local CustomContainer = BCDM.CustomContainer
     local spacing = CustomDB.Spacing
@@ -363,6 +363,11 @@ function BCDM:SetupCustomIcons()
     wipe(BCDM.CustomBar)
     local _, class = UnitClass("player")
     local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    -- Make a DB entry if it doesn't exist
+    if not CooldownManagerDB.Custom then CooldownManagerDB.Custom = {} end
+    if not CooldownManagerDB.Custom.CustomSpells then CooldownManagerDB.Custom.CustomSpells = {} end
+    if not CooldownManagerDB.Custom.CustomSpells[class] then CooldownManagerDB.Custom.CustomSpells[class] = {} end
+    if not CooldownManagerDB.Custom.CustomSpells[class][specName:upper()] then CooldownManagerDB.Custom.CustomSpells[class][specName:upper()] = {} end
     local spellList = CooldownManagerDB.Custom.CustomSpells[class][specName:upper()] or {}
     local iconOrder = {}
     for spellId, data in pairs(spellList) do
@@ -420,6 +425,7 @@ function BCDM:UpdateCustomIcons()
     local CooldownManagerDB = BCDM.db.profile
     local GeneralDB = CooldownManagerDB.General
     local CustomDB = CooldownManagerDB.Custom
+    if not BCDM.CustomContainer then return end
     BCDM.CustomContainer:ClearAllPoints()
     BCDM.CustomContainer:SetPoint(CustomDB.Anchors[1], CustomDB.Anchors[2], CustomDB.Anchors[3], CustomDB.Anchors[4], CustomDB.Anchors[5])
     for _, icon in ipairs(BCDM.CustomBar) do

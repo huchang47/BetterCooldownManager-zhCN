@@ -110,8 +110,8 @@ local LayoutConfig = {
 function LayoutItemIcons()
     local ItemDB = BCDM.db.profile.Items
     local icons = BCDM.ItemBar
-    if not BCDM.ItemContainer then BCDM.ItemContainer = CreateFrame("Frame", "ItemCooldownViewer", UIParent) end
     if #icons == 0 then return end
+    if not BCDM.ItemContainer then BCDM.ItemContainer = CreateFrame("Frame", "ItemCooldownViewer", UIParent) end
 
     local ItemContainer = BCDM.ItemContainer
     local spacing = ItemDB.Spacing
@@ -211,7 +211,6 @@ function BCDM:SetupItemIcons()
     AdjustForPetFrame()
 end
 
-
 function BCDM:ResetItemIcons()
     local db = BCDM.db.profile
 
@@ -257,7 +256,6 @@ function BCDM:ResetItemIcons()
     LayoutItemIcons()
     AdjustForPetFrame()
 end
-
 
 function BCDM:UpdateItemIcons()
     local CooldownManagerDB = BCDM.db.profile
