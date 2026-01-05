@@ -837,7 +837,7 @@ local function DrawCustomBarSettings(parentContainer)
     ScrollFrame:AddChild(SupportedCustomContainer)
 
     local playerClass = select(2, UnitClass("player"))
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
 
     local function BuildCustomSpellList()
         local profile = BCDM.db.profile.Custom.CustomSpells[playerClass][specName:upper()] or {}
@@ -1076,7 +1076,7 @@ local function DrawAdditionalCustomBarSettings(parentContainer)
     ScrollFrame:AddChild(SupportedCustomContainer)
 
     local playerClass = select(2, UnitClass("player"))
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
 
     local function BuildCustomSpellList()
         local profile = BCDM.db.profile.AdditionalCustom.AdditionalCustomSpells[playerClass][specName:upper()] or {}

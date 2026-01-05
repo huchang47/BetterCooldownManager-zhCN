@@ -392,8 +392,8 @@ function BCDM:SetupCustomIcons()
     wipe(BCDM.CustomFrames)
     wipe(BCDM.CustomBar)
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
-    -- Make a DB entry if it doesn't exist
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
+
     if not CooldownManagerDB.Custom then CooldownManagerDB.Custom = {} end
     if not CooldownManagerDB.Custom.CustomSpells then CooldownManagerDB.Custom.CustomSpells = {} end
     if not CooldownManagerDB.Custom.CustomSpells[class] then CooldownManagerDB.Custom.CustomSpells[class] = {} end
@@ -432,7 +432,7 @@ function BCDM:ResetCustomIcons()
     wipe(BCDM.CustomFrames)
     wipe(BCDM.CustomBar)
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
     if not CooldownManagerDB.Custom then CooldownManagerDB.Custom = {} end
     if not CooldownManagerDB.Custom.CustomSpells then CooldownManagerDB.Custom.CustomSpells = {} end
     if not CooldownManagerDB.Custom.CustomSpells[class] then CooldownManagerDB.Custom.CustomSpells[class] = {} end

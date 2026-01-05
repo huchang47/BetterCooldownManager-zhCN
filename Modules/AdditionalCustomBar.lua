@@ -392,7 +392,7 @@ function BCDM:SetupAdditionalCustomIcons()
     wipe(BCDM.AdditionalCustomFrames)
     wipe(BCDM.AdditionalCustomBar)
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
     -- Make a DB entry if it doesn't exist
     if not CooldownManagerDB.AdditionalCustom then CooldownManagerDB.AdditionalCustom = {} end
     if not CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells then CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells = {} end
@@ -432,7 +432,7 @@ function BCDM:ResetAdditionalCustomIcons()
     wipe(BCDM.AdditionalCustomFrames)
     wipe(BCDM.AdditionalCustomBar)
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization()))
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", "")
     if not CooldownManagerDB.AdditionalCustom then CooldownManagerDB.AdditionalCustom = {} end
     if not CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells then CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells = {} end
     if not CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells[class] then CooldownManagerDB.AdditionalCustom.AdditionalCustomSpells[class] = {} end
@@ -527,7 +527,7 @@ function BCDM:AddAdditionalCustomSpell(value)
     if not spellId then return end
     local profileDB = BCDM.db.profile
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization())):upper()
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", ""):upper()
     profileDB.AdditionalCustom.AdditionalCustomSpells[class] = profileDB.AdditionalCustom.AdditionalCustomSpells[class] or {}
     profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName] = profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName] or {}
     local specTable = profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName]
@@ -549,7 +549,7 @@ function BCDM:RemoveAdditionalCustomSpell(value)
     if not spellId then return end
     local profileDB = BCDM.db.profile
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization())):upper()
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", ""):upper()
     local specTable = profileDB.AdditionalCustom.AdditionalCustomSpells[class] and profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName]
     if not specTable then return end
     specTable[spellId] = nil
@@ -569,7 +569,7 @@ end
 function BCDM:ResetAdditionalCustomSpells()
     local profileDB = BCDM.db.profile
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization())):upper()
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", ""):upper()
     if profileDB.AdditionalCustom.AdditionalCustomSpells[class] then
         profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName] = nil
     end
@@ -581,7 +581,7 @@ function BCDM:MoveAdditionalCustomSpell(spellId, value)
     if not spellId or not value then return end
     local profileDB = BCDM.db.profile
     local _, class = UnitClass("player")
-    local specName = select(2, GetSpecializationInfo(GetSpecialization())):upper()
+    local specName = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", ""):upper()
     local specTable = profileDB.AdditionalCustom.AdditionalCustomSpells[class] and profileDB.AdditionalCustom.AdditionalCustomSpells[class][specName]
     if not specTable or not specTable[spellId] then return end
     if specTable[spellId].layoutIndex + value < 1 then return end
