@@ -2118,6 +2118,8 @@ local function CreateProfileSettings(containerParent)
     GlobalProfileDropdown:SetDisabled(not BCDM.db.global.UseGlobalProfile)
     if BCDM.db.global.UseGlobalProfile then for _, child in ipairs(ProfileContainer.children) do if child ~= UseGlobalProfileToggle and child ~= GlobalProfileDropdown then BCDMG.DeepDisable(child, true) end end end
 
+    ScrollFrame:DoLayout()
+
     return ScrollFrame
 end
 
