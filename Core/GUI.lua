@@ -319,6 +319,22 @@ local function CreateGlowSettings(containerParent)
     GlowFrequencySlider:SetRelativeWidth(0.33)
     containerParent:AddChild(GlowFrequencySlider)
 
+    local xOffsetSlider = AG:Create("Slider")
+    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetValue(BCDM.db.profile.CooldownManager.General.Glow.XOffset)
+    xOffsetSlider:SetSliderValues(-20, 20, 1)
+    xOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) BCDM.db.profile.CooldownManager.General.Glow.XOffset = value BCDM:UpdateBCDM() end)
+    xOffsetSlider:SetRelativeWidth(0.5)
+    containerParent:AddChild(xOffsetSlider)
+
+    local yOffsetSlider = AG:Create("Slider")
+    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetValue(BCDM.db.profile.CooldownManager.General.Glow.YOffset)
+    yOffsetSlider:SetSliderValues(-20, 20, 1)
+    yOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) BCDM.db.profile.CooldownManager.General.Glow.YOffset = value BCDM:UpdateBCDM() end)
+    yOffsetSlider:SetRelativeWidth(0.5)
+    containerParent:AddChild(yOffsetSlider)
+
     function RefreshCustomGlowSettings()
         if BCDM.db.profile.CooldownManager.General.Glow.Enabled then
             GlowTypeDropdown:SetDisabled(false)
