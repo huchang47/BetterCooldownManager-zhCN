@@ -193,15 +193,6 @@ end
 
 BCDMG.AddAnchors = AddAnchors
 
-local function FetchSpellInformation(spellId)
-    local spellData = C_Spell.GetSpellInfo(spellId)
-    if spellData then
-        local spellName = spellData.name
-        local icon = spellData.iconID
-        return string.format("|T%s:16:16|t %s", icon, spellName)
-    end
-end
-
 local function DeepDisable(widget, disabled, skipWidget)
     if widget == skipWidget then return end
     if widget.SetDisabled then widget:SetDisabled(disabled) end
