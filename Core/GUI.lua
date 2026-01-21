@@ -428,6 +428,87 @@ local function CreateCooldownTextSettings(containerParent)
     return cooldownTextContainer
 end
 
+local function CreateKeybindSettings(containerParent)
+    local GeneralDB = BCDM.db.profile.General
+    local KeybindDB = BCDM.db.profile.CooldownManager.General.Keybinds
+
+    local keybindContainer = AG:Create("InlineGroup")
+    keybindContainer:SetTitle("Keybind Settings")
+    keybindContainer:SetFullWidth(true)
+    keybindContainer:SetLayout("Flow")
+    containerParent:AddChild(keybindContainer)
+
+    local enableKeybindCheckbox = AG:Create("CheckBox")
+    enableKeybindCheckbox:SetLabel("Enable Keybinds")
+    enableKeybindCheckbox:SetValue(KeybindDB.Enabled)
+    enableKeybindCheckbox:SetCallback("OnValueChanged", function(_, _, value) 
+        KeybindDB.Enabled = value 
+        BCDM.Keybinds:OnSettingChanged()
+        RefreshKeybindSettings()
+    end)
+    enableKeybindCheckbox:SetRelativeWidth(1)
+    keybindContainer:AddChild(enableKeybindCheckbox)
+
+    local anchorFromDropdown = AG:Create("Dropdown")
+    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
+    anchorFromDropdown:SetValue(KeybindDB.Anchor)
+    anchorFromDropdown:SetCallback("OnValueChanged", function(_, _, value) KeybindDB.Anchor = value BCDM.Keybinds:UpdateAllKeybinds() end)
+    anchorFromDropdown:SetRelativeWidth(0.5)
+    keybindContainer:AddChild(anchorFromDropdown)
+
+    local fontSizeSlider = AG:Create("Slider")
+    fontSizeSlider:SetLabel("Font Size")
+    fontSizeSlider:SetValue(KeybindDB.FontSize)
+    fontSizeSlider:SetSliderValues(8, 32, 1)
+    fontSizeSlider:SetCallback("OnValueChanged", function(_, _, value) KeybindDB.FontSize = value BCDM.Keybinds:UpdateAllKeybinds() end)
+    fontSizeSlider:SetRelativeWidth(0.5)
+    keybindContainer:AddChild(fontSizeSlider)
+
+    local xOffsetSlider = AG:Create("Slider")
+    xOffsetSlider:SetLabel("Offset X")
+    xOffsetSlider:SetValue(KeybindDB.OffsetX)
+    xOffsetSlider:SetSliderValues(-50, 50, 1)
+    xOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) KeybindDB.OffsetX = value BCDM.Keybinds:UpdateAllKeybinds() end)
+    xOffsetSlider:SetRelativeWidth(0.5)
+    keybindContainer:AddChild(xOffsetSlider)
+
+    local yOffsetSlider = AG:Create("Slider")
+    yOffsetSlider:SetLabel("Offset Y")
+    yOffsetSlider:SetValue(KeybindDB.OffsetY)
+    yOffsetSlider:SetSliderValues(-50, 50, 1)
+    yOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) KeybindDB.OffsetY = value BCDM.Keybinds:UpdateAllKeybinds() end)
+    yOffsetSlider:SetRelativeWidth(0.5)
+    keybindContainer:AddChild(yOffsetSlider)
+
+    local fontNameLabel = AG:Create("Label")
+    fontNameLabel:SetText("|cFFFFD100Font: " .. (GeneralDB.Fonts.Font or "Friz Quadrata TT") .. "|r")
+    fontNameLabel:SetFullWidth(true)
+    keybindContainer:AddChild(fontNameLabel)
+
+    local fontFlagLabel = AG:Create("Label")
+    fontFlagLabel:SetText("|cFFFFD100Font Flag: " .. (GeneralDB.Fonts.FontFlag or "OUTLINE") .. "|r")
+    fontFlagLabel:SetFullWidth(true)
+    keybindContainer:AddChild(fontFlagLabel)
+
+    local infoLabel = AG:Create("Label")
+    infoLabel:SetText("|cFF808080The Keybind text uses the same Font and Font Flag configured in Font Settings above.|r")
+    infoLabel:SetFullWidth(true)
+    keybindContainer:AddChild(infoLabel)
+
+    function RefreshKeybindSettings()
+        local enabled = KeybindDB.Enabled
+        anchorFromDropdown:SetDisabled(not enabled)
+        fontSizeSlider:SetDisabled(not enabled)
+        xOffsetSlider:SetDisabled(not enabled)
+        yOffsetSlider:SetDisabled(not enabled)
+    end
+
+    RefreshKeybindSettings()
+
+    return keybindContainer
+end
+
 local function CreateGeneralSettings(parentContainer)
     local GeneralDB = BCDM.db.profile.General
     local CooldownManagerDB = BCDM.db.profile.CooldownManager
@@ -776,6 +857,8 @@ local function CreateGlobalSettings(parentContainer)
     TextureContainer:AddChild(BackgroundTextureDropdown)
 
     CreateCooldownTextSettings(globalSettingsContainer)
+
+    CreateKeybindSettings(globalSettingsContainer)
 
     ScrollFrame:DoLayout()
 
