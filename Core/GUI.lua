@@ -1394,8 +1394,8 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     iconSizeSlider:SetRelativeWidth(isCustomViewer and 0.25 or 0.33)
     layoutContainer:AddChild(iconSizeSlider)
 
-    if viewerType == "Essential" then
-        CreateInformationTag(layoutContainer, "If you are unable to move the |cFF8080FFEssential|r Cooldown Viewer, please move it |cFFFF4040ONCE|r via Edit Mode.\nIt will then remember the set position within |cFF8080FFBetter|rCooldownManager.");
+    if viewerType == "Essential" or viewerType == "Buffs" then
+        CreateInformationTag(layoutContainer, "If you are unable to move the |cFF8080FF" .. viewerType .. "|r Cooldown Viewer, please move it |cFFFF4040ONCE|r via Edit Mode.\nIt will then remember the set position within |cFF8080FFBetter|rCooldownManager.");
     end
 
     if isCustomViewer then
