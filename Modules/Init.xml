@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 	<Script file="CastBar.lua"/>
 	<Script file="CooldownManager.lua"/>
+	<Script file="CooldownCentering.lua"/>
 	<Script file="Data.lua"/>
 	<Script file="AdditionalCustomCooldownViewer.lua"/>
 	<Script file="CustomCooldownViewer.lua"/>
@@ -10,4 +11,5 @@
 	<Script file="PowerBar.lua"/>
 	<Script file="SecondaryPowerBar.lua"/>
 	<Script file="EditMode.lua"/>
+	<Script file="Assistant.lua"/>
 </Ui>

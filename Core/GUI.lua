@@ -1,4 +1,5 @@
 local _, BCDM = ...
+local L = BCDM.L
 local LSM = BCDM.LSM
 local AG = BCDM.AG
 local isGUIOpen = false
@@ -8,42 +9,42 @@ local LEMO = BCDM.LEMO
 local AnchorParents = BCDM.AnchorParents
 BCDMGUI = {}
 
-local AnchorPoints = { { ["TOPLEFT"] = "Top Left", ["TOP"] = "Top", ["TOPRIGHT"] = "Top Right", ["LEFT"] = "Left", ["CENTER"] = "Center", ["RIGHT"] = "Right", ["BOTTOMLEFT"] = "Bottom Left", ["BOTTOM"] = "Bottom", ["BOTTOMRIGHT"] = "Bottom Right" }, { "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", } }
+local AnchorPoints = { { ["TOPLEFT"] = L["Top Left"], ["TOP"] = L["Top"], ["TOPRIGHT"] = L["Top Right"], ["LEFT"] = L["Left"], ["CENTER"] = L["Center"], ["RIGHT"] = L["Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOM"] = L["Bottom"], ["BOTTOMRIGHT"] = L["Bottom Right"] }, { "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", } }
 
 local PowerNames = {
-    [0] = "Mana",
-    [1] = "Rage",
-    [2] = "Focus",
-    [3] = "Energy",
-    [4] = "Combo Points",
-    [5] = "Runes",
-    [6] = "Runic Power",
-    [7] = "Soul Shards",
-    [8] = "Astral Power",
-    [9] = "Holy Power",
-    [11] = "Maelstrom",
-    [12] = "Chi",
-    [13] = "Insanity",
-    [16] = "Arcane Charges",
-    [17] = "Fury",
-    [18] = "Pain",
-    [19] = "Essence",
-    [20] = "Maelstrom",
-    ["MANA"] = "Mana (S.Priest & E.Shaman)",
-    ["STAGGER"] = "Stagger",
-    ["SOUL"] = "Soul",
-    ["RUNE_RECHARGE"] = "Rune on Cooldown",
-    ["CHARGED_COMBO_POINTS"] = "Charged Combo Points",
-    ["ESSENCE_RECHARGE"] = "Essence on Cooldown",
+    [0] = L["Mana"],
+    [1] = L["Rage"],
+    [2] = L["Focus"],
+    [3] = L["Energy"],
+    [4] = L["Combo Points"],
+    [5] = L["Runes"],
+    [6] = L["Runic Power"],
+    [7] = L["Soul Shards"],
+    [8] = L["Astral Power"],
+    [9] = L["Holy Power"],
+    [11] = L["Maelstrom"],
+    [12] = L["Chi"],
+    [13] = L["Insanity"],
+    [16] = L["Arcane Charges"],
+    [17] = L["Fury"],
+    [18] = L["Pain"],
+    [19] = L["Essence"],
+    [20] = L["Maelstrom"],
+    ["MANA"] = L["Mana (S.Priest & E.Shaman)"],
+    ["STAGGER"] = L["Stagger"],
+    ["SOUL"] = L["Soul"],
+    ["RUNE_RECHARGE"] = L["Rune on Cooldown"],
+    ["CHARGED_COMBO_POINTS"] = L["Charged Combo Points"],
+    ["ESSENCE_RECHARGE"] = L["Essence on Cooldown"],
     ["RUNES"] = {
-        FROST = "Frost",
-        UNHOLY = "Unholy",
-        BLOOD = "Blood"
+        FROST = L["Frost"],
+        UNHOLY = L["Unholy"],
+        BLOOD = L["Blood"]
     },
     ["STAGGER_COLOURS"] = {
-        LIGHT = "Light Stagger",
-        MODERATE = "Moderate Stagger",
-        HEAVY = "Heavy Stagger"
+        LIGHT = L["Light Stagger"],
+        MODERATE = L["Moderate Stagger"],
+        HEAVY = L["Heavy Stagger"]
     }
 }
 
@@ -124,12 +125,37 @@ end
 
 local function GenerateSupportText(parentFrame)
     local SupportOptions = {
-        "Join the |TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Support\\Discord.png:18:18|t |cFF8080FFDiscord|r Community!",
-        "Report Issues / Feedback on |TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Support\\GitHub.png:18:18|t |cFF8080FFGitHub|r!",
-        "Follow Me on |TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Support\\Twitch.png:18:14|t |cFF8080FFTwitch|r!",
-        "|cFF8080FFSupport|r is truly appreciated |TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Emotes\\peepoLove.png:18:18|t " .. "|cFF8080FFDevelopment|r takes time & effort."
+        {
+            text = L["Support Text 1"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:13:18|t "
+        },
+        {
+            text = L["Support Text 2"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:14:14|t "
+        },
+        {
+            text = L["Support Text 3"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:20:18|t "
+        },
+        {
+            text = L["Support Text 4"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Discord.png:18:18|t "
+        },
+        {
+            text = L["Support Text 5"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\GitHub.png:18:18|t "
+        },
+        {
+            text = L["Support Text 6"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Twitch.png:18:14|t "
+        },
+        {
+            text = L["Support Text 7"],
+            icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Emotes\\peepoLove.png:18:18|t "
+        }
     }
-    parentFrame.statustext:SetText(SupportOptions[math.random(1, #SupportOptions)])
+    local selectedOption = SupportOptions[math.random(1, #SupportOptions)]
+    parentFrame.statustext:SetText(string.format(selectedOption.text, selectedOption.icon))
 end
 
 local function FetchItemInformation(itemId)
@@ -163,9 +189,9 @@ local function BuildDataDropdownList(dataEntries)
     local currentGroup
     local headerCount = 0
     local groupNames = {
-        [1] = "|cFF8080FFClass Spells|r",
-        [2] = "|cFF8080FFRacials|r",
-        [3] = "|cFF8080FFItems|r",
+        [1] = "|cFF8080FF" .. L["Class Spells"] .. "|r",
+        [2] = "|cFF8080FF" .. L["Racials"] .. "|r",
+        [3] = "|cFF8080FF" .. L["Items"] .. "|r",
     }
     for _, entry in ipairs(dataEntries) do
         local group = entry.groupOrder or entry.entryType
@@ -177,7 +203,7 @@ local function BuildDataDropdownList(dataEntries)
         end
         currentGroup = group
         local label = FetchItemSpellInformation(entry.id, entry.entryType)
-        if not label then label = "Unknown" end
+        if not label then label = L["Unknown"] end
         local key = entry.entryType .. ":" .. entry.id
         list[key] = label .. " [|cFF8080FF" .. entry.id .. "|r]" or ("ID " .. tostring(entry.id))
         order[#order + 1] = key
@@ -230,7 +256,7 @@ end
 
 local function CreateInformationTag(containerParent, labelDescription, textJustification)
     local informationLabel = AG:Create("Label")
-    informationLabel:SetText(BCDM.INFOBUTTON .. labelDescription)
+    informationLabel:SetText(BCDM.INFOBUTTON .. (labelDescription or ""))
     informationLabel:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
     informationLabel:SetFullWidth(true)
     informationLabel:SetJustifyH(textJustification or "CENTER")
@@ -244,27 +270,27 @@ local function CreateCooldownTextSettings(containerParent)
     local CooldownTextDB = BCDM.db.profile.CooldownManager.General.CooldownText
 
     local cooldownTextContainer = AG:Create("InlineGroup")
-    cooldownTextContainer:SetTitle("Cooldown Text Settings")
+    cooldownTextContainer:SetTitle(L["Cooldown Text Settings"])
     cooldownTextContainer:SetFullWidth(true)
     cooldownTextContainer:SetLayout("Flow")
     containerParent:AddChild(cooldownTextContainer)
 
     local colourPicker = AG:Create("ColorPicker")
-    colourPicker:SetLabel("Text Colour")
+    colourPicker:SetLabel(L["Text Colour"])
     colourPicker:SetColor(unpack(CooldownTextDB.Colour))
     colourPicker:SetCallback("OnValueChanged", function(_, _, r, g, b) CooldownTextDB.Colour = {r, g, b} BCDM:UpdateCooldownViewers() end)
     colourPicker:SetRelativeWidth(0.5)
     cooldownTextContainer:AddChild(colourPicker)
 
     local scaleByIconSizeCheckbox = AG:Create("CheckBox")
-    scaleByIconSizeCheckbox:SetLabel("Scale By Icon Size")
+    scaleByIconSizeCheckbox:SetLabel(L["Scale By Icon Size"])
     scaleByIconSizeCheckbox:SetValue(CooldownTextDB.ScaleByIconSize)
     scaleByIconSizeCheckbox:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.ScaleByIconSize = value BCDM:UpdateCooldownViewers() end)
     scaleByIconSizeCheckbox:SetRelativeWidth(0.5)
     cooldownTextContainer:AddChild(scaleByIconSizeCheckbox)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(CooldownTextDB.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.Layout[1] = value BCDM:UpdateCooldownViewers() end)
@@ -272,7 +298,7 @@ local function CreateCooldownTextSettings(containerParent)
     cooldownTextContainer:AddChild(anchorFromDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(CooldownTextDB.Layout[2])
     anchorToDropdown:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.Layout[2] = value BCDM:UpdateCooldownViewers() end)
@@ -280,7 +306,7 @@ local function CreateCooldownTextSettings(containerParent)
     cooldownTextContainer:AddChild(anchorToDropdown)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(CooldownTextDB.Layout[3])
     xOffsetSlider:SetSliderValues(-100, 100, 1)
     xOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.Layout[3] = value BCDM:UpdateCooldownViewers() end)
@@ -288,7 +314,7 @@ local function CreateCooldownTextSettings(containerParent)
     cooldownTextContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(CooldownTextDB.Layout[4])
     yOffsetSlider:SetSliderValues(-100, 100, 1)
     yOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.Layout[4] = value BCDM:UpdateCooldownViewers() end)
@@ -296,7 +322,7 @@ local function CreateCooldownTextSettings(containerParent)
     cooldownTextContainer:AddChild(yOffsetSlider)
 
     local fontSizeSlider = AG:Create("Slider")
-    fontSizeSlider:SetLabel("Font Size")
+    fontSizeSlider:SetLabel(L["Font Size"])
     fontSizeSlider:SetValue(CooldownTextDB.FontSize)
     fontSizeSlider:SetSliderValues(8, 32, 1)
     fontSizeSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownTextDB.FontSize = value BCDM:UpdateCooldownViewers() end)
@@ -317,7 +343,7 @@ local function CreateGeneralSettings(parentContainer)
     parentContainer:AddChild(ScrollFrame)
 
     local CustomColoursContainer = AG:Create("InlineGroup")
-    CustomColoursContainer:SetTitle("Power Colours")
+    CustomColoursContainer:SetTitle(L["Power Colours"])
     CustomColoursContainer:SetFullWidth(true)
     CustomColoursContainer:SetLayout("Flow")
     ScrollFrame:AddChild(CustomColoursContainer)
@@ -353,7 +379,7 @@ local function CreateGeneralSettings(parentContainer)
     }
 
     local PrimaryColoursContainer = AG:Create("InlineGroup")
-    PrimaryColoursContainer:SetTitle("Primary Colours")
+    PrimaryColoursContainer:SetTitle(L["Primary Colours"])
     PrimaryColoursContainer:SetFullWidth(true)
     PrimaryColoursContainer:SetLayout("Flow")
     CustomColoursContainer:AddChild(PrimaryColoursContainer)
@@ -372,7 +398,7 @@ local function CreateGeneralSettings(parentContainer)
     end
 
     local SecondaryColoursContainer = AG:Create("InlineGroup")
-    SecondaryColoursContainer:SetTitle("Secondary Colours")
+    SecondaryColoursContainer:SetTitle(L["Secondary Colours"])
     SecondaryColoursContainer:SetFullWidth(true)
     SecondaryColoursContainer:SetLayout("Flow")
     CustomColoursContainer:AddChild(SecondaryColoursContainer)
@@ -429,7 +455,7 @@ local function CreateGeneralSettings(parentContainer)
     end
 
     local ResetPowerColoursButton = AG:Create("Button")
-    ResetPowerColoursButton:SetText("Reset Power Colours")
+    ResetPowerColoursButton:SetText(L["Reset Power Colours"])
     ResetPowerColoursButton:SetRelativeWidth(1)
     ResetPowerColoursButton:SetCallback("OnClick", function()
         BCDM.db.profile.General.Colours.PrimaryPower = BCDM:CopyTable(DefaultColours.PrimaryPower)
@@ -439,17 +465,37 @@ local function CreateGeneralSettings(parentContainer)
     CustomColoursContainer:AddChild(ResetPowerColoursButton)
 
     local SupportMeContainer = AG:Create("InlineGroup")
-    SupportMeContainer:SetTitle("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Emotes\\peepoLove.png:18:18|t  How To Support " .. BCDM.PRETTY_ADDON_NAME .. " Development")
+    SupportMeContainer:SetTitle("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Emotes\\peepoLove.png:18:18|t  " .. L["How To Support"] .. " " .. BCDM.PRETTY_ADDON_NAME .. " " .. L["Development"])
     SupportMeContainer:SetLayout("Flow")
     SupportMeContainer:SetFullWidth(true)
     ScrollFrame:AddChild(SupportMeContainer)
+
+    local KoFiInteractive = AG:Create("InteractiveLabel")
+    KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFF8080FFKo-Fi|r")
+    KoFiInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
+    KoFiInteractive:SetJustifyV("MIDDLE")
+    KoFiInteractive:SetRelativeWidth(0.33)
+    KoFiInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Ko-Fi"), "https://ko-fi.com/unhalted") end)
+    KoFiInteractive:SetCallback("OnEnter", function() KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFFFFFFFFKo-Fi|r") end)
+    KoFiInteractive:SetCallback("OnLeave", function() KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFF8080FFKo-Fi|r") end)
+    SupportMeContainer:AddChild(KoFiInteractive)
+
+    local PayPalInteractive = AG:Create("InteractiveLabel")
+    PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFF8080FFPayPal|r")
+    PayPalInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
+    PayPalInteractive:SetJustifyV("MIDDLE")
+    PayPalInteractive:SetRelativeWidth(0.33)
+    PayPalInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "PayPal"), "https://www.paypal.com/paypalme/dhunt1911") end)
+    PayPalInteractive:SetCallback("OnEnter", function() PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFFFFFFFFPayPal|r") end)
+    PayPalInteractive:SetCallback("OnLeave", function() PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFF8080FFPayPal|r") end)
+    SupportMeContainer:AddChild(PayPalInteractive)
 
     local TwitchInteractive = AG:Create("InteractiveLabel")
     TwitchInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Twitch.png:25:21|t |cFF8080FFTwitch|r")
     TwitchInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
     TwitchInteractive:SetJustifyV("MIDDLE")
     TwitchInteractive:SetRelativeWidth(0.33)
-    TwitchInteractive:SetCallback("OnClick", function() BCDM:OpenURL("Support Me on Twitch", "https://www.twitch.tv/unhaltedgb") end)
+    TwitchInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Twitch"), "https://www.twitch.tv/unhaltedgb") end)
     TwitchInteractive:SetCallback("OnEnter", function() TwitchInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Twitch.png:25:21|t |cFFFFFFFFTwitch|r") end)
     TwitchInteractive:SetCallback("OnLeave", function() TwitchInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Twitch.png:25:21|t |cFF8080FFTwitch|r") end)
     SupportMeContainer:AddChild(TwitchInteractive)
@@ -459,17 +505,27 @@ local function CreateGeneralSettings(parentContainer)
     DiscordInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
     DiscordInteractive:SetJustifyV("MIDDLE")
     DiscordInteractive:SetRelativeWidth(0.33)
-    DiscordInteractive:SetCallback("OnClick", function() BCDM:OpenURL("Support Me on Discord", "https://discord.gg/UZCgWRYvVE") end)
+    DiscordInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Discord"), "https://discord.gg/UZCgWRYvVE") end)
     DiscordInteractive:SetCallback("OnEnter", function() DiscordInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Discord.png:21:21|t |cFFFFFFFFDiscord|r") end)
     DiscordInteractive:SetCallback("OnLeave", function() DiscordInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Discord.png:21:21|t |cFF8080FFDiscord|r") end)
     SupportMeContainer:AddChild(DiscordInteractive)
+
+    local PatreonInteractive = AG:Create("InteractiveLabel")
+    PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFF8080FFPatreon|r")
+    PatreonInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
+    PatreonInteractive:SetJustifyV("MIDDLE")
+    PatreonInteractive:SetRelativeWidth(0.33)
+    PatreonInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Patreon"), "https://www.patreon.com/unhalted") end)
+    PatreonInteractive:SetCallback("OnEnter", function() PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFFFFFFFFPatreon|r") end)
+    PatreonInteractive:SetCallback("OnLeave", function() PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFF8080FFPatreon|r") end)
+    SupportMeContainer:AddChild(PatreonInteractive)
 
     local GithubInteractive = AG:Create("InteractiveLabel")
     GithubInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Github.png:21:21|t |cFF8080FFGithub|r")
     GithubInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
     GithubInteractive:SetJustifyV("MIDDLE")
     GithubInteractive:SetRelativeWidth(0.33)
-    GithubInteractive:SetCallback("OnClick", function() BCDM:OpenURL("Support Me on Github", "https://github.com/dalehuntgb/BetterCooldownManager") end)
+    GithubInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Github"), "https://github.com/dalehuntgb/BetterCooldownManager") end)
     GithubInteractive:SetCallback("OnEnter", function() GithubInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Github.png:21:21|t |cFFFFFFFFGithub|r") end)
     GithubInteractive:SetCallback("OnLeave", function() GithubInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Github.png:21:21|t |cFF8080FFGithub|r") end)
     SupportMeContainer:AddChild(GithubInteractive)
@@ -488,21 +544,21 @@ local function CreateGlobalSettings(parentContainer)
     parentContainer:AddChild(ScrollFrame)
 
     local globalSettingsContainer = AG:Create("InlineGroup")
-    globalSettingsContainer:SetTitle("Global Settings")
+    globalSettingsContainer:SetTitle(L["Global Settings"])
     globalSettingsContainer:SetFullWidth(true)
     globalSettingsContainer:SetLayout("Flow")
     ScrollFrame:AddChild(globalSettingsContainer)
 
     local enableCDMSkinningCheckbox = AG:Create("CheckBox")
-    enableCDMSkinningCheckbox:SetLabel("Enable Skinning - |cFFFF4040Reload|r Required.")
+    enableCDMSkinningCheckbox:SetLabel(L["Enable Skinning - Reload Required"])
     enableCDMSkinningCheckbox:SetValue(BCDM.db.profile.CooldownManager.Enable)
     enableCDMSkinningCheckbox:SetCallback("OnValueChanged", function(_, _, value)
         StaticPopupDialogs["BCDM_RELOAD_UI"] = {
-            text = "You must reload to apply this change, do you want to reload now?",
-            button1 = "Reload Now",
-            button2 = "Later",
+            text = L["You must reload to apply this change, do you want to reload now?"],
+            button1 = L["Reload Now"],
+            button2 = L["Later"],
             showAlert = true,
-            OnAccept = function() BCDM.db.profile.CooldownManager.Enable = value C_UI.Reload() end,
+            OnAccept = function() BCDM.db.profile.CooldownManager.Enable = value ReloadUI() end,
             OnCancel = function() enableCDMSkinningCheckbox:SetValue(BCDM.db.profile.CooldownManager.Enable) globalSettingsContainer:DoLayout() end,
             timeout = 0,
             whileDead = true,
@@ -514,7 +570,7 @@ local function CreateGlobalSettings(parentContainer)
     globalSettingsContainer:AddChild(enableCDMSkinningCheckbox)
 
     local iconZoomSlider = AG:Create("Slider")
-    iconZoomSlider:SetLabel("Icon Zoom")
+    iconZoomSlider:SetLabel(L["Icon Zoom"])
     iconZoomSlider:SetValue(CooldownManagerDB.General.IconZoom)
     iconZoomSlider:SetSliderValues(0, 1, 0.01)
     iconZoomSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownManagerDB.General.IconZoom = value BCDM:UpdateCooldownViewers() end)
@@ -523,7 +579,7 @@ local function CreateGlobalSettings(parentContainer)
     globalSettingsContainer:AddChild(iconZoomSlider)
 
     local borderSizeSlider = AG:Create("Slider")
-    borderSizeSlider:SetLabel("Border Size")
+    borderSizeSlider:SetLabel(L["Border Size"])
     borderSizeSlider:SetValue(CooldownManagerDB.General.BorderSize)
     borderSizeSlider:SetSliderValues(0, 3, 1)
     borderSizeSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownManagerDB.General.BorderSize = value BCDM:UpdateBCDM() end)
@@ -531,13 +587,13 @@ local function CreateGlobalSettings(parentContainer)
     globalSettingsContainer:AddChild(borderSizeSlider)
 
     local FontContainer = AG:Create("InlineGroup")
-    FontContainer:SetTitle("Font Settings")
+    FontContainer:SetTitle(L["Font Settings"])
     FontContainer:SetFullWidth(true)
     FontContainer:SetLayout("Flow")
     globalSettingsContainer:AddChild(FontContainer)
 
     local CooldownManagerFontDropdown = AG:Create("LSM30_Font")
-    CooldownManagerFontDropdown:SetLabel("Font")
+    CooldownManagerFontDropdown:SetLabel(L["Font"])
     CooldownManagerFontDropdown:SetList(LSM:HashTable("font"))
     CooldownManagerFontDropdown:SetValue(GeneralDB.Fonts.Font)
     CooldownManagerFontDropdown:SetCallback("OnValueChanged", function(widget, _, value) widget:SetValue(value) GeneralDB.Fonts.Font = value BCDM:UpdateBCDM() end)
@@ -545,12 +601,12 @@ local function CreateGlobalSettings(parentContainer)
     FontContainer:AddChild(CooldownManagerFontDropdown)
 
     local CooldownManagerFontFlagDropdown = AG:Create("Dropdown")
-    CooldownManagerFontFlagDropdown:SetLabel("Font Flag")
+    CooldownManagerFontFlagDropdown:SetLabel(L["Font Flag"])
     CooldownManagerFontFlagDropdown:SetList({
-        ["NONE"] = "NONE",
-        ["OUTLINE"] = "Outline",
-        ["THICKOUTLINE"] = "Thick Outline",
-        ["MONOCHROME"] = "Monochrome",
+        ["NONE"] = L["Font Flag: NONE"],
+        ["OUTLINE"] = L["Font Flag: OUTLINE"],
+        ["THICKOUTLINE"] = L["Font Flag: THICKOUTLINE"],
+        ["MONOCHROME"] = L["Font Flag: MONOCHROME"],
     })
     CooldownManagerFontFlagDropdown:SetValue(GeneralDB.Fonts.FontFlag)
     CooldownManagerFontFlagDropdown:SetCallback("OnValueChanged", function(_, _, value) GeneralDB.Fonts.FontFlag = value BCDM:UpdateBCDM() end)
@@ -558,27 +614,27 @@ local function CreateGlobalSettings(parentContainer)
     FontContainer:AddChild(CooldownManagerFontFlagDropdown)
 
     local FontShadowsContainer = AG:Create("InlineGroup")
-    FontShadowsContainer:SetTitle("Font Shadows")
+    FontShadowsContainer:SetTitle(L["Font Shadows"])
     FontShadowsContainer:SetFullWidth(true)
     FontShadowsContainer:SetLayout("Flow")
     FontContainer:AddChild(FontShadowsContainer)
 
     local FontShadowEnabled = AG:Create("CheckBox")
-    FontShadowEnabled:SetLabel("Enable")
+    FontShadowEnabled:SetLabel(L["Enabled"])
     FontShadowEnabled:SetValue(GeneralDB.Fonts.Shadow.Enabled)
     FontShadowEnabled:SetCallback("OnValueChanged", function(_, _, value) GeneralDB.Fonts.Shadow.Enabled = value RefreshShadowSettings() BCDM:UpdateBCDM() end)
     FontShadowEnabled:SetRelativeWidth(0.25)
     FontShadowsContainer:AddChild(FontShadowEnabled)
 
     local FontShadowColour = AG:Create("ColorPicker")
-    FontShadowColour:SetLabel("Shadow Colour")
+    FontShadowColour:SetLabel(L["Shadow Colour"])
     FontShadowColour:SetColor(unpack(GeneralDB.Fonts.Shadow.Colour))
     FontShadowColour:SetRelativeWidth(0.25)
     FontShadowColour:SetCallback("OnValueChanged", function(_, _, r, g, b) GeneralDB.Fonts.Shadow.Colour = {r, g, b} BCDM:UpdateBCDM() end)
     FontShadowsContainer:AddChild(FontShadowColour)
 
     local FontShadowOffsetX = AG:Create("Slider")
-    FontShadowOffsetX:SetLabel("Shadow Offset X")
+    FontShadowOffsetX:SetLabel(L["Shadow Offset X"])
     FontShadowOffsetX:SetValue(GeneralDB.Fonts.Shadow.OffsetX)
     FontShadowOffsetX:SetSliderValues(-10, 10, 0.1)
     FontShadowOffsetX:SetRelativeWidth(0.25)
@@ -586,7 +642,7 @@ local function CreateGlobalSettings(parentContainer)
     FontShadowsContainer:AddChild(FontShadowOffsetX)
 
     local FontShadowOffsetY = AG:Create("Slider")
-    FontShadowOffsetY:SetLabel("Shadow Offset Y")
+    FontShadowOffsetY:SetLabel(L["Shadow Offset Y"])
     FontShadowOffsetY:SetValue(GeneralDB.Fonts.Shadow.OffsetY)
     FontShadowOffsetY:SetSliderValues(-10, 10, 0.1)
     FontShadowOffsetY:SetRelativeWidth(0.25)
@@ -603,14 +659,14 @@ local function CreateGlobalSettings(parentContainer)
     RefreshShadowSettings()
 
     local TextureContainer = AG:Create("InlineGroup")
-    TextureContainer:SetTitle("Texture Settings")
+    TextureContainer:SetTitle(L["Texture Settings"])
     TextureContainer:SetFullWidth(true)
     TextureContainer:SetLayout("Flow")
     globalSettingsContainer:AddChild(TextureContainer)
 
     local ForegroundTextureDropdown = AG:Create("LSM30_Statusbar")
     ForegroundTextureDropdown:SetList(LSM:HashTable("statusbar"))
-    ForegroundTextureDropdown:SetLabel("Foreground Texture")
+    ForegroundTextureDropdown:SetLabel(L["Foreground Texture"])
     ForegroundTextureDropdown:SetValue(BCDM.db.profile.General.Textures.Foreground)
     ForegroundTextureDropdown:SetRelativeWidth(0.5)
     ForegroundTextureDropdown:SetCallback("OnValueChanged", function(widget, _, value) widget:SetValue(value) BCDM.db.profile.General.Textures.Foreground = value BCDM:ResolveLSM() BCDM:UpdateBCDM() end)
@@ -618,20 +674,20 @@ local function CreateGlobalSettings(parentContainer)
 
     local BackgroundTextureDropdown = AG:Create("LSM30_Statusbar")
     BackgroundTextureDropdown:SetList(LSM:HashTable("statusbar"))
-    BackgroundTextureDropdown:SetLabel("Background Texture")
+    BackgroundTextureDropdown:SetLabel(L["Background Texture"])
     BackgroundTextureDropdown:SetValue(BCDM.db.profile.General.Textures.Background)
     BackgroundTextureDropdown:SetRelativeWidth(0.5)
     BackgroundTextureDropdown:SetCallback("OnValueChanged", function(widget, _, value) widget:SetValue(value) BCDM.db.profile.General.Textures.Background = value BCDM:ResolveLSM() BCDM:UpdateBCDM() end)
     TextureContainer:AddChild(BackgroundTextureDropdown)
 
     local AnimationContainer = AG:Create("InlineGroup")
-    AnimationContainer:SetTitle("Animation Settings")
+    AnimationContainer:SetTitle(L["Animation Settings"])
     AnimationContainer:SetFullWidth(true)
     AnimationContainer:SetLayout("Flow")
     globalSettingsContainer:AddChild(AnimationContainer)
 
     local smoothBarsCheckbox = AG:Create("CheckBox")
-    smoothBarsCheckbox:SetLabel("Smooth Bar Animation - Applies to |cFF8080FFCast Bar|r, |cFF8080FFPower Bar|r and |cFF8080FFSecondary Power Bar|r.")
+    smoothBarsCheckbox:SetLabel(L["Smooth Bar Animation Description"])
     smoothBarsCheckbox:SetValue(GeneralDB.Animation and GeneralDB.Animation.SmoothBars or false)
     smoothBarsCheckbox:SetCallback("OnValueChanged", function(self, _, value)
         if not GeneralDB.Animation then GeneralDB.Animation = {} end
@@ -652,13 +708,13 @@ local function CreateEditModeManagerSettings(parentContainer)
     local EditModeManagerDB = BCDM.db.profile.EditModeManager
 
     local editModeManagerContainer = AG:Create("InlineGroup")
-    editModeManagerContainer:SetTitle("Edit Mode Manager Settings")
+    editModeManagerContainer:SetTitle(L["Edit Mode Manager Settings"])
     editModeManagerContainer:SetFullWidth(true)
     editModeManagerContainer:SetLayout("Flow")
     parentContainer:AddChild(editModeManagerContainer)
 
     local layoutContainer = AG:Create("InlineGroup")
-    layoutContainer:SetTitle("Layouts")
+    layoutContainer:SetTitle(L["Layouts"])
     layoutContainer:SetFullWidth(true)
     layoutContainer:SetLayout("Flow")
     editModeManagerContainer:AddChild(layoutContainer)
@@ -683,15 +739,15 @@ local function CreateEditModeManagerSettings(parentContainer)
     end
 
     local raidDifficultyContainer = AG:Create("InlineGroup")
-    raidDifficultyContainer:SetTitle("Raid Difficulty Settings")
+    raidDifficultyContainer:SetTitle(L["Raid Difficulty Settings"])
     raidDifficultyContainer:SetFullWidth(true)
     raidDifficultyContainer:SetLayout("Flow")
     layoutContainer:AddChild(raidDifficultyContainer)
 
-    CreateInformationTag(raidDifficultyContainer, "Define |cFF8080FFEdit Mode Layouts|r for Different Raid Difficulties.")
+    CreateInformationTag(raidDifficultyContainer, L["Define Edit Mode Layouts for Different Raid Difficulties"])
 
     local swapOnInstanceDifficultyCheckbox = AG:Create("CheckBox")
-    swapOnInstanceDifficultyCheckbox:SetLabel("Swap on Instance Difficulty")
+    swapOnInstanceDifficultyCheckbox:SetLabel(L["Swap on Instance Difficulty"])
     swapOnInstanceDifficultyCheckbox:SetValue(EditModeManagerDB.SwapOnInstanceDifficulty)
     swapOnInstanceDifficultyCheckbox:SetCallback("OnValueChanged", function(_, _, value)
         EditModeManagerDB.SwapOnInstanceDifficulty = value
@@ -706,7 +762,7 @@ local function CreateEditModeManagerSettings(parentContainer)
 
     for i, layoutType in ipairs(layoutOrder) do
         raidLayoutDropdown[i] = AG:Create("Dropdown")
-        raidLayoutDropdown[i]:SetLabel(layoutType .. " Layout")
+        raidLayoutDropdown[i]:SetLabel(layoutType .. L["Layout"])
         raidLayoutDropdown[i]:SetList(AvailableLayouts)
         raidLayoutDropdown[i]:SetText(EditModeManagerDB.RaidLayouts[layoutType])
         raidLayoutDropdown[i]:SetRelativeWidth(0.5)
@@ -720,15 +776,15 @@ local function CreateEditModeManagerSettings(parentContainer)
     end
 
     local specializationContainer = AG:Create("InlineGroup")
-    specializationContainer:SetTitle("Specialization Settings")
+    specializationContainer:SetTitle(L["Specialization Settings"])
     specializationContainer:SetFullWidth(true)
     specializationContainer:SetLayout("Flow")
     layoutContainer:AddChild(specializationContainer)
 
-    CreateInformationTag(specializationContainer, "Define |cFF8080FFEdit Mode Layouts|r for Different Specializations.")
+    CreateInformationTag(specializationContainer, L["Define Edit Mode Layouts for Different Specializations"])
 
     local swapOnSpecializationChangeCheckbox = AG:Create("CheckBox")
-    swapOnSpecializationChangeCheckbox:SetLabel("Swap on Specialization Change")
+    swapOnSpecializationChangeCheckbox:SetLabel(L["Swap on Specialization Change"])
     swapOnSpecializationChangeCheckbox:SetValue(EditModeManagerDB.SwapOnSpecializationChange)
     swapOnSpecializationChangeCheckbox:SetCallback("OnValueChanged", function(_, _, value)
         EditModeManagerDB.SwapOnSpecializationChange = value
@@ -742,7 +798,7 @@ local function CreateEditModeManagerSettings(parentContainer)
     for i = 1, numSpecs do
         local _, specName = GetSpecializationInfo(i)
         specLayoutDropdown[i] = AG:Create("Dropdown")
-        specLayoutDropdown[i]:SetLabel(specName .. " Layout")
+        specLayoutDropdown[i]:SetLabel(specName .. L["Layout"])
         specLayoutDropdown[i]:SetList(AvailableLayouts)
         specLayoutDropdown[i]:SetText(EditModeManagerDB.SpecializationLayouts[i])
         specLayoutDropdown[i]:SetRelativeWidth(numSpecs == 2 and 0.5 or numSpecs == 3 and 0.33 or 0.25)
@@ -761,13 +817,13 @@ end
 
 local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     local textContainer = AG:Create("InlineGroup")
-    textContainer:SetTitle("Text Settings")
+    textContainer:SetTitle(L["Text Settings"])
     textContainer:SetFullWidth(true)
     textContainer:SetLayout("Flow")
     parentContainer:AddChild(textContainer)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Text.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Text.Layout[1] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -775,7 +831,7 @@ local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     textContainer:AddChild(anchorFromDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Text.Layout[2])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Text.Layout[2] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -783,7 +839,7 @@ local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     textContainer:AddChild(anchorToDropdown)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Text.Layout[3])
     xOffsetSlider:SetSliderValues(-500, 500, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Text.Layout[3] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -791,7 +847,7 @@ local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     textContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Text.Layout[4])
     yOffsetSlider:SetSliderValues(-500, 500, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Text.Layout[4] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -799,7 +855,7 @@ local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     textContainer:AddChild(yOffsetSlider)
 
     local fontSizeSlider = AG:Create("Slider")
-    fontSizeSlider:SetLabel("Font Size")
+    fontSizeSlider:SetLabel(L["Font Size"])
     fontSizeSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Text.FontSize)
     fontSizeSlider:SetSliderValues(6, 72, 1)
     fontSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Text.FontSize = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -807,7 +863,7 @@ local function CreateCooldownViewerTextSettings(parentContainer, viewerType)
     textContainer:AddChild(fontSizeSlider)
 
     local colourPicker = AG:Create("ColorPicker")
-    colourPicker:SetLabel("Font Colour")
+    colourPicker:SetLabel(L["Font Colour"])
     local r, g, b = unpack(BCDM.db.profile.CooldownManager[viewerType].Text.Colour)
     colourPicker:SetColor(r, g, b)
     colourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b) BCDM.db.profile.CooldownManager[viewerType].Text.Colour = {r, g, b} BCDM:UpdateCooldownViewer(viewerType) end)
@@ -824,7 +880,7 @@ local function CreateCooldownViewerSpellSettings(parentContainer, customDB, cont
     local playerSpecialization = select(2, GetSpecializationInfo(GetSpecialization())):gsub(" ", ""):upper()
 
     local addSpellEditBox = AG:Create("EditBox")
-    addSpellEditBox:SetLabel("Add Spell by ID or Spell Name")
+    addSpellEditBox:SetLabel(L["Add Spell by ID or Spell Name"])
     addSpellEditBox:SetRelativeWidth(0.5)
     addSpellEditBox:SetCallback("OnEnterPressed", function(self)
         local input = self:GetText()
@@ -840,7 +896,7 @@ local function CreateCooldownViewerSpellSettings(parentContainer, customDB, cont
     parentContainer:AddChild(addSpellEditBox)
 
     local dataListDropdown = AG:Create("Dropdown")
-    dataListDropdown:SetLabel("Spell List")
+    dataListDropdown:SetLabel(L["Spell List"])
     dataListDropdown:SetList(BuildDataDropdownList(BCDM:FetchData({ includeSpells = true })))
     dataListDropdown:SetValue(nil)
     dataListDropdown:SetCallback("OnValueChanged", function(_, _, value)
@@ -868,7 +924,7 @@ local function CreateCooldownViewerSpellSettings(parentContainer, customDB, cont
             local data = spell.data
 
             local spellCheckbox = AG:Create("CheckBox")
-            spellCheckbox:SetLabel("[" .. (data.layoutIndex or "?") .. "] " .. (FetchSpellInformation(spellId) or ("SpellID: " .. spellId)))
+            spellCheckbox:SetLabel("[" .. (data.layoutIndex or "?") .. "] " .. (FetchSpellInformation(spellId) or (L["SpellID:"] .. " " .. spellId)))
             spellCheckbox:SetValue(data.isActive)
             spellCheckbox:SetCallback("OnValueChanged", function(_, _, value) SpellDB[playerClass][playerSpecialization][spellId].isActive = value BCDM:UpdateCooldownViewer("Custom") end)
             spellCheckbox:SetCallback("OnEnter", function(widget) ShowSpellTooltip(widget.frame, spellId) end)
@@ -877,13 +933,13 @@ local function CreateCooldownViewerSpellSettings(parentContainer, customDB, cont
             parentContainer:AddChild(spellCheckbox)
 
             local moveUpButton = AG:Create("Button")
-            moveUpButton:SetText("Up")
+            moveUpButton:SetText(L["Up"])
             moveUpButton:SetRelativeWidth(0.1333)
             moveUpButton:SetCallback("OnClick", function() BCDM:AdjustSpellLayoutIndex(-1, spellId, customDB) parentContainer:ReleaseChildren() CreateCooldownViewerSpellSettings(parentContainer, customDB, containerToRefresh) end)
             parentContainer:AddChild(moveUpButton)
 
             local moveDownButton = AG:Create("Button")
-            moveDownButton:SetText("Down")
+            moveDownButton:SetText(L["Down"])
             moveDownButton:SetRelativeWidth(0.1333)
             moveDownButton:SetCallback("OnClick", function() BCDM:AdjustSpellLayoutIndex(1, spellId, customDB) parentContainer:ReleaseChildren() CreateCooldownViewerSpellSettings(parentContainer, customDB, containerToRefresh) end)
             parentContainer:AddChild(moveDownButton)
@@ -910,7 +966,7 @@ local function CreateCooldownViewerItemSettings(parentContainer, containerToRefr
     local ItemDB = BCDM.db.profile.CooldownManager.Item.Items
 
     local addItemEditBox = AG:Create("EditBox")
-    addItemEditBox:SetLabel("Add Item by ID")
+    addItemEditBox:SetLabel(L["Add Item by ID"])
     addItemEditBox:SetRelativeWidth(0.5)
     addItemEditBox:SetCallback("OnEnterPressed", function(self)
         local input = self:GetText()
@@ -926,7 +982,7 @@ local function CreateCooldownViewerItemSettings(parentContainer, containerToRefr
     parentContainer:AddChild(addItemEditBox)
 
     local dataListDropdown = AG:Create("Dropdown")
-    dataListDropdown:SetLabel("Item List")
+    dataListDropdown:SetLabel(L["Item List"])
     dataListDropdown:SetList(BuildDataDropdownList(BCDM:FetchData({ includeItems = true })))
     dataListDropdown:SetValue(nil)
     dataListDropdown:SetCallback("OnValueChanged", function(_, _, value)
@@ -953,7 +1009,7 @@ local function CreateCooldownViewerItemSettings(parentContainer, containerToRefr
             local data = item.data
 
             local itemCheckbox = AG:Create("CheckBox")
-            itemCheckbox:SetLabel("[" .. (data.layoutIndex or "?") .. "] " .. (FetchItemSpellInformation(itemId, data.entryType) or "Unknown"))
+            itemCheckbox:SetLabel("[" .. (data.layoutIndex or "?") .. "] " .. (FetchItemSpellInformation(itemId, data.entryType) or L["Unknown"]))
             itemCheckbox:SetValue(data.isActive)
             itemCheckbox:SetCallback("OnValueChanged", function(_, _, value) ItemDB[itemId].isActive = value BCDM:UpdateCooldownViewer("Item") end)
             itemCheckbox:SetCallback("OnEnter", function(widget) ShowItemTooltip(widget.frame, itemId) end)
@@ -962,13 +1018,13 @@ local function CreateCooldownViewerItemSettings(parentContainer, containerToRefr
             parentContainer:AddChild(itemCheckbox)
 
             local moveUpButton = AG:Create("Button")
-            moveUpButton:SetText("Up")
+            moveUpButton:SetText(L["Up"])
             moveUpButton:SetRelativeWidth(0.1333)
             moveUpButton:SetCallback("OnClick", function() BCDM:AdjustItemLayoutIndex(-1, itemId) parentContainer:ReleaseChildren() CreateCooldownViewerItemSettings(parentContainer, containerToRefresh) end)
             parentContainer:AddChild(moveUpButton)
 
             local moveDownButton = AG:Create("Button")
-            moveDownButton:SetText("Down")
+            moveDownButton:SetText(L["Down"])
             moveDownButton:SetRelativeWidth(0.1333)
             moveDownButton:SetCallback("OnClick", function() BCDM:AdjustItemLayoutIndex(1, itemId) parentContainer:ReleaseChildren() CreateCooldownViewerItemSettings(parentContainer, containerToRefresh) end)
             parentContainer:AddChild(moveDownButton)
@@ -996,7 +1052,7 @@ local function CreateCooldownViewerItemSpellSettings(parentContainer, containerT
     local ItemSpellDB = BCDM.db.profile.CooldownManager.ItemSpell.ItemsSpells
 
     local addSpellEditBox = AG:Create("EditBox")
-    addSpellEditBox:SetLabel("Add Spell by ID or Spell Name")
+    addSpellEditBox:SetLabel(L["Add Spell by ID or Spell Name"])
     addSpellEditBox:SetRelativeWidth(0.33)
     addSpellEditBox:SetCallback("OnEnterPressed", function(self)
         local input = self:GetText()
@@ -1012,7 +1068,7 @@ local function CreateCooldownViewerItemSpellSettings(parentContainer, containerT
     parentContainer:AddChild(addSpellEditBox)
 
     local addItemEditBox = AG:Create("EditBox")
-    addItemEditBox:SetLabel("Add Item by ID")
+    addItemEditBox:SetLabel(L["Add Item by ID"])
     addItemEditBox:SetRelativeWidth(0.33)
     addItemEditBox:SetCallback("OnEnterPressed", function(self)
         local input = self:GetText()
@@ -1028,7 +1084,7 @@ local function CreateCooldownViewerItemSpellSettings(parentContainer, containerT
     parentContainer:AddChild(addItemEditBox)
 
     local dataListDropdown = AG:Create("Dropdown")
-    dataListDropdown:SetLabel("Spell & Item List")
+    dataListDropdown:SetLabel(L["Spell & Item List"])
     dataListDropdown:SetList(BuildDataDropdownList(BCDM:FetchData({ includeSpells = true, includeItems = true })))
     dataListDropdown:SetValue(nil)
     dataListDropdown:SetCallback("OnValueChanged", function(_, _, value)
@@ -1055,7 +1111,7 @@ local function CreateCooldownViewerItemSpellSettings(parentContainer, containerT
             local data = item.data
 
             local itemCheckbox = AG:Create("CheckBox")
-            itemCheckbox:SetLabel("[" .. data.layoutIndex .. "] " .. (FetchItemSpellInformation(itemId, data.entryType) or "Unknown"))
+            itemCheckbox:SetLabel("[" .. data.layoutIndex .. "] " .. (FetchItemSpellInformation(itemId, data.entryType) or L["Unknown"]))
             itemCheckbox:SetValue(data.isActive)
             itemCheckbox:SetCallback("OnValueChanged", function(_, _, value) ItemSpellDB[itemId].isActive = value BCDM:UpdateCooldownViewer("ItemSpell") end)
             itemCheckbox:SetCallback("OnEnter", function(widget) ShowItemSpellTooltip(widget.frame, itemId, data.entryType) end)
@@ -1064,13 +1120,13 @@ local function CreateCooldownViewerItemSpellSettings(parentContainer, containerT
             parentContainer:AddChild(itemCheckbox)
 
             local moveUpButton = AG:Create("Button")
-            moveUpButton:SetText("Up")
+            moveUpButton:SetText(L["Up"])
             moveUpButton:SetRelativeWidth(0.1333)
             moveUpButton:SetCallback("OnClick", function() BCDM:AdjustItemsSpellsLayoutIndex(-1, itemId) parentContainer:ReleaseChildren() CreateCooldownViewerItemSpellSettings(parentContainer, containerToRefresh) end)
             parentContainer:AddChild(moveUpButton)
 
             local moveDownButton = AG:Create("Button")
-            moveDownButton:SetText("Down")
+            moveDownButton:SetText(L["Down"])
             moveDownButton:SetRelativeWidth(0.1333)
             moveDownButton:SetCallback("OnClick", function() BCDM:AdjustItemsSpellsLayoutIndex(1, itemId) parentContainer:ReleaseChildren() CreateCooldownViewerItemSpellSettings(parentContainer, containerToRefresh) end)
             parentContainer:AddChild(moveDownButton)
@@ -1104,21 +1160,103 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     ScrollFrame:SetFullHeight(true)
     parentContainer:AddChild(ScrollFrame)
 
+    if viewerType == "Utility" then
+        local toggleContainer = AG:Create("InlineGroup")
+        toggleContainer:SetTitle(L["Utility Viewer Settings"])
+        toggleContainer:SetFullWidth(true)
+        toggleContainer:SetLayout("Flow")
+        ScrollFrame:AddChild(toggleContainer)
+
+        local centerUtilityCheckbox = AG:Create("CheckBox")
+        centerUtilityCheckbox:SetLabel(L["Center Utility (Horizontally) - |cFFFF4040Reload|r Required."])
+        centerUtilityCheckbox:SetValue(BCDM.db.profile.CooldownManager.Utility.CenterUtility)
+        centerUtilityCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+            StaticPopupDialogs["BCDM_RELOAD_UI"] = {
+                text = L["You must reload to apply this change, do you want to reload now?"],
+                button1 = L["Reload Now"],
+                button2 = L["Later"],
+                showAlert = true,
+                OnAccept = function() BCDM.db.profile.CooldownManager.Utility.CenterUtility = value ReloadUI() end,
+                OnCancel = function() centerUtilityCheckbox:SetValue(BCDM.db.profile.CooldownManager.Utility.CenterUtility) toggleContainer:DoLayout() end,
+                timeout = 0,
+                whileDead = true,
+                hideOnEscape = true,
+            }
+            StaticPopup_Show("BCDM_RELOAD_UI")
+        end)
+        centerUtilityCheckbox:SetRelativeWidth(1)
+        toggleContainer:AddChild(centerUtilityCheckbox)
+        
+        -- 添加技能高亮设置
+        local highlightUtilityCheckbox = AG:Create("CheckBox")
+        highlightUtilityCheckbox:SetLabel(L["Show Rotation Highlight (Assistant)"])
+        highlightUtilityCheckbox:SetValue(BCDM.db.profile.CooldownManager.Utility.ShowHighlight)
+        highlightUtilityCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+            BCDM.db.profile.CooldownManager.Utility.ShowHighlight = value
+            if BCDM.Assistant then
+                BCDM.Assistant:OnSettingChanged("Utility")
+            end
+        end)
+        highlightUtilityCheckbox:SetRelativeWidth(1)
+        toggleContainer:AddChild(highlightUtilityCheckbox)
+    end
+
+    if viewerType == "Essential" then
+        local toggleContainer = AG:Create("InlineGroup")
+        toggleContainer:SetTitle(L["Essential Viewer Settings"])
+        toggleContainer:SetFullWidth(true)
+        toggleContainer:SetLayout("Flow")
+        ScrollFrame:AddChild(toggleContainer)
+
+        local centerEssentialCheckbox = AG:Create("CheckBox")
+        centerEssentialCheckbox:SetLabel(L["Center Essential (Horizontally) - |cFFFF4040Reload|r Required."])
+        centerEssentialCheckbox:SetValue(BCDM.db.profile.CooldownManager.Essential.CenterEssential)
+        centerEssentialCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+            StaticPopupDialogs["BCDM_RELOAD_UI"] = {
+                text = L["You must reload to apply this change, do you want to reload now?"],
+                button1 = L["Reload Now"],
+                button2 = L["Later"],
+                showAlert = true,
+                OnAccept = function() BCDM.db.profile.CooldownManager.Essential.CenterEssential = value ReloadUI() end,
+                OnCancel = function() centerEssentialCheckbox:SetValue(BCDM.db.profile.CooldownManager.Essential.CenterEssential) toggleContainer:DoLayout() end,
+                timeout = 0,
+                whileDead = true,
+                hideOnEscape = true,
+            }
+            StaticPopup_Show("BCDM_RELOAD_UI")
+        end)
+        centerEssentialCheckbox:SetRelativeWidth(1)
+        toggleContainer:AddChild(centerEssentialCheckbox)
+        
+        -- 添加技能高亮设置
+        local highlightEssentialCheckbox = AG:Create("CheckBox")
+        highlightEssentialCheckbox:SetLabel(L["Show Rotation Highlight (Assistant)"])
+        highlightEssentialCheckbox:SetValue(BCDM.db.profile.CooldownManager.Essential.ShowHighlight)
+        highlightEssentialCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+            BCDM.db.profile.CooldownManager.Essential.ShowHighlight = value
+            if BCDM.Assistant then
+                BCDM.Assistant:OnSettingChanged("Essential")
+            end
+        end)
+        highlightEssentialCheckbox:SetRelativeWidth(1)
+        toggleContainer:AddChild(highlightEssentialCheckbox)
+    end
+
     if viewerType == "Buffs" then
         local toggleContainer = AG:Create("InlineGroup")
-        toggleContainer:SetTitle("Buff Viewer Settings")
+        toggleContainer:SetTitle(L["Buff Viewer Settings"])
         toggleContainer:SetFullWidth(true)
         toggleContainer:SetLayout("Flow")
         ScrollFrame:AddChild(toggleContainer)
 
         local centerBuffsCheckbox = AG:Create("CheckBox")
-        centerBuffsCheckbox:SetLabel("Center Buffs (Horizontally) - |cFFFF4040Reload|r Required.")
+        centerBuffsCheckbox:SetLabel(L["Center Buffs (Horizontally) - |cFFFF4040Reload|r Required."])
         centerBuffsCheckbox:SetValue(BCDM.db.profile.CooldownManager.Buffs.CenterBuffs)
         centerBuffsCheckbox:SetCallback("OnValueChanged", function(_, _, value)
             StaticPopupDialogs["BCDM_RELOAD_UI"] = {
-                text = "You must reload to apply this change, do you want to reload now?",
-                button1 = "Reload Now",
-                button2 = "Later",
+                text = L["You must reload to apply this change, do you want to reload now?"],
+                button1 = L["Reload Now"],
+                button2 = L["Later"],
                 showAlert = true,
                 OnAccept = function() BCDM.db.profile.CooldownManager.Buffs.CenterBuffs = value C_UI.Reload() end,
                 OnCancel = function() centerBuffsCheckbox:SetValue(BCDM.db.profile.CooldownManager.Buffs.CenterBuffs) toggleContainer:DoLayout() end,
@@ -1130,6 +1268,19 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         end)
         centerBuffsCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(centerBuffsCheckbox)
+        
+        -- 添加技能高亮设置
+        local highlightBuffsCheckbox = AG:Create("CheckBox")
+        highlightBuffsCheckbox:SetLabel(L["Show Rotation Highlight (Assistant)"])
+        highlightBuffsCheckbox:SetValue(BCDM.db.profile.CooldownManager.Buffs.ShowHighlight)
+        highlightBuffsCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+            BCDM.db.profile.CooldownManager.Buffs.ShowHighlight = value
+            if BCDM.Assistant then
+                BCDM.Assistant:OnSettingChanged("Buffs")
+            end
+        end)
+        highlightBuffsCheckbox:SetRelativeWidth(1)
+        toggleContainer:AddChild(highlightBuffsCheckbox)
     end
 
     -- local foregroundColourPicker;
@@ -1176,7 +1327,7 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
 
     if viewerType == "Trinket" then
         local enabledCheckbox = AG:Create("CheckBox")
-        enabledCheckbox:SetLabel("Enable Trinket Viewer")
+        enabledCheckbox:SetLabel(L["Enable Trinket Viewer"])
         enabledCheckbox:SetValue(BCDM.db.profile.CooldownManager.Trinket.Enabled)
         enabledCheckbox:SetCallback("OnValueChanged", function(_, _, value) BCDM.db.profile.CooldownManager.Trinket.Enabled = value BCDM:UpdateCooldownViewer("Trinket") end)
         enabledCheckbox:SetRelativeWidth(1)
@@ -1184,15 +1335,15 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     end
 
     local layoutContainer = AG:Create("InlineGroup")
-    layoutContainer:SetTitle("Layout & Positioning")
+    layoutContainer:SetTitle(L["Layout & Positioning"])
     layoutContainer:SetFullWidth(true)
     layoutContainer:SetLayout("Flow")
     ScrollFrame:AddChild(layoutContainer)
 
-    if viewerType ~= "Custom" and viewerType ~= "AdditionalCustom" and viewerType ~= "Trinket" and viewerType ~= "ItemSpell" and viewerType ~= "Item" then CreateInformationTag(layoutContainer, "|cFFFFCC00Padding|r is handled by |cFF00B0F7Blizzard|r, not |cFF8080FFBetter|rCooldownManager.") end
+    if viewerType ~= "Custom" and viewerType ~= "AdditionalCustom" and viewerType ~= "Trinket" and viewerType ~= "ItemSpell" and viewerType ~= "Item" then CreateInformationTag(layoutContainer, L["Padding is handled by Blizzard, not BetterCooldownManager"]) end
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[1] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -1200,9 +1351,9 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     layoutContainer:AddChild(anchorFromDropdown)
 
     if hasAnchorParent then
-        BCDMG:AddAnchors("ElvUI", {"Utility", "Custom", "AdditionalCustom", "Item", "ItemSpell", "Trinket"}, { ["ElvUF_Player"] = "|cff1784d1ElvUI|r: Player Frame", ["ElvUF_Target"] = "|cff1784d1ElvUI|r: Target Frame", })
+        BCDMG:AddAnchors("ElvUI", {"Utility", "Custom", "AdditionalCustom", "Item", "ItemSpell", "Trinket"}, { ["ElvUF_Player"] = "|cff1784d1ElvUI|r: " .. L["Player Frame"], ["ElvUF_Target"] = "|cff1784d1ElvUI|r: " .. L["Target Frame"], })
         local anchorToParentDropdown = AG:Create("Dropdown")
-        anchorToParentDropdown:SetLabel("Anchor To Parent")
+        anchorToParentDropdown:SetLabel(L["Anchor To Parent"])
         anchorToParentDropdown:SetList(AnchorParents[viewerType][1], AnchorParents[viewerType][2])
         anchorToParentDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[2])
         anchorToParentDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[2] = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -1211,24 +1362,24 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     end
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
-    anchorToDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 3 or 2])
-    anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 3 or 2] = value BCDM:UpdateCooldownViewer(viewerType) end)
+    anchorToDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[3])
+    anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[3] = value BCDM:UpdateCooldownViewer(viewerType) end)
     anchorToDropdown:SetRelativeWidth(hasAnchorParent and 0.33 or 0.5)
     layoutContainer:AddChild(anchorToDropdown)
 
     if isCustomViewer then
         local growthDirectionDropdown = AG:Create("Dropdown")
-        growthDirectionDropdown:SetLabel("Growth Direction")
-        growthDirectionDropdown:SetList({["LEFT"] = "Left", ["RIGHT"] = "Right", ["UP"] = "Up", ["DOWN"] = "Down"}, {"UP", "DOWN", "LEFT", "RIGHT"})
+        growthDirectionDropdown:SetLabel(L["Growth Direction"])
+        growthDirectionDropdown:SetList({["LEFT"] = L["Growth Direction: LEFT"], ["RIGHT"] = L["Growth Direction: RIGHT"], ["UP"] = L["Growth Direction: UP"], ["DOWN"] = L["Growth Direction: DOWN"]}, {"UP", "DOWN", "LEFT", "RIGHT"})
         growthDirectionDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].GrowthDirection)
         growthDirectionDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].GrowthDirection = value BCDM:UpdateCooldownViewer(viewerType) end)
         growthDirectionDropdown:SetRelativeWidth(0.5)
         layoutContainer:AddChild(growthDirectionDropdown)
 
         local spacingSlider = AG:Create("Slider")
-        spacingSlider:SetLabel("Icon Spacing")
+        spacingSlider:SetLabel(L["Icon Spacing"])
         spacingSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Spacing)
         spacingSlider:SetSliderValues(-1, 32, 0.1)
         spacingSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Spacing = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -1237,23 +1388,23 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     end
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
-    xOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 4 or 3])
-    xOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
-    xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 4 or 3] = value BCDM:UpdateCooldownViewer(viewerType) end)
+    xOffsetSlider:SetLabel(L["X Offset"])
+    xOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[4])
+    xOffsetSlider:SetSliderValues(-1000, 1000, 0.1)
+    xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[4] = value BCDM:UpdateCooldownViewer(viewerType) end)
     xOffsetSlider:SetRelativeWidth(isCustomViewer and 0.25 or 0.33)
     layoutContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
-    yOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 5 or 4])
-    yOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
-    yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[hasAnchorParent and 5 or 4] = value BCDM:UpdateCooldownViewer(viewerType) end)
+    yOffsetSlider:SetLabel(L["Y Offset"])
+    yOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[5])
+    yOffsetSlider:SetSliderValues(-1000, 1000, 0.1)
+    yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].Layout[5] = value BCDM:UpdateCooldownViewer(viewerType) end)
     yOffsetSlider:SetRelativeWidth(isCustomViewer and 0.25 or 0.33)
     layoutContainer:AddChild(yOffsetSlider)
 
     local iconSizeSlider = AG:Create("Slider")
-    iconSizeSlider:SetLabel("Icon Size")
+    iconSizeSlider:SetLabel(L["Icon Size"])
     iconSizeSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].IconSize)
     iconSizeSlider:SetSliderValues(16, 128, 0.1)
     iconSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].IconSize = value BCDM:UpdateCooldownViewer(viewerType) end)
@@ -1261,10 +1412,10 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     layoutContainer:AddChild(iconSizeSlider)
 
     if viewerType == "Essential" or viewerType == "Utility" or viewerType == "Buffs" then
-        local infoTag = CreateInformationTag(layoutContainer, "Updates To Sizes will be applied on closing the |cFF8080FFBetter|rCooldownManager Configuration Window.")
+        local infoTag = CreateInformationTag(layoutContainer, L["Updates To Sizes will be applied on closing BetterCooldownManager Configuration Window"])
         infoTag:SetRelativeWidth(0.7)
         local forceUpdateButton = AG:Create("Button")
-        forceUpdateButton:SetText("Force Update")
+        forceUpdateButton:SetText(L["Force Update"])
         forceUpdateButton:SetRelativeWidth(0.3)
         forceUpdateButton:SetCallback("OnClick", function() LEMO:ApplyChanges() end)
         layoutContainer:AddChild(forceUpdateButton)
@@ -1272,8 +1423,8 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
 
     if isCustomViewer then
         local frameStrataDropdown = AG:Create("Dropdown")
-        frameStrataDropdown:SetLabel("Frame Strata")
-        frameStrataDropdown:SetList({["BACKGROUND"] = "Background", ["LOW"] = "Low", ["MEDIUM"] = "Medium", ["HIGH"] = "High", ["DIALOG"] = "Dialog", ["FULLSCREEN"] = "Fullscreen", ["FULLSCREEN_DIALOG"] = "Fullscreen Dialog", ["TOOLTIP"] = "Tooltip"}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
+        frameStrataDropdown:SetLabel(L["Frame Strata"])
+        frameStrataDropdown:SetList({["BACKGROUND"] = L["Frame Strata: BACKGROUND"], ["LOW"] = L["Frame Strata: LOW"], ["MEDIUM"] = L["Frame Strata: MEDIUM"], ["HIGH"] = L["Frame Strata: HIGH"], ["DIALOG"] = L["Frame Strata: DIALOG"], ["FULLSCREEN"] = L["Frame Strata: FULLSCREEN"], ["FULLSCREEN_DIALOG"] = L["Frame Strata: FULLSCREEN_DIALOG"], ["TOOLTIP"] = L["Frame Strata: TOOLTIP"]}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
         frameStrataDropdown:SetValue(BCDM.db.profile.CooldownManager[viewerType].FrameStrata)
         frameStrataDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].FrameStrata = value BCDM:UpdateCooldownViewer(viewerType) end)
         frameStrataDropdown:SetRelativeWidth(0.25)
@@ -1284,7 +1435,7 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
 
     if viewerType == "Custom" or viewerType == "AdditionalCustom" then
         local spellContainer = AG:Create("InlineGroup")
-        spellContainer:SetTitle("Custom Spells")
+        spellContainer:SetTitle(L["Custom Spells"])
         spellContainer:SetFullWidth(true)
         spellContainer:SetLayout("Flow")
         ScrollFrame:AddChild(spellContainer)
@@ -1293,7 +1444,7 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
 
     if viewerType == "Item" then
         local itemContainer = AG:Create("InlineGroup")
-        itemContainer:SetTitle("Custom Items")
+        itemContainer:SetTitle(L["Custom Items"])
         itemContainer:SetFullWidth(true)
         itemContainer:SetLayout("Flow")
         ScrollFrame:AddChild(itemContainer)
@@ -1302,11 +1453,11 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
 
     if viewerType == "ItemSpell" then
         local itemSpellContainer = AG:Create("InlineGroup")
-        itemSpellContainer:SetTitle("Items & Spells")
+        itemSpellContainer:SetTitle(L["Items & Spells"])
         itemSpellContainer:SetFullWidth(true)
         itemSpellContainer:SetLayout("Flow")
         ScrollFrame:AddChild(itemSpellContainer)
-        CreateInformationTag(itemSpellContainer, "|cFFFFCC00Spells|r can be added by their |cFF8080FFSpell Name|r or |cFF8080FFSpell ID|r, |cFFFFCC00Items|r must be added by their |cFF8080FFItem ID|r.");
+        CreateInformationTag(itemSpellContainer, L["Spells can be added by their Spell Name or Spell ID, Items must be added by their Item ID."])
         CreateCooldownViewerItemSpellSettings(itemSpellContainer, ScrollFrame)
     end
 
@@ -1319,20 +1470,20 @@ end
 
 local function CreatePowerBarTextSettings(parentContainer)
     local textContainer = AG:Create("InlineGroup")
-    textContainer:SetTitle("Text Settings")
+    textContainer:SetTitle(L["Text Settings"])
     textContainer:SetFullWidth(true)
     textContainer:SetLayout("Flow")
     parentContainer:AddChild(textContainer)
 
     local toggleCheckbox = AG:Create("CheckBox")
-    toggleCheckbox:SetLabel("Enable Power Text")
+    toggleCheckbox:SetLabel(L["Enable Power Text"])
     toggleCheckbox:SetValue(BCDM.db.profile.PowerBar.Text.Enabled)
     toggleCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.Enabled = value BCDM:UpdatePowerBar() RefreshPowerBarTextGUISettings() end)
     toggleCheckbox:SetRelativeWidth(1)
     textContainer:AddChild(toggleCheckbox)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.PowerBar.Text.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.Layout[1] = value BCDM:UpdatePowerBar() end)
@@ -1340,7 +1491,7 @@ local function CreatePowerBarTextSettings(parentContainer)
     textContainer:AddChild(anchorFromDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.PowerBar.Text.Layout[2])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.Layout[2] = value BCDM:UpdatePowerBar() end)
@@ -1348,7 +1499,7 @@ local function CreatePowerBarTextSettings(parentContainer)
     textContainer:AddChild(anchorToDropdown)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.PowerBar.Text.Layout[3])
     xOffsetSlider:SetSliderValues(-500, 500, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.Layout[3] = value BCDM:UpdatePowerBar() end)
@@ -1356,7 +1507,7 @@ local function CreatePowerBarTextSettings(parentContainer)
     textContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.PowerBar.Text.Layout[4])
     yOffsetSlider:SetSliderValues(-500, 500, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.Layout[4] = value BCDM:UpdatePowerBar() end)
@@ -1364,7 +1515,7 @@ local function CreatePowerBarTextSettings(parentContainer)
     textContainer:AddChild(yOffsetSlider)
 
     local fontSizeSlider = AG:Create("Slider")
-    fontSizeSlider:SetLabel("Font Size")
+    fontSizeSlider:SetLabel(L["Font Size"])
     fontSizeSlider:SetValue(BCDM.db.profile.PowerBar.Text.FontSize)
     fontSizeSlider:SetSliderValues(6, 72, 1)
     fontSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Text.FontSize = value BCDM:UpdatePowerBar() end)
@@ -1393,48 +1544,48 @@ local function CreatePowerBarSettings(parentContainer)
     parentContainer:AddChild(ScrollFrame)
 
     local toggleContainer = AG:Create("InlineGroup")
-    toggleContainer:SetTitle("Toggles & Colours")
+    toggleContainer:SetTitle(L["Toggles & Colours"])
     toggleContainer:SetFullWidth(true)
     toggleContainer:SetLayout("Flow")
     ScrollFrame:AddChild(toggleContainer)
 
     local enabledCheckbox = AG:Create("CheckBox")
-    enabledCheckbox:SetLabel("Enable Power Bar")
+    enabledCheckbox:SetLabel(L["Enable Power Bar"])
     enabledCheckbox:SetValue(BCDM.db.profile.PowerBar.Enabled)
     enabledCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Enabled = value BCDM:UpdatePowerBar() RefreshPowerBarGUISettings() end)
     enabledCheckbox:SetRelativeWidth(1)
     toggleContainer:AddChild(enabledCheckbox)
 
     local colourByTypeCheckbox = AG:Create("CheckBox")
-    colourByTypeCheckbox:SetLabel("Colour By Power Type")
+    colourByTypeCheckbox:SetLabel(L["Colour By Power Type"])
     colourByTypeCheckbox:SetValue(BCDM.db.profile.PowerBar.ColourByType)
     colourByTypeCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.ColourByType = value BCDM:UpdatePowerBar() RefreshPowerBarGUISettings() end)
     colourByTypeCheckbox:SetRelativeWidth(0.25)
     toggleContainer:AddChild(colourByTypeCheckbox)
 
     local colourByClassCheckbox = AG:Create("CheckBox")
-    colourByClassCheckbox:SetLabel("Colour By Class")
+    colourByClassCheckbox:SetLabel(L["Colour By Class"])
     colourByClassCheckbox:SetValue(BCDM.db.profile.PowerBar.ColourByClass)
     colourByClassCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.ColourByClass = value BCDM:UpdatePowerBar() RefreshPowerBarGUISettings() end)
     colourByClassCheckbox:SetRelativeWidth(0.25)
     toggleContainer:AddChild(colourByClassCheckbox)
 
     local matchAnchorWidthCheckbox = AG:Create("CheckBox")
-    matchAnchorWidthCheckbox:SetLabel("Match Width Of Anchor")
+    matchAnchorWidthCheckbox:SetLabel(L["Match Width Of Anchor"])
     matchAnchorWidthCheckbox:SetValue(BCDM.db.profile.PowerBar.MatchWidthOfAnchor)
     matchAnchorWidthCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.MatchWidthOfAnchor = value BCDM:UpdatePowerBar() RefreshPowerBarGUISettings() end)
     matchAnchorWidthCheckbox:SetRelativeWidth(0.25)
     toggleContainer:AddChild(matchAnchorWidthCheckbox)
 
     local frequentUpdatesCheckbox = AG:Create("CheckBox")
-    frequentUpdatesCheckbox:SetLabel("Frequent Updates")
+    frequentUpdatesCheckbox:SetLabel(L["Frequent Updates"])
     frequentUpdatesCheckbox:SetValue(BCDM.db.profile.PowerBar.FrequentUpdates)
     frequentUpdatesCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.FrequentUpdates = value BCDM:UpdatePowerBar() end)
     frequentUpdatesCheckbox:SetRelativeWidth(0.25)
     toggleContainer:AddChild(frequentUpdatesCheckbox)
 
     local foregroundColourPicker = AG:Create("ColorPicker")
-    foregroundColourPicker:SetLabel("Foreground Colour")
+    foregroundColourPicker:SetLabel(L["Foreground Colour"])
     foregroundColourPicker:SetColor(BCDM.db.profile.PowerBar.ForegroundColour[1], BCDM.db.profile.PowerBar.ForegroundColour[2], BCDM.db.profile.PowerBar.ForegroundColour[3], BCDM.db.profile.PowerBar.ForegroundColour[4])
     foregroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.PowerBar.ForegroundColour = {r, g, b, a} BCDM:UpdatePowerBar() end)
     foregroundColourPicker:SetRelativeWidth(0.5)
@@ -1442,7 +1593,7 @@ local function CreatePowerBarSettings(parentContainer)
     toggleContainer:AddChild(foregroundColourPicker)
 
     local backgroundColourPicker = AG:Create("ColorPicker")
-    backgroundColourPicker:SetLabel("Background Colour")
+    backgroundColourPicker:SetLabel(L["Background Colour"])
     backgroundColourPicker:SetColor(BCDM.db.profile.PowerBar.BackgroundColour[1], BCDM.db.profile.PowerBar.BackgroundColour[2], BCDM.db.profile.PowerBar.BackgroundColour[3], BCDM.db.profile.PowerBar.BackgroundColour[4])
     backgroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.PowerBar.BackgroundColour = {r, g, b, a} BCDM:UpdatePowerBar() end)
     backgroundColourPicker:SetRelativeWidth(0.5)
@@ -1450,13 +1601,13 @@ local function CreatePowerBarSettings(parentContainer)
     toggleContainer:AddChild(backgroundColourPicker)
 
     local layoutContainer = AG:Create("InlineGroup")
-    layoutContainer:SetTitle("Layout & Positioning")
+    layoutContainer:SetTitle(L["Layout & Positioning"])
     layoutContainer:SetFullWidth(true)
     layoutContainer:SetLayout("Flow")
     ScrollFrame:AddChild(layoutContainer)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.PowerBar.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Layout[1] = value BCDM:UpdatePowerBar() end)
@@ -1464,7 +1615,7 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorFromDropdown)
 
     local anchorParentDropdown = AG:Create("Dropdown")
-    anchorParentDropdown:SetLabel("Anchor Parent")
+    anchorParentDropdown:SetLabel(L["Anchor Parent"])
     anchorParentDropdown:SetList(AnchorParents["Power"][1], AnchorParents["Power"][2])
     anchorParentDropdown:SetValue(BCDM.db.profile.PowerBar.Layout[2])
     anchorParentDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Layout[2] = value BCDM:UpdatePowerBar() end)
@@ -1472,7 +1623,7 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorParentDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.PowerBar.Layout[3])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Layout[3] = value BCDM:UpdatePowerBar() end)
@@ -1480,15 +1631,15 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorToDropdown)
 
     local widthSlider = AG:Create("Slider")
-    widthSlider:SetLabel("Width")
+    widthSlider:SetLabel(L["Width"])
     widthSlider:SetValue(BCDM.db.profile.PowerBar.Width)
-    widthSlider:SetSliderValues(50, 3000, 0.1)
+    widthSlider:SetSliderValues(50, 1000, 0.1)
     widthSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Width = value BCDM:UpdatePowerBar() end)
     widthSlider:SetRelativeWidth(0.5)
     layoutContainer:AddChild(widthSlider)
 
     local heightSlider = AG:Create("Slider")
-    heightSlider:SetLabel("Height")
+    heightSlider:SetLabel(L["Height"])
     heightSlider:SetValue(BCDM.db.profile.PowerBar.Height)
     heightSlider:SetSliderValues(5, 500, 0.1)
     heightSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Height = value BCDM:UpdatePowerBar() end)
@@ -1496,7 +1647,7 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(heightSlider)
 
     local heightSliderWithoutSecondary = AG:Create("Slider")
-    heightSliderWithoutSecondary:SetLabel("Height (No Secondary Power)")
+    heightSliderWithoutSecondary:SetLabel(L["Height (No Secondary Power)"])
     heightSliderWithoutSecondary:SetValue(BCDM.db.profile.PowerBar.HeightWithoutSecondary)
     heightSliderWithoutSecondary:SetSliderValues(5, 500, 0.1)
     heightSliderWithoutSecondary:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.HeightWithoutSecondary = value BCDM:UpdatePowerBar() end)
@@ -1511,7 +1662,7 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(heightSliderWithoutSecondary)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.PowerBar.Layout[4])
     xOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Layout[4] = value BCDM:UpdatePowerBar() end)
@@ -1519,7 +1670,7 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.PowerBar.Layout[5])
     yOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.Layout[5] = value BCDM:UpdatePowerBar() end)
@@ -1527,8 +1678,8 @@ local function CreatePowerBarSettings(parentContainer)
     layoutContainer:AddChild(yOffsetSlider)
 
     local frameStrataDropdown = AG:Create("Dropdown")
-    frameStrataDropdown:SetLabel("Frame Strata")
-    frameStrataDropdown:SetList({["BACKGROUND"] = "Background", ["LOW"] = "Low", ["MEDIUM"] = "Medium", ["HIGH"] = "High", ["DIALOG"] = "Dialog", ["FULLSCREEN"] = "Fullscreen", ["FULLSCREEN_DIALOG"] = "Fullscreen Dialog", ["TOOLTIP"] = "Tooltip"}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
+    frameStrataDropdown:SetLabel(L["Frame Strata"])
+    frameStrataDropdown:SetList({["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
     frameStrataDropdown:SetValue(BCDM.db.profile.PowerBar.FrameStrata)
     frameStrataDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.PowerBar.FrameStrata = value BCDM:UpdatePowerBar() end)
     frameStrataDropdown:SetRelativeWidth(0.33)
@@ -1582,20 +1733,20 @@ end
 
 local function CreateSecondaryPowerBarTextSettings(parentContainer)
     local textContainer = AG:Create("InlineGroup")
-    textContainer:SetTitle("Text Settings")
+    textContainer:SetTitle(L["Text Settings"])
     textContainer:SetFullWidth(true)
     textContainer:SetLayout("Flow")
     parentContainer:AddChild(textContainer)
 
     local enabledCheckbox = AG:Create("CheckBox")
-    enabledCheckbox:SetLabel("Enable Text")
+    enabledCheckbox:SetLabel(L["Enable Text"])
     enabledCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.Enabled)
     enabledCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.Enabled = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarTextGUISettings() end)
     enabledCheckbox:SetRelativeWidth(1)
     textContainer:AddChild(enabledCheckbox)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.Layout[1] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1603,7 +1754,7 @@ local function CreateSecondaryPowerBarTextSettings(parentContainer)
     textContainer:AddChild(anchorFromDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.Layout[2])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.Layout[2] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1611,7 +1762,7 @@ local function CreateSecondaryPowerBarTextSettings(parentContainer)
     textContainer:AddChild(anchorToDropdown)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.Layout[3])
     xOffsetSlider:SetSliderValues(-500, 500, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.Layout[3] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1619,7 +1770,7 @@ local function CreateSecondaryPowerBarTextSettings(parentContainer)
     textContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.Layout[4])
     yOffsetSlider:SetSliderValues(-500, 500, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.Layout[4] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1627,7 +1778,7 @@ local function CreateSecondaryPowerBarTextSettings(parentContainer)
     textContainer:AddChild(yOffsetSlider)
 
     local fontSizeSlider = AG:Create("Slider")
-    fontSizeSlider:SetLabel("Font Size")
+    fontSizeSlider:SetLabel(L["Font Size"])
     fontSizeSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.FontSize)
     fontSizeSlider:SetSliderValues(6, 72, 1)
     fontSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.FontSize = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1658,36 +1809,36 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     local isUnitMonkorDeathKnight = isUnitDeathKnight or isUnitMonk
 
     local toggleContainer = AG:Create("InlineGroup")
-    toggleContainer:SetTitle("Toggles & Colours")
+    toggleContainer:SetTitle(L["Toggles & Colours"])
     toggleContainer:SetFullWidth(true)
     toggleContainer:SetLayout("Flow")
     ScrollFrame:AddChild(toggleContainer)
 
-    CreateInformationTag(toggleContainer, "Colours are applied in the order they are displayed here. It'll always colour by |cFF8080FFpower type|r first, then by |cFF8080FFclass|r.\nFor |cFFC41E3ADeath Knights|r and |cFF00FF98Monks|r, specialization/state colours are applied last.")
+    CreateInformationTag(toggleContainer, L["Colours are applied in the order they are displayed here. It'll always colour by |cFF8080FFpower type|r first, then by |cFF8080FFclass|r.\nFor |cFFC41E3ADeath Knights|r and |cFF00FF98Monks|r, specialization/state colours are applied last."])
 
     local enabledCheckbox = AG:Create("CheckBox")
-    enabledCheckbox:SetLabel("Enable Power Bar")
+    enabledCheckbox:SetLabel(L["Enable Power Bar"])
     enabledCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.Enabled)
     enabledCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Enabled = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
     enabledCheckbox:SetRelativeWidth(1)
     toggleContainer:AddChild(enabledCheckbox)
 
     local hideTicksCheckBox = AG:Create("CheckBox")
-    hideTicksCheckBox:SetLabel("Hide Ticks")
+    hideTicksCheckBox:SetLabel(L["Hide Ticks"])
     hideTicksCheckBox:SetValue(BCDM.db.profile.SecondaryPowerBar.HideTicks)
     hideTicksCheckBox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.HideTicks = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
     hideTicksCheckBox:SetRelativeWidth(1)
     toggleContainer:AddChild(hideTicksCheckBox)
 
     local colourByTypeCheckbox = AG:Create("CheckBox")
-    colourByTypeCheckbox:SetLabel("Colour By Power Type")
+    colourByTypeCheckbox:SetLabel(L["Colour By Power Type"])
     colourByTypeCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.ColourByType)
     colourByTypeCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.ColourByType = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
     colourByTypeCheckbox:SetRelativeWidth(1)
     toggleContainer:AddChild(colourByTypeCheckbox)
 
     local colourByClassCheckbox = AG:Create("CheckBox")
-    colourByClassCheckbox:SetLabel("Colour By Class")
+    colourByClassCheckbox:SetLabel(L["Colour By Class"])
     colourByClassCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.ColourByClass)
     colourByClassCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.ColourByClass = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
     colourByClassCheckbox:SetRelativeWidth(1)
@@ -1695,7 +1846,7 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
 
     if isUnitDeathKnight then
         local colourRunesBySpecCheckbox = AG:Create("CheckBox")
-        colourRunesBySpecCheckbox:SetLabel("Colour by Specialization")
+        colourRunesBySpecCheckbox:SetLabel(L["Colour by Specialization"])
         colourRunesBySpecCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.ColourBySpec)
         colourRunesBySpecCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.ColourBySpec = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
         colourRunesBySpecCheckbox:SetRelativeWidth(1)
@@ -1704,14 +1855,14 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
 
     if isUnitMonk then
         local colourStaggerByStateCheckbox = AG:Create("CheckBox")
-        colourStaggerByStateCheckbox:SetLabel("Colour by Stagger")
+        colourStaggerByStateCheckbox:SetLabel(L["Colour by Stagger"])
         colourStaggerByStateCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.ColourByState)
         colourStaggerByStateCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.ColourByState = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
         colourStaggerByStateCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(colourStaggerByStateCheckbox)
 
         local showStaggerDPSCheckbox = AG:Create("CheckBox")
-        showStaggerDPSCheckbox:SetLabel("Stagger Damage Per Second")
+        showStaggerDPSCheckbox:SetLabel(L["Stagger Damage Per Second"])
         showStaggerDPSCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.Text.ShowStaggerDPS)
         showStaggerDPSCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Text.ShowStaggerDPS = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
         showStaggerDPSCheckbox:SetRelativeWidth(1)
@@ -1719,24 +1870,24 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     end
 
     local matchAnchorWidthCheckbox = AG:Create("CheckBox")
-    matchAnchorWidthCheckbox:SetLabel("Match Width Of Anchor")
+    matchAnchorWidthCheckbox:SetLabel(L["Match Width Of Anchor"])
     matchAnchorWidthCheckbox:SetValue(BCDM.db.profile.SecondaryPowerBar.MatchWidthOfAnchor)
     matchAnchorWidthCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.MatchWidthOfAnchor = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
     matchAnchorWidthCheckbox:SetRelativeWidth(1)
     toggleContainer:AddChild(matchAnchorWidthCheckbox)
 
     local swapToPowerBarPositionCheckBox = AG:Create("CheckBox")
-    swapToPowerBarPositionCheckBox:SetLabel("Swap To Power Bar Position")
-    swapToPowerBarPositionCheckBox:SetDescription("|cFF33937FDevastation|r, |cFF33937FAugmentation|r, |cFFF48CBAProtection|r, |cFFF48CBARetribution|r, |cFF8788EEAffliction|r, |cFF8788EEDemonology|r, |cFF8788EEDestruction|r & |cFF0070DDEnhancement|r Support Only.")
+    swapToPowerBarPositionCheckBox:SetLabel(L["Swap To Power Bar Position"])
+    swapToPowerBarPositionCheckBox:SetDescription(L["Swap To Power Bar Position Description"])
     swapToPowerBarPositionCheckBox:SetValue(BCDM.db.profile.SecondaryPowerBar.SwapToPowerBarPosition)
     swapToPowerBarPositionCheckBox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.SwapToPowerBarPosition = value BCDM:UpdateSecondaryPowerBar() RefreshSecondaryPowerBarGUISettings() end)
-    swapToPowerBarPositionCheckBox:SetCallback("OnEnter", function(self) GameTooltip:SetOwner(self.frame, "ANCHOR_CURSOR") GameTooltip:AddLine("If |cFF40FF40enabled|r, this will automatically decide when the |cFF8080FFSecondary|r Power Bar should be used in place of the |cFF8080FFPower|r Bar.\nHeight is defined by |cFF8080FFHeight (No Primary Bar)|r within this module.", 1, 1, 1) GameTooltip:Show() end)
+    swapToPowerBarPositionCheckBox:SetCallback("OnEnter", function(self) GameTooltip:SetOwner(self.frame, "ANCHOR_CURSOR") GameTooltip:AddLine(L["Swap To Power Bar Position Tooltip"], 1, 1, 1) GameTooltip:Show() end)
     swapToPowerBarPositionCheckBox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
     swapToPowerBarPositionCheckBox:SetRelativeWidth(1)
     toggleContainer:AddChild(swapToPowerBarPositionCheckBox)
 
     local foregroundColourPicker = AG:Create("ColorPicker")
-    foregroundColourPicker:SetLabel("Foreground Colour")
+    foregroundColourPicker:SetLabel(L["Foreground Colour"])
     foregroundColourPicker:SetColor(BCDM.db.profile.SecondaryPowerBar.ForegroundColour[1], BCDM.db.profile.SecondaryPowerBar.ForegroundColour[2], BCDM.db.profile.SecondaryPowerBar.ForegroundColour[3], BCDM.db.profile.SecondaryPowerBar.ForegroundColour[4])
     foregroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.SecondaryPowerBar.ForegroundColour = {r, g, b, a} BCDM:UpdateSecondaryPowerBar() end)
     foregroundColourPicker:SetRelativeWidth(0.5)
@@ -1744,7 +1895,7 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     toggleContainer:AddChild(foregroundColourPicker)
 
     local backgroundColourPicker = AG:Create("ColorPicker")
-    backgroundColourPicker:SetLabel("Background Colour")
+    backgroundColourPicker:SetLabel(L["Background Colour"])
     backgroundColourPicker:SetColor(BCDM.db.profile.SecondaryPowerBar.BackgroundColour[1], BCDM.db.profile.SecondaryPowerBar.BackgroundColour[2], BCDM.db.profile.SecondaryPowerBar.BackgroundColour[3], BCDM.db.profile.SecondaryPowerBar.BackgroundColour[4])
     backgroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.SecondaryPowerBar.BackgroundColour = {r, g, b, a} BCDM:UpdateSecondaryPowerBar() end)
     backgroundColourPicker:SetRelativeWidth(0.5)
@@ -1752,13 +1903,13 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     toggleContainer:AddChild(backgroundColourPicker)
 
     local layoutContainer = AG:Create("InlineGroup")
-    layoutContainer:SetTitle("Layout & Positioning")
+    layoutContainer:SetTitle(L["Layout & Positioning"])
     layoutContainer:SetFullWidth(true)
     layoutContainer:SetLayout("Flow")
     ScrollFrame:AddChild(layoutContainer)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Layout[1] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1766,7 +1917,7 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorFromDropdown)
 
     local anchorParentDropdown = AG:Create("Dropdown")
-    anchorParentDropdown:SetLabel("Anchor Parent")
+    anchorParentDropdown:SetLabel(L["Anchor Parent"])
     anchorParentDropdown:SetList(AnchorParents["SecondaryPower"][1], AnchorParents["SecondaryPower"][2])
     anchorParentDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.Layout[2])
     anchorParentDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Layout[2] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1774,7 +1925,7 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorParentDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.Layout[3])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Layout[3] = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1782,15 +1933,15 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     layoutContainer:AddChild(anchorToDropdown)
 
     local widthSlider = AG:Create("Slider")
-    widthSlider:SetLabel("Width")
+    widthSlider:SetLabel(L["Width"])
     widthSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Width)
-    widthSlider:SetSliderValues(50, 3000, 0.1)
+    widthSlider:SetSliderValues(50, 1000, 0.1)
     widthSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Width = value BCDM:UpdateSecondaryPowerBar() end)
     widthSlider:SetRelativeWidth(0.5)
     layoutContainer:AddChild(widthSlider)
 
     local heightSlider = AG:Create("Slider")
-    heightSlider:SetLabel("Height")
+    heightSlider:SetLabel(L["Height"])
     heightSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Height)
     heightSlider:SetSliderValues(5, 500, 0.1)
     heightSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Height = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1798,7 +1949,7 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     layoutContainer:AddChild(heightSlider)
 
     local heightWithoutPrimarySlider = AG:Create("Slider")
-    heightWithoutPrimarySlider:SetLabel("Height (No Primary Bar)")
+    heightWithoutPrimarySlider:SetLabel(L["Height (No Primary Bar)"])
     heightWithoutPrimarySlider:SetValue(BCDM.db.profile.SecondaryPowerBar.HeightWithoutPrimary)
     heightWithoutPrimarySlider:SetSliderValues(5, 500, 0.1)
     heightWithoutPrimarySlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.HeightWithoutPrimary = value BCDM:UpdateSecondaryPowerBar() end)
@@ -1806,24 +1957,24 @@ local function CreateSecondaryPowerBarSettings(parentContainer)
     layoutContainer:AddChild(heightWithoutPrimarySlider)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Layout[4])
-    xOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
+    xOffsetSlider:SetSliderValues(-1000, 1000, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Layout[4] = value BCDM:UpdateSecondaryPowerBar() end)
     xOffsetSlider:SetRelativeWidth(0.33)
     layoutContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.SecondaryPowerBar.Layout[5])
-    yOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
+    yOffsetSlider:SetSliderValues(-1000, 1000, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.Layout[5] = value BCDM:UpdateSecondaryPowerBar() end)
     yOffsetSlider:SetRelativeWidth(0.33)
     layoutContainer:AddChild(yOffsetSlider)
 
     local frameStrataDropdown = AG:Create("Dropdown")
-    frameStrataDropdown:SetLabel("Frame Strata")
-    frameStrataDropdown:SetList({["BACKGROUND"] = "Background", ["LOW"] = "Low", ["MEDIUM"] = "Medium", ["HIGH"] = "High", ["DIALOG"] = "Dialog", ["FULLSCREEN"] = "Fullscreen", ["FULLSCREEN_DIALOG"] = "Fullscreen Dialog", ["TOOLTIP"] = "Tooltip"}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
+    frameStrataDropdown:SetLabel(L["Frame Strata"])
+    frameStrataDropdown:SetList({["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
     frameStrataDropdown:SetValue(BCDM.db.profile.SecondaryPowerBar.FrameStrata)
     frameStrataDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.SecondaryPowerBar.FrameStrata = value BCDM:UpdateSecondaryPowerBar() end)
     frameStrataDropdown:SetRelativeWidth(0.33)
@@ -1894,19 +2045,19 @@ end
 
 local function CreateCastBarTextSettings(parentContainer)
     local textContainer = AG:Create("InlineGroup")
-    textContainer:SetTitle("Text Settings")
+    textContainer:SetTitle(L["Text Settings"])
     textContainer:SetFullWidth(true)
     textContainer:SetLayout("Flow")
     parentContainer:AddChild(textContainer)
 
     local spellNameContainer = AG:Create("InlineGroup")
-    spellNameContainer:SetTitle("Spell Name Settings")
+    spellNameContainer:SetTitle(L["Spell Name Settings"])
     spellNameContainer:SetFullWidth(true)
     spellNameContainer:SetLayout("Flow")
     textContainer:AddChild(spellNameContainer)
 
     local spellName_AnchorFromDropdown = AG:Create("Dropdown")
-    spellName_AnchorFromDropdown:SetLabel("Anchor From")
+    spellName_AnchorFromDropdown:SetLabel(L["Anchor From"])
     spellName_AnchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     spellName_AnchorFromDropdown:SetValue(BCDM.db.profile.CastBar.Text.SpellName.Layout[1])
     spellName_AnchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.Layout[1] = value BCDM:UpdateCastBar() end)
@@ -1914,7 +2065,7 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_AnchorFromDropdown)
 
     local spellName_AnchorToDropdown = AG:Create("Dropdown")
-    spellName_AnchorToDropdown:SetLabel("Anchor To")
+    spellName_AnchorToDropdown:SetLabel(L["Anchor To"])
     spellName_AnchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     spellName_AnchorToDropdown:SetValue(BCDM.db.profile.CastBar.Text.SpellName.Layout[2])
     spellName_AnchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.Layout[2] = value BCDM:UpdateCastBar() end)
@@ -1922,7 +2073,7 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_AnchorToDropdown)
 
     local spellName_XOffsetSlider = AG:Create("Slider")
-    spellName_XOffsetSlider:SetLabel("X Offset")
+    spellName_XOffsetSlider:SetLabel(L["X Offset"])
     spellName_XOffsetSlider:SetValue(BCDM.db.profile.CastBar.Text.SpellName.Layout[3])
     spellName_XOffsetSlider:SetSliderValues(-500, 500, 0.1)
     spellName_XOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.Layout[3] = value BCDM:UpdateCastBar() end)
@@ -1930,7 +2081,7 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_XOffsetSlider)
 
     local spellName_YOffsetSlider = AG:Create("Slider")
-    spellName_YOffsetSlider:SetLabel("Y Offset")
+    spellName_YOffsetSlider:SetLabel(L["Y Offset"])
     spellName_YOffsetSlider:SetValue(BCDM.db.profile.CastBar.Text.SpellName.Layout[4])
     spellName_YOffsetSlider:SetSliderValues(-500, 500, 0.1)
     spellName_YOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.Layout[4] = value BCDM:UpdateCastBar() end)
@@ -1938,7 +2089,7 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_YOffsetSlider)
 
     local spellName_FontSizeSlider = AG:Create("Slider")
-    spellName_FontSizeSlider:SetLabel("Font Size")
+    spellName_FontSizeSlider:SetLabel(L["Font Size"])
     spellName_FontSizeSlider:SetValue(BCDM.db.profile.CastBar.Text.SpellName.FontSize)
     spellName_FontSizeSlider:SetSliderValues(6, 72, 1)
     spellName_FontSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.FontSize = value BCDM:UpdateCastBar() end)
@@ -1946,7 +2097,7 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_FontSizeSlider)
 
     local spellName_MaxCharactersSlider = AG:Create("Slider")
-    spellName_MaxCharactersSlider:SetLabel("Max Characters")
+    spellName_MaxCharactersSlider:SetLabel(L["Max Characters"])
     spellName_MaxCharactersSlider:SetValue(BCDM.db.profile.CastBar.Text.SpellName.MaxCharacters)
     spellName_MaxCharactersSlider:SetSliderValues(0, 32, 1)
     spellName_MaxCharactersSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.SpellName.MaxCharacters = value BCDM:UpdateCastBar() end)
@@ -1954,13 +2105,13 @@ local function CreateCastBarTextSettings(parentContainer)
     spellNameContainer:AddChild(spellName_MaxCharactersSlider)
 
     local castTimeContainer = AG:Create("InlineGroup")
-    castTimeContainer:SetTitle("Cast Time Settings")
+    castTimeContainer:SetTitle(L["Cast Time Settings"])
     castTimeContainer:SetFullWidth(true)
     castTimeContainer:SetLayout("Flow")
     textContainer:AddChild(castTimeContainer)
 
     local castTime_AnchorFromDropdown = AG:Create("Dropdown")
-    castTime_AnchorFromDropdown:SetLabel("Anchor From")
+    castTime_AnchorFromDropdown:SetLabel(L["Anchor From"])
     castTime_AnchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     castTime_AnchorFromDropdown:SetValue(BCDM.db.profile.CastBar.Text.CastTime.Layout[1])
     castTime_AnchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.CastTime.Layout[1] = value BCDM:UpdateCastBar() end)
@@ -1968,7 +2119,7 @@ local function CreateCastBarTextSettings(parentContainer)
     castTimeContainer:AddChild(castTime_AnchorFromDropdown)
 
     local castTime_AnchorToDropdown = AG:Create("Dropdown")
-    castTime_AnchorToDropdown:SetLabel("Anchor To")
+    castTime_AnchorToDropdown:SetLabel(L["Anchor To"])
     castTime_AnchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     castTime_AnchorToDropdown:SetValue(BCDM.db.profile.CastBar.Text.CastTime.Layout[2])
     castTime_AnchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.CastTime.Layout[2] = value BCDM:UpdateCastBar() end)
@@ -1976,7 +2127,7 @@ local function CreateCastBarTextSettings(parentContainer)
     castTimeContainer:AddChild(castTime_AnchorToDropdown)
 
     local castTime_XOffsetSlider = AG:Create("Slider")
-    castTime_XOffsetSlider:SetLabel("X Offset")
+    castTime_XOffsetSlider:SetLabel(L["X Offset"])
     castTime_XOffsetSlider:SetValue(BCDM.db.profile.CastBar.Text.CastTime.Layout[3])
     castTime_XOffsetSlider:SetSliderValues(-500, 500, 0.1)
     castTime_XOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.CastTime.Layout[3] = value BCDM:UpdateCastBar() end)
@@ -1984,7 +2135,7 @@ local function CreateCastBarTextSettings(parentContainer)
     castTimeContainer:AddChild(castTime_XOffsetSlider)
 
     local castTime_YOffsetSlider = AG:Create("Slider")
-    castTime_YOffsetSlider:SetLabel("Y Offset")
+    castTime_YOffsetSlider:SetLabel(L["Y Offset"])
     castTime_YOffsetSlider:SetValue(BCDM.db.profile.CastBar.Text.CastTime.Layout[4])
     castTime_YOffsetSlider:SetSliderValues(-500, 500, 0.1)
     castTime_YOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.CastTime.Layout[4] = value BCDM:UpdateCastBar() end)
@@ -1992,7 +2143,7 @@ local function CreateCastBarTextSettings(parentContainer)
     castTimeContainer:AddChild(castTime_YOffsetSlider)
 
     local castTime_FontSizeSlider = AG:Create("Slider")
-    castTime_FontSizeSlider:SetLabel("Font Size")
+    castTime_FontSizeSlider:SetLabel(L["Font Size"])
     castTime_FontSizeSlider:SetValue(BCDM.db.profile.CastBar.Text.CastTime.FontSize)
     castTime_FontSizeSlider:SetSliderValues(6, 72, 1)
     castTime_FontSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Text.CastTime.FontSize = value BCDM:UpdateCastBar() end)
@@ -2010,34 +2161,34 @@ local function CreateCastBarSettings(parentContainer)
     parentContainer:AddChild(ScrollFrame)
 
     local toggleContainer = AG:Create("InlineGroup")
-    toggleContainer:SetTitle("Toggles & Colours")
+    toggleContainer:SetTitle(L["Toggles & Colours"])
     toggleContainer:SetFullWidth(true)
     toggleContainer:SetLayout("Flow")
     ScrollFrame:AddChild(toggleContainer)
 
     local enabledCheckbox = AG:Create("CheckBox")
-    enabledCheckbox:SetLabel("Enable Cast Bar")
+    enabledCheckbox:SetLabel(L["Enable Cast Bar"])
     enabledCheckbox:SetValue(BCDM.db.profile.CastBar.Enabled)
     enabledCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Enabled = value BCDM:UpdateCastBar() RefreshCastBarGUISettings() end)
     enabledCheckbox:SetRelativeWidth(0.33)
     toggleContainer:AddChild(enabledCheckbox)
 
     local colourByClassCheckbox = AG:Create("CheckBox")
-    colourByClassCheckbox:SetLabel("Colour By Class")
+    colourByClassCheckbox:SetLabel(L["Colour By Class"])
     colourByClassCheckbox:SetValue(BCDM.db.profile.CastBar.ColourByClass)
     colourByClassCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.ColourByClass = value BCDM:UpdateCastBar() RefreshCastBarGUISettings() end)
     colourByClassCheckbox:SetRelativeWidth(0.33)
     toggleContainer:AddChild(colourByClassCheckbox)
 
     local matchAnchorWidthCheckbox = AG:Create("CheckBox")
-    matchAnchorWidthCheckbox:SetLabel("Match Width Of Anchor")
+    matchAnchorWidthCheckbox:SetLabel(L["Match Width Of Anchor"])
     matchAnchorWidthCheckbox:SetValue(BCDM.db.profile.CastBar.MatchWidthOfAnchor)
     matchAnchorWidthCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.MatchWidthOfAnchor = value BCDM:UpdateCastBar() RefreshCastBarGUISettings() end)
     matchAnchorWidthCheckbox:SetRelativeWidth(0.33)
     toggleContainer:AddChild(matchAnchorWidthCheckbox)
 
     local foregroundColourPicker = AG:Create("ColorPicker")
-    foregroundColourPicker:SetLabel("Foreground Colour")
+    foregroundColourPicker:SetLabel(L["Foreground Colour"])
     foregroundColourPicker:SetColor(BCDM.db.profile.CastBar.ForegroundColour[1], BCDM.db.profile.CastBar.ForegroundColour[2], BCDM.db.profile.CastBar.ForegroundColour[3], BCDM.db.profile.CastBar.ForegroundColour[4])
     foregroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.CastBar.ForegroundColour = {r, g, b, a} BCDM:UpdateCastBar() end)
     foregroundColourPicker:SetRelativeWidth(0.5)
@@ -2045,7 +2196,7 @@ local function CreateCastBarSettings(parentContainer)
     toggleContainer:AddChild(foregroundColourPicker)
 
     local backgroundColourPicker = AG:Create("ColorPicker")
-    backgroundColourPicker:SetLabel("Background Colour")
+    backgroundColourPicker:SetLabel(L["Background Colour"])
     backgroundColourPicker:SetColor(BCDM.db.profile.CastBar.BackgroundColour[1], BCDM.db.profile.CastBar.BackgroundColour[2], BCDM.db.profile.CastBar.BackgroundColour[3], BCDM.db.profile.CastBar.BackgroundColour[4])
     backgroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.CastBar.BackgroundColour = {r, g, b, a} BCDM:UpdateCastBar() end)
     backgroundColourPicker:SetRelativeWidth(0.5)
@@ -2053,13 +2204,13 @@ local function CreateCastBarSettings(parentContainer)
     toggleContainer:AddChild(backgroundColourPicker)
 
     local layoutContainer = AG:Create("InlineGroup")
-    layoutContainer:SetTitle("Layout & Positioning")
+    layoutContainer:SetTitle(L["Layout & Positioning"])
     layoutContainer:SetFullWidth(true)
     layoutContainer:SetLayout("Flow")
     ScrollFrame:AddChild(layoutContainer)
 
     local anchorFromDropdown = AG:Create("Dropdown")
-    anchorFromDropdown:SetLabel("Anchor From")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
     anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorFromDropdown:SetValue(BCDM.db.profile.CastBar.Layout[1])
     anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Layout[1] = value BCDM:UpdateCastBar() end)
@@ -2067,7 +2218,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(anchorFromDropdown)
 
     local anchorParentDropdown = AG:Create("Dropdown")
-    anchorParentDropdown:SetLabel("Anchor Parent")
+    anchorParentDropdown:SetLabel(L["Anchor Parent"])
     anchorParentDropdown:SetList(AnchorParents["CastBar"][1], AnchorParents["CastBar"][2])
     anchorParentDropdown:SetValue(BCDM.db.profile.CastBar.Layout[2])
     anchorParentDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Layout[2] = value BCDM:UpdateCastBar() end)
@@ -2075,7 +2226,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(anchorParentDropdown)
 
     local anchorToDropdown = AG:Create("Dropdown")
-    anchorToDropdown:SetLabel("Anchor To")
+    anchorToDropdown:SetLabel(L["Anchor To"])
     anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
     anchorToDropdown:SetValue(BCDM.db.profile.CastBar.Layout[3])
     anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Layout[3] = value BCDM:UpdateCastBar() end)
@@ -2083,7 +2234,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(anchorToDropdown)
 
     local widthSlider = AG:Create("Slider")
-    widthSlider:SetLabel("Width")
+    widthSlider:SetLabel(L["Width"])
     widthSlider:SetValue(BCDM.db.profile.CastBar.Width)
     widthSlider:SetSliderValues(50, 3000, 0.1)
     widthSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Width = value BCDM:UpdateCastBar() end)
@@ -2091,7 +2242,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(widthSlider)
 
     local heightSlider = AG:Create("Slider")
-    heightSlider:SetLabel("Height")
+    heightSlider:SetLabel(L["Height"])
     heightSlider:SetValue(BCDM.db.profile.CastBar.Height)
     heightSlider:SetSliderValues(5, 500, 0.1)
     heightSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Height = value BCDM:UpdateCastBar() end)
@@ -2099,7 +2250,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(heightSlider)
 
     local xOffsetSlider = AG:Create("Slider")
-    xOffsetSlider:SetLabel("X Offset")
+    xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.CastBar.Layout[4])
     xOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
     xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Layout[4] = value BCDM:UpdateCastBar() end)
@@ -2107,7 +2258,7 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(xOffsetSlider)
 
     local yOffsetSlider = AG:Create("Slider")
-    yOffsetSlider:SetLabel("Y Offset")
+    yOffsetSlider:SetLabel(L["Y Offset"])
     yOffsetSlider:SetValue(BCDM.db.profile.CastBar.Layout[5])
     yOffsetSlider:SetSliderValues(-3000, 3000, 0.1)
     yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Layout[5] = value BCDM:UpdateCastBar() end)
@@ -2115,29 +2266,29 @@ local function CreateCastBarSettings(parentContainer)
     layoutContainer:AddChild(yOffsetSlider)
 
     local frameStrataDropdown = AG:Create("Dropdown")
-    frameStrataDropdown:SetLabel("Frame Strata")
-    frameStrataDropdown:SetList({["BACKGROUND"] = "Background", ["LOW"] = "Low", ["MEDIUM"] = "Medium", ["HIGH"] = "High", ["DIALOG"] = "Dialog", ["FULLSCREEN"] = "Fullscreen", ["FULLSCREEN_DIALOG"] = "Fullscreen Dialog", ["TOOLTIP"] = "Tooltip"}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
+    frameStrataDropdown:SetLabel(L["Frame Strata"])
+    frameStrataDropdown:SetList({["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
     frameStrataDropdown:SetValue(BCDM.db.profile.CastBar.FrameStrata)
     frameStrataDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.FrameStrata = value BCDM:UpdateCastBar() end)
     frameStrataDropdown:SetRelativeWidth(0.33)
     layoutContainer:AddChild(frameStrataDropdown)
 
     local iconContainer = AG:Create("InlineGroup")
-    iconContainer:SetTitle("Icon Settings")
+    iconContainer:SetTitle(L["Icon Settings"])
     iconContainer:SetFullWidth(true)
     iconContainer:SetLayout("Flow")
     ScrollFrame:AddChild(iconContainer)
 
     local enableIconCheckbox = AG:Create("CheckBox")
-    enableIconCheckbox:SetLabel("Enable Cast Icon")
+    enableIconCheckbox:SetLabel(L["Enable Cast Icon"])
     enableIconCheckbox:SetValue(BCDM.db.profile.CastBar.Icon.Enabled)
     enableIconCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Icon.Enabled = value BCDM:UpdateCastBar() RefreshCastBarGUISettings() end)
     enableIconCheckbox:SetRelativeWidth(0.5)
     iconContainer:AddChild(enableIconCheckbox)
 
     local iconLayoutPositionDropdown = AG:Create("Dropdown")
-    iconLayoutPositionDropdown:SetLabel("Icon Position")
-    iconLayoutPositionDropdown:SetList({ ["LEFT"] = "Left", ["RIGHT"] = "Right" }, { "LEFT", "RIGHT" })
+    iconLayoutPositionDropdown:SetLabel(L["Icon Position"])
+    iconLayoutPositionDropdown:SetList({ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] }, { "LEFT", "RIGHT" })
     iconLayoutPositionDropdown:SetValue(BCDM.db.profile.CastBar.Icon.Layout)
     iconLayoutPositionDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastBar.Icon.Layout = value BCDM:UpdateCastBar() end)
     iconLayoutPositionDropdown:SetRelativeWidth(0.5)
@@ -2225,7 +2376,7 @@ local function CreateProfileSettings(containerParent)
     local numSpecs = GetNumSpecializations()
 
     local ProfileContainer = AG:Create("InlineGroup")
-    ProfileContainer:SetTitle("Profile Management")
+    ProfileContainer:SetTitle(L["Profile Management"])
     ProfileContainer:SetFullWidth(true)
     ProfileContainer:SetLayout("Flow")
     ScrollFrame:AddChild(ProfileContainer)
@@ -2257,9 +2408,9 @@ local function CreateProfileSettings(containerParent)
         else
             DeleteProfileDropdown:SetDisabled(false)
         end
-        ResetProfileButton:SetText("Reset |cFF8080FF" .. BCDM.db:GetCurrentProfile() .. "|r Profile")
+        ResetProfileButton:SetText(string.format(L["Reset %s Profile"], "|cFF8080FF" .. BCDM.db:GetCurrentProfile() .. "|r"))
         local isUsingGlobal = BCDM.db.global.UseGlobalProfile
-        ActiveProfileHeading:SetText( "Active Profile: |cFFFFFFFF" .. BCDM.db:GetCurrentProfile() .. (isUsingGlobal and " (|cFFFFCC00Global|r)" or "") .. "|r" )
+        ActiveProfileHeading:SetText(string.format(L["Active Profile: %s%s"], "|cFFFFFFFF" .. BCDM.db:GetCurrentProfile(), isUsingGlobal and " (|cFFFFCC00" .. L["Global"] .. "|r)" or "") .. "|r")
         if BCDM.db:IsDualSpecEnabled() then
             SelectProfileDropdown:SetDisabled(true)
             CopyFromProfileDropdown:SetDisabled(true)
@@ -2282,31 +2433,31 @@ local function CreateProfileSettings(containerParent)
     BCDMG.RefreshProfiles = RefreshProfiles -- Exposed for Share.lua
 
     SelectProfileDropdown = AG:Create("Dropdown")
-    SelectProfileDropdown:SetLabel("Select...")
+    SelectProfileDropdown:SetLabel(L["Select..."])
     SelectProfileDropdown:SetRelativeWidth(0.25)
     SelectProfileDropdown:SetCallback("OnValueChanged", function(_, _, value) BCDM.db:SetProfile(value) BCDM:UpdateBCDM() RefreshProfiles() end)
     ProfileContainer:AddChild(SelectProfileDropdown)
 
     CopyFromProfileDropdown = AG:Create("Dropdown")
-    CopyFromProfileDropdown:SetLabel("Copy From...")
+    CopyFromProfileDropdown:SetLabel(L["Copy From..."])
     CopyFromProfileDropdown:SetRelativeWidth(0.25)
-    CopyFromProfileDropdown:SetCallback("OnValueChanged", function(_, _, value) BCDM:CreatePrompt("Copy Profile", "Are you sure you want to copy from |cFF8080FF" .. value .. "|r?\nThis will |cFFFF4040overwrite|r your current profile settings.", function() BCDM.db:CopyProfile(value) BCDM:UpdateBCDM() RefreshProfiles() end) end)
+    CopyFromProfileDropdown:SetCallback("OnValueChanged", function(_, _, value) BCDM:CreatePrompt(L["Copy Profile"], string.format(L["Are you sure you want to copy from %s?\nThis will overwrite your current profile settings."], "|cFF8080FF" .. value .. "|r"), function() BCDM.db:CopyProfile(value) BCDM:UpdateBCDM() RefreshProfiles() end) end)
     ProfileContainer:AddChild(CopyFromProfileDropdown)
 
     DeleteProfileDropdown = AG:Create("Dropdown")
-    DeleteProfileDropdown:SetLabel("Delete...")
+    DeleteProfileDropdown:SetLabel(L["Delete..."])
     DeleteProfileDropdown:SetRelativeWidth(0.25)
-    DeleteProfileDropdown:SetCallback("OnValueChanged", function(_, _, value) if value ~= BCDM.db:GetCurrentProfile() then BCDM:CreatePrompt("Delete Profile", "Are you sure you want to delete |cFF8080FF" .. value .. "|r?", function() BCDM.db:DeleteProfile(value) BCDM:UpdateBCDM() RefreshProfiles() end) end end)
+    DeleteProfileDropdown:SetCallback("OnValueChanged", function(_, _, value) if value ~= BCDM.db:GetCurrentProfile() then BCDM:CreatePrompt(L["Delete Profile"], string.format(L["Are you sure you want to delete %s?"], "|cFF8080FF" .. value .. "|r"), function() BCDM.db:DeleteProfile(value) BCDM:UpdateBCDM() RefreshProfiles() end) end end)
     ProfileContainer:AddChild(DeleteProfileDropdown)
 
     ResetProfileButton = AG:Create("Button")
-    ResetProfileButton:SetText("Reset |cFF8080FF" .. BCDM.db:GetCurrentProfile() .. "|r Profile")
+    ResetProfileButton:SetText(string.format(L["Reset %s Profile"], "|cFF8080FF" .. BCDM.db:GetCurrentProfile() .. "|r"))
     ResetProfileButton:SetRelativeWidth(0.25)
     ResetProfileButton:SetCallback("OnClick", function() BCDM.db:ResetProfile() BCDM:ResolveLSM() BCDM:UpdateBCDM() RefreshProfiles() end)
     ProfileContainer:AddChild(ResetProfileButton)
 
     local CreateProfileEditBox = AG:Create("EditBox")
-    CreateProfileEditBox:SetLabel("Profile Name:")
+    CreateProfileEditBox:SetLabel(L["Profile Name:"])
     CreateProfileEditBox:SetText("")
     CreateProfileEditBox:SetRelativeWidth(0.5)
     CreateProfileEditBox:DisableButton(true)
@@ -2314,27 +2465,27 @@ local function CreateProfileSettings(containerParent)
     ProfileContainer:AddChild(CreateProfileEditBox)
 
     local CreateProfileButton = AG:Create("Button")
-    CreateProfileButton:SetText("Create Profile")
+    CreateProfileButton:SetText(L["Create Profile"])
     CreateProfileButton:SetRelativeWidth(0.5)
     CreateProfileButton:SetCallback("OnClick", function() local profileName = strtrim(CreateProfileEditBox:GetText() or "") if profileName ~= "" then BCDM.db:SetProfile(profileName) BCDM:UpdateBCDM() RefreshProfiles() CreateProfileEditBox:SetText("") end end)
     ProfileContainer:AddChild(CreateProfileButton)
 
     local GlobalProfileHeading = AG:Create("Heading")
-    GlobalProfileHeading:SetText("Global Profile Settings")
+    GlobalProfileHeading:SetText(L["Global Profile Settings"])
     GlobalProfileHeading:SetFullWidth(true)
     ProfileContainer:AddChild(GlobalProfileHeading)
 
-    CreateInformationTag(ProfileContainer, "If |cFF8080FFUse Global Profile Settings|r is enabled, the profile selected below will be used as your active profile.\nThis is useful if you want to use the same profile across multiple characters.")
+    CreateInformationTag(ProfileContainer, L["If |cFF8080FFUse Global Profile Settings|r is enabled, the profile selected below will be used as your active profile.\nThis is useful if you want to use the same profile across multiple characters."])
 
     UseGlobalProfileToggle = AG:Create("CheckBox")
-    UseGlobalProfileToggle:SetLabel("Use Global Profile Settings")
+    UseGlobalProfileToggle:SetLabel(L["Use Global Profile Settings"])
     UseGlobalProfileToggle:SetValue(BCDM.db.global.UseGlobalProfile)
     UseGlobalProfileToggle:SetRelativeWidth(0.5)
     UseGlobalProfileToggle:SetCallback("OnValueChanged", function(_, _, value) RefreshProfiles() BCDM.db.global.UseGlobalProfile = value if value and BCDM.db.global.GlobalProfile and BCDM.db.global.GlobalProfile ~= "" then BCDM.db:SetProfile(BCDM.db.global.GlobalProfile) BCDM:UpdateBCDM() end GlobalProfileDropdown:SetDisabled(not value) for _, child in ipairs(ProfileContainer.children) do if child ~= UseGlobalProfileToggle and child ~= GlobalProfileDropdown then DeepDisable(child, value, GlobalProfileDropdown) end end BCDM:UpdateBCDM() RefreshProfiles() end)
     ProfileContainer:AddChild(UseGlobalProfileToggle)
 
     GlobalProfileDropdown = AG:Create("Dropdown")
-    GlobalProfileDropdown:SetLabel("Global Profile...")
+    GlobalProfileDropdown:SetLabel(L["Global Profile..."])
     GlobalProfileDropdown:SetRelativeWidth(0.5)
     GlobalProfileDropdown:SetList(profileKeys)
     GlobalProfileDropdown:SetValue(BCDM.db.global.GlobalProfile)
@@ -2342,13 +2493,13 @@ local function CreateProfileSettings(containerParent)
     ProfileContainer:AddChild(GlobalProfileDropdown)
 
     local SpecProfileContainer = AG:Create("InlineGroup")
-    SpecProfileContainer:SetTitle("Specialization Profiles")
+    SpecProfileContainer:SetTitle(L["Specialization Profiles"])
     SpecProfileContainer:SetFullWidth(true)
     SpecProfileContainer:SetLayout("Flow")
     ScrollFrame:AddChild(SpecProfileContainer)
 
     UseDualSpecializationToggle = AG:Create("CheckBox")
-    UseDualSpecializationToggle:SetLabel("Enable Specialization Profiles")
+    UseDualSpecializationToggle:SetLabel(L["Enable Specialization Profiles"])
     UseDualSpecializationToggle:SetValue(BCDM.db:IsDualSpecEnabled())
     UseDualSpecializationToggle:SetRelativeWidth(1)
     UseDualSpecializationToggle:SetCallback("OnValueChanged", function(_, _, value) BCDM.db:SetDualSpecEnabled(value) for i = 1, numSpecs do specProfilesList[i]:SetDisabled(not value) end RefreshProfiles() BCDM:UpdateBCDM() end)
@@ -2369,20 +2520,20 @@ local function CreateProfileSettings(containerParent)
     RefreshProfiles()
 
     local SharingContainer = AG:Create("InlineGroup")
-    SharingContainer:SetTitle("Profile Sharing")
+    SharingContainer:SetTitle(L["Profile Sharing"])
     SharingContainer:SetFullWidth(true)
     SharingContainer:SetLayout("Flow")
     ScrollFrame:AddChild(SharingContainer)
 
     local ExportingHeading = AG:Create("Heading")
-    ExportingHeading:SetText("Exporting")
+    ExportingHeading:SetText(L["Exporting"])
     ExportingHeading:SetFullWidth(true)
     SharingContainer:AddChild(ExportingHeading)
 
-    CreateInformationTag(SharingContainer, "You can export your profile by pressing |cFF8080FFExport Profile|r button below & share the string with other |cFF8080FFUnhalted|r Unit Frame users.")
+    CreateInformationTag(SharingContainer, L["You can export your profile by pressing |cFF8080FFExport Profile|r button below & share the string with other |cFF8080FFUnhalted|r Unit Frame users."])
 
     local ExportingEditBox = AG:Create("EditBox")
-    ExportingEditBox:SetLabel("Export String...")
+    ExportingEditBox:SetLabel(L["Export String..."])
     ExportingEditBox:SetText("")
     ExportingEditBox:SetRelativeWidth(0.7)
     ExportingEditBox:DisableButton(true)
@@ -2391,20 +2542,20 @@ local function CreateProfileSettings(containerParent)
     SharingContainer:AddChild(ExportingEditBox)
 
     local ExportProfileButton = AG:Create("Button")
-    ExportProfileButton:SetText("Export Profile")
+    ExportProfileButton:SetText(L["Export Profile"])
     ExportProfileButton:SetRelativeWidth(0.3)
     ExportProfileButton:SetCallback("OnClick", function() ExportingEditBox:SetText(BCDM:ExportSavedVariables()) ExportingEditBox:HighlightText() ExportingEditBox:SetFocus() end)
     SharingContainer:AddChild(ExportProfileButton)
 
     local ImportingHeading = AG:Create("Heading")
-    ImportingHeading:SetText("Importing")
+    ImportingHeading:SetText(L["Importing"])
     ImportingHeading:SetFullWidth(true)
     SharingContainer:AddChild(ImportingHeading)
 
-    CreateInformationTag(SharingContainer, "If you have an exported string, paste it in the |cFF8080FFImport String|r box below & press |cFF8080FFImport Profile|r.")
+    CreateInformationTag(SharingContainer, L["If you have an exported string, paste it in the |cFF8080FFImport String|r box below & press |cFF8080FFImport Profile|r."])
 
     local ImportingEditBox = AG:Create("EditBox")
-    ImportingEditBox:SetLabel("Import String...")
+    ImportingEditBox:SetLabel(L["Import String..."])
     ImportingEditBox:SetText("")
     ImportingEditBox:SetRelativeWidth(0.7)
     ImportingEditBox:DisableButton(true)
@@ -2413,7 +2564,7 @@ local function CreateProfileSettings(containerParent)
     SharingContainer:AddChild(ImportingEditBox)
 
     local ImportProfileButton = AG:Create("Button")
-    ImportProfileButton:SetText("Import Profile")
+    ImportProfileButton:SetText(L["Import Profile"])
     ImportProfileButton:SetRelativeWidth(0.3)
     ImportProfileButton:SetCallback("OnClick", function() if ImportingEditBox:GetText() ~= "" then BCDM:ImportSavedVariables(ImportingEditBox:GetText()) ImportingEditBox:SetText("") end end)
     SharingContainer:AddChild(ImportProfileButton)
@@ -2491,21 +2642,21 @@ function BCDM:CreateGUI()
     ContainerTabGroup:SetLayout("Flow")
     ContainerTabGroup:SetFullWidth(true)
     ContainerTabGroup:SetTabs({
-        { text = "General", value = "General"},
-        { text = "Global", value = "Global"},
-        { text = "Edit Mode Manager", value = "EditModeManager"},
-        { text = "Essential", value = "Essential"},
-        { text = "Utility", value = "Utility"},
-        { text = "Buffs", value = "Buffs"},
-        { text = "Custom", value = "Custom"},
-        { text = "Additional Custom", value = "AdditionalCustom"},
-        { text = "Item", value = "Item"},
-        { text = "Trinkets", value = "Trinket"},
-        { text = "Items & Spells", value = "ItemSpell"},
-        { text = "Power Bar", value = "PowerBar"},
-        { text = "Secondary Power Bar", value = "SecondaryPowerBar"},
-        { text = "Cast Bar", value = "CastBar"},
-        { text = "Profiles", value = "Profiles"},
+        { text = L["General"], value = "General"},
+        { text = L["Global"], value = "Global"},
+        { text = L["Edit Mode Manager"], value = "EditModeManager"},
+        { text = L["Essential"], value = "Essential"},
+        { text = L["Utility"], value = "Utility"},
+        { text = L["Buffs"], value = "Buffs"},
+        { text = L["Custom"], value = "Custom"},
+        { text = L["Additional Custom"], value = "AdditionalCustom"},
+        { text = L["Item"], value = "Item"},
+        { text = L["Trinkets"], value = "Trinket"},
+        { text = L["Items & Spells"], value = "ItemSpell"},
+        { text = L["Power Bar"], value = "PowerBar"},
+        { text = L["Secondary Power Bar"], value = "SecondaryPowerBar"},
+        { text = L["Cast Bar"], value = "CastBar"},
+        { text = L["Profiles"], value = "Profiles"},
     })
     ContainerTabGroup:SetCallback("OnGroupSelected", SelectTab)
     ContainerTabGroup:SelectTab("General")

@@ -1,0 +1,3 @@
+local _, BCDM = ...
+
+BCDM.L = BCDM.L or {}

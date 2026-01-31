@@ -1,4 +1,5 @@
 local _, BCDM = ...
+local L = BCDM.L
 local Serialize = LibStub:GetLibrary("AceSerializer-3.0")
 local Compress = LibStub:GetLibrary("LibDeflate")
 local LEMO = BCDM.LEMO
@@ -13,13 +14,13 @@ function BCDM:ExportSavedVariables()
 end
 
 function BCDM:ImportSavedVariables(encodedInfo, profileName)
-    if type(encodedInfo) ~= "string" or encodedInfo:sub(1, 6) ~= "!BCDM_" then BCDM:PrettyPrint("Invalid Import String.") return end
+    if type(encodedInfo) ~= "string" or encodedInfo:sub(1, 6) ~= "!BCDM_" then BCDM:PrettyPrint(L["Invalid Import String"]) return end
     local decodedInfo = Compress:DecodeForPrint(encodedInfo:sub(7))
-    if not decodedInfo then BCDM:PrettyPrint("Invalid Import String.") return end
+    if not decodedInfo then BCDM:PrettyPrint(L["Invalid Import String"]) return end
     local decompressedInfo = Compress:DecompressDeflate(decodedInfo)
-    if not decompressedInfo then BCDM:PrettyPrint("Invalid Import String.") return end
+    if not decompressedInfo then BCDM:PrettyPrint(L["Invalid Import String"]) return end
     local success, data = Serialize:Deserialize(decompressedInfo)
-    if not success or type(data) ~= "table" then BCDM:PrettyPrint("Invalid Import String.") return end
+    if not success or type(data) ~= "table" then BCDM:PrettyPrint(L["Invalid Import String"]) return end
     if profileName then
         BCDM.db:SetProfile(profileName)
         wipe(BCDM.db.profile)
@@ -33,9 +34,9 @@ function BCDM:ImportSavedVariables(encodedInfo, profileName)
         return
     end
     StaticPopupDialogs["BCDM_IMPORT_NEW_PROFILE"] = {
-        text = BCDM.ADDON_NAME.." - Profile Name?",
-        button1 = "Import",
-        button2 = "Cancel",
+        text = BCDM.ADDON_NAME.." - "..L["Profile Name?"],
+        button1 = L["Import"],
+        button2 = L["Cancel"],
         hasEditBox = true,
         timeout = 0,
         whileDead = true,
@@ -44,7 +45,7 @@ function BCDM:ImportSavedVariables(encodedInfo, profileName)
         OnAccept = function(self)
             local name = self.EditBox:GetText()
             if not name or name == "" then
-                BCDM:PrettyPrint("Please enter a valid profile name.")
+                BCDM:PrettyPrint(L["Please enter a valid profile name."])
                 return
             end
             BCDM.db:SetProfile(name)

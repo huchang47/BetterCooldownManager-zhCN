@@ -1,5 +1,6 @@
 local _, BCDM = ...
 local LEMO = BCDM.LEMO
+local L = BCDM.L
 local Serialize = LibStub:GetLibrary("AceSerializer-3.0")
 local Compress = LibStub:GetLibrary("LibDeflate")
 
@@ -21,7 +22,7 @@ function BCDMG:ImportBCDM(importString, profileKey)
     local DecompressedInfo = Compress:DecompressDeflate(DecodedInfo)
     local success, profileData = Serialize:Deserialize(DecompressedInfo)
 
-    if not success or type(profileData) ~= "table" then BCDM:PrettyPrint("Invalid Import String.") return end
+    if not success or type(profileData) ~= "table" then BCDM:PrettyPrint(L["Invalid Import String"]) return end
 
     if type(profileData.profile) == "table" then
         BCDM.db.profiles[profileKey] = profileData.profile

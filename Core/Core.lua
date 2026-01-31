@@ -29,4 +29,51 @@ function BetterCooldownManager:OnEnable()
         BCDM:CreateCooldownViewerOverlays()
     end)
     BCDM:SetupEditModeManager()
+    BCDM:CreateMinimapIcon()
+end
+
+function BCDM:CreateMinimapIcon()
+    local L = BCDM.L
+    local LDB = LibStub("LibDataBroker-1.1")
+    local LibDBIcon = LibStub("LibDBIcon-1.0")
+    
+    -- Create LDB data object for compatibility with icon management addons
+    BCDM.LDBIcon = LDB:NewDataObject("BetterCooldownManager", {
+        type = "launcher",
+        label = "BCDM",
+        text = "BCDM",
+        icon = "Interface\\AddOns\\BetterCooldownManager\\Media\\Logo.png",
+        OnClick = function(self, button)
+            if button == "LeftButton" then
+                BCDM:CreateGUI()
+            end
+        end,
+        OnEnter = function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+            GameTooltip:SetText("|cFF8080FFBetterCooldownManager|r", 1, 1, 1)
+            GameTooltip:AddLine(L["Slash Commands"])
+            GameTooltip:Show()
+        end,
+        OnLeave = function(self)
+            GameTooltip:Hide()
+        end
+    })
+    
+    -- Ensure icon is set (for compatibility with different LibDBIcon versions)
+    if not BCDM.LDBIcon.icon or BCDM.LDBIcon.icon == "" then
+        BCDM.LDBIcon.icon = "Interface\\Icons\\INV_Misc_QuestionMark"
+    end
+    
+    -- Initialize minimap icon settings
+    if not BCDM.db.profile.MinimapIcon then
+        BCDM.db.profile.MinimapIcon = {
+            hide = false,
+            minimapPos = 225,
+            radius = 80
+        }
+    end
+    
+    -- Register with LibDBIcon-1.0 for standard minimap icon management
+    -- Use the correct format for LibDBIcon (profile.minimap table)
+    BCDM.MinimapIcon = LibDBIcon:Register("BetterCooldownManager", BCDM.LDBIcon, BCDM.db.profile.MinimapIcon)
 end

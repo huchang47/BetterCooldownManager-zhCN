@@ -253,7 +253,15 @@ function BCDM:UpdateCastBar()
     BCDM.CastBar:SetBackdropColor(CastBarDB.BackgroundColour[1], CastBarDB.BackgroundColour[2], CastBarDB.BackgroundColour[3], CastBarDB.BackgroundColour[4])
     BCDM.CastBar:SetSize(CastBarDB.Width, CastBarDB.Height)
     BCDM.CastBar:ClearAllPoints()
-    BCDM.CastBar:SetPoint(CastBarDB.Layout[1], _G[CastBarDB.Layout[2]], CastBarDB.Layout[3], CastBarDB.Layout[4], CastBarDB.Layout[5])
+    if CastBarDB.Layout[2] == "SCREEN_CENTER" then
+        BCDM.CastBar:SetPoint(CastBarDB.Layout[1], UIParent, "CENTER", CastBarDB.Layout[4], CastBarDB.Layout[5])
+    elseif CastBarDB.Layout[2] == "SCREEN_TOP" then
+        BCDM.CastBar:SetPoint(CastBarDB.Layout[1], UIParent, "TOP", CastBarDB.Layout[4], CastBarDB.Layout[5])
+    elseif CastBarDB.Layout[2] == "SCREEN_BOTTOM" then
+        BCDM.CastBar:SetPoint(CastBarDB.Layout[1], UIParent, "BOTTOM", CastBarDB.Layout[4], CastBarDB.Layout[5])
+    else
+        BCDM.CastBar:SetPoint(CastBarDB.Layout[1], _G[CastBarDB.Layout[2]], CastBarDB.Layout[3], CastBarDB.Layout[4], CastBarDB.Layout[5])
+    end
     BCDM.CastBar:SetFrameStrata(CastBarDB.FrameStrata or "LOW")
     CastBar:SetBackdrop(BCDM.BACKDROP)
     if borderSize > 0 then

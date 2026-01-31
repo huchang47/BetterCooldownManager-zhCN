@@ -167,17 +167,62 @@ local function Position()
     for _, viewerName in ipairs(BCDM.CooldownManagerViewers) do
         local viewerSettings = cooldownManagerSettings[BCDM.CooldownManagerViewerToDBViewer[viewerName]]
         local viewerFrame = _G[viewerName]
-        if viewerFrame and (viewerName == "UtilityCooldownViewer" or viewerName == "BuffIconCooldownViewer") then
-            viewerFrame:ClearAllPoints()
+        if viewerFrame then
             local anchorParent = viewerSettings.Layout[2] == "NONE" and UIParent or _G[viewerSettings.Layout[2]]
-            viewerFrame:SetPoint(viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
-            viewerFrame:SetFrameStrata("LOW")
-        elseif viewerFrame then
-            viewerFrame:ClearAllPoints()
-            viewerFrame:SetPoint(viewerSettings.Layout[1], UIParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+            
+            -- 如果锚点父级没有设置位置（例如未激活的次级能量条），则回退到 UIParent，防止位置异常
+            if not anchorParent or (anchorParent ~= UIParent and anchorParent:GetNumPoints() == 0) then
+                anchorParent = UIParent
+            end
+
+            if viewerName == "EssentialCooldownViewer" then
+                -- 仅 Essential 使用 LEMO 接管
+                BCDM.LEMO:ReanchorFrame(viewerFrame, viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+                -- 手动设置位置，避免依赖 ApplyChanges 导致死循环
+                viewerFrame:ClearAllPoints()
+                viewerFrame:SetPoint(viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+            else
+                -- 其他组件恢复插件接管
+                viewerFrame:ClearAllPoints()
+                viewerFrame:SetPoint(viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+            end
+            
             viewerFrame:SetFrameStrata("LOW")
         end
-        NudgeViewer(viewerName, -0.1, 0)
+    end
+    -- 移除此处的 ApplyChanges 调用，防止死循环
+    -- BCDM.LEMO:ApplyChanges()
+end
+
+local function SyncFromEditMode()
+    if InCombatLockdown() then return end
+    
+    local cooldownManagerSettings = BCDM.db.profile.CooldownManager
+    for _, viewerName in ipairs(BCDM.CooldownManagerViewers) do
+        -- 仅同步 EssentialCooldownViewer，其他组件不参与编辑模式同步
+        if viewerName == "EssentialCooldownViewer" then
+            local viewerFrame = _G[viewerName]
+            if viewerFrame then
+                local point, relativeTo, relativePoint, x, y = viewerFrame:GetPoint()
+                if point then
+                    local relativeToName = (relativeTo and relativeTo.GetName and relativeTo:GetName()) or "UIParent"
+                    local viewerType = BCDM.CooldownManagerViewerToDBViewer[viewerName]
+                    
+                    if viewerType and cooldownManagerSettings[viewerType] then
+                        local layout = cooldownManagerSettings[viewerType].Layout
+                        
+                        -- Update DB if position changed
+                        if layout[1] ~= point or layout[2] ~= relativeToName or layout[3] ~= relativePoint or math.abs(layout[4] - x) > 0.1 or math.abs(layout[5] - y) > 0.1 then
+                            layout[1] = point
+                            layout[2] = relativeToName
+                            layout[3] = relativePoint
+                            layout[4] = x
+                            layout[5] = y
+                        end
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -233,8 +278,79 @@ end
 
 local function SetHooks()
     hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function() if InCombatLockdown() then return end Position() end)
-    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", function() if InCombatLockdown() then return end BCDM.LEMO:LoadLayouts() Position() end)
+    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", function() 
+        if InCombatLockdown() then return end 
+        SyncFromEditMode()
+        BCDM.LEMO:LoadLayouts() 
+        Position() 
+    end)
     hooksecurefunc(CooldownViewerSettings, "RefreshLayout", function() if InCombatLockdown() then return end BCDM:UpdateBCDM() end)
+    
+    -- 添加事件监听器以响应官方设置的改变
+    local eventFrame = CreateFrame("Frame")
+    eventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    eventFrame:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
+    eventFrame:RegisterEvent("CVAR_UPDATE") -- 监听CVAR更新，可能包含冷却管理器设置
+    eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+    
+    eventFrame:SetScript("OnEvent", function(self, event, arg1)
+        if event == "EDIT_MODE_LAYOUTS_UPDATED" then
+            SyncFromEditMode()
+        elseif event == "SPELL_UPDATE_COOLDOWN" or event == "ACTIONBAR_UPDATE_COOLDOWN" then
+            -- 当冷却状态更新时，重新应用居中布局
+            C_Timer.After(0.1, function()
+                if BCDM.db.profile.CooldownManager.Essential.CenterEssential then
+                    local iconLimit = BCDM.db.profile.CooldownManager.Essential.IconLimitPerRow or EssentialCooldownViewer.iconLimit or 20
+                    BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+                end
+                if BCDM.db.profile.CooldownManager.Utility.CenterUtility then
+                    local iconLimit = BCDM.db.profile.CooldownManager.Utility.IconLimitPerRow or UtilityCooldownViewer.iconLimit or 20
+                    BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+                end
+                if BCDM.db.profile.CooldownManager.Buffs.CenterBuffs then
+                    local iconLimit = BCDM.db.profile.CooldownManager.Buffs.IconLimitPerRow or BuffIconCooldownViewer.iconLimit or 20
+                    BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
+                end
+            end)
+        elseif event == "PLAYER_ENTERING_WORLD" then
+            -- 游戏加载完成后重新应用布局
+            C_Timer.After(1, function()
+                if not InCombatLockdown() then
+                    if BCDM.db.profile.CooldownManager.Essential.CenterEssential then
+                        local iconLimit = BCDM.db.profile.CooldownManager.Essential.IconLimitPerRow or EssentialCooldownViewer.iconLimit or 20
+                        BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+                    end
+                    if BCDM.db.profile.CooldownManager.Utility.CenterUtility then
+                        local iconLimit = BCDM.db.profile.CooldownManager.Utility.IconLimitPerRow or UtilityCooldownViewer.iconLimit or 20
+                        BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+                    end
+                    if BCDM.db.profile.CooldownManager.Buffs.CenterBuffs then
+                        local iconLimit = BCDM.db.profile.CooldownManager.Buffs.IconLimitPerRow or BuffIconCooldownViewer.iconLimit or 20
+                        BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
+                    end
+                end
+            end)
+        elseif event == "CVAR_UPDATE" and arg1 == "cooldownViewerEnabled" then
+              -- 当冷却管理器设置发生变化时，重新应用布局
+              C_Timer.After(0.2, function()
+                  if not InCombatLockdown() then
+                      if BCDM.db.profile.CooldownManager.Essential.CenterEssential then
+                          local iconLimit = BCDM.db.profile.CooldownManager.Essential.IconLimitPerRow or EssentialCooldownViewer.iconLimit or 20
+                          BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+                      end
+                      if BCDM.db.profile.CooldownManager.Utility.CenterUtility then
+                          local iconLimit = BCDM.db.profile.CooldownManager.Utility.IconLimitPerRow or UtilityCooldownViewer.iconLimit or 20
+                          BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+                      end
+                      if BCDM.db.profile.CooldownManager.Buffs.CenterBuffs then
+                          local iconLimit = BCDM.db.profile.CooldownManager.Buffs.IconLimitPerRow or BuffIconCooldownViewer.iconLimit or 20
+                          BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
+                      end
+                  end
+              end)
+        end
+    end)
 end
 
 local function StyleChargeCount()
@@ -285,32 +401,14 @@ local function CenterBuffs()
     local currentTime = GetTime()
     if currentTime < nextcenterBuffsUpdate then return end
     nextcenterBuffsUpdate = currentTime + centerBuffsUpdateThrottle
-    local visibleBuffIcons = {}
+    
+    local buffsSettings = BCDM.db.profile.CooldownManager.Buffs
+    local iconLimit = buffsSettings.IconLimitPerRow or 20  -- 获取每行图标数量限制，默认为20
+    
+    -- 使用新的居中算法
+    BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
 
-    for _, childFrame in ipairs({ BuffIconCooldownViewer:GetChildren() }) do
-        if childFrame and childFrame.Icon and childFrame:IsShown() then
-            table.insert(visibleBuffIcons, childFrame)
-        end
-    end
-
-    table.sort(visibleBuffIcons, function(a, b)
-        return (a.layoutIndex or 0) < (b.layoutIndex or 0)
-    end)
-
-    local visibleCount = #visibleBuffIcons
-    if visibleCount == 0 then return 0 end
-
-    local iconWidth = visibleBuffIcons[1]:GetWidth()
-    local iconSpacing = BuffIconCooldownViewer.childXPadding or 0
-    local totalWidth = (visibleCount * iconWidth) + ((visibleCount - 1) * iconSpacing)
-    local startX = -totalWidth / 2 + iconWidth / 2
-
-    for index, iconFrame in ipairs(visibleBuffIcons) do
-        iconFrame:ClearAllPoints()
-        iconFrame:SetPoint("CENTER", BuffIconCooldownViewer, "CENTER", startX + (index - 1) * (iconWidth + iconSpacing), 0)
-    end
-
-    return visibleCount
+    return #BCDM.CooldownCentering.CollectViewerChildren(BuffIconCooldownViewer)
 end
 
 
@@ -327,6 +425,87 @@ local function SetupCenterBuffs()
     end
 end
 
+-- 添加一个函数来检查并应用官方设置
+local function SyncWithOfficialSettings()
+    -- 检查是否需要根据官方设置更新我们的配置
+    if BCDM.db.profile.CooldownManager.Essential.CenterEssential then
+        local iconLimit = BCDM.db.profile.CooldownManager.Essential.IconLimitPerRow or EssentialCooldownViewer.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+    end
+    if BCDM.db.profile.CooldownManager.Utility.CenterUtility then
+        local iconLimit = BCDM.db.profile.CooldownManager.Utility.IconLimitPerRow or UtilityCooldownViewer.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+    end
+    if BCDM.db.profile.CooldownManager.Buffs.CenterBuffs then
+        local iconLimit = BCDM.db.profile.CooldownManager.Buffs.IconLimitPerRow or BuffIconCooldownViewer.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
+    end
+end
+
+
+
+local centerUtilityUpdateThrottle = 0.05
+local nextcenterUtilityUpdate = 0
+
+local function CenterUtility()
+    local currentTime = GetTime()
+    if currentTime < nextcenterUtilityUpdate then return end
+    nextcenterUtilityUpdate = currentTime + centerUtilityUpdateThrottle
+    
+    local utilitySettings = BCDM.db.profile.CooldownManager.Utility
+    local iconLimit = utilitySettings.IconLimitPerRow or 20  -- 获取每行图标数量限制，默认为20
+    
+    -- 使用新的居中算法
+    BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+
+    return #BCDM.CooldownCentering.CollectViewerChildren(UtilityCooldownViewer)
+end
+
+
+local centerUtilityEventFrame = CreateFrame("Frame")
+
+local function SetupCenterUtility()
+    local utilitySettings = BCDM.db.profile.CooldownManager.Utility
+
+    if utilitySettings.CenterUtility then
+        centerUtilityEventFrame:SetScript("OnUpdate", CenterUtility)
+    else
+        centerUtilityEventFrame:SetScript("OnUpdate", nil)
+        centerUtilityEventFrame:Hide()
+    end
+end
+
+-- 添加Essential居中功能
+local centerEssentialUpdateThrottle = 0.05
+local nextcenterEssentialUpdate = 0
+
+local function CenterEssential()
+    local currentTime = GetTime()
+    if currentTime < nextcenterEssentialUpdate then return end
+    nextcenterEssentialUpdate = currentTime + centerEssentialUpdateThrottle
+    
+    local essentialSettings = BCDM.db.profile.CooldownManager.Essential
+    local iconLimit = essentialSettings.IconLimitPerRow or 20  -- 获取每行图标数量限制，默认为20
+    
+    -- 使用新的居中算法
+    BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+
+    return #BCDM.CooldownCentering.CollectViewerChildren(EssentialCooldownViewer)
+end
+
+local centerEssentialEventFrame = CreateFrame("Frame")
+
+local function SetupCenterEssential()
+    local essentialSettings = BCDM.db.profile.CooldownManager.Essential
+
+    if essentialSettings.CenterEssential then
+        centerEssentialEventFrame:SetScript("OnUpdate", CenterEssential)
+    else
+        centerEssentialEventFrame:SetScript("OnUpdate", nil)
+        centerEssentialEventFrame:Hide()
+    end
+end
+
 function BCDM:SkinCooldownManager()
     local LEMO = BCDM.LEMO
     LEMO:LoadLayouts()
@@ -336,6 +515,8 @@ function BCDM:SkinCooldownManager()
     Position()
     SetHooks()
     SetupCenterBuffs()
+    SetupCenterUtility()
+    SetupCenterEssential()
     for _, viewerName in ipairs(BCDM.CooldownManagerViewers) do
         C_Timer.After(0.1, function() ApplyCooldownText(viewerName) end)
     end
@@ -343,8 +524,15 @@ function BCDM:SkinCooldownManager()
     C_Timer.After(1, function()
         if not InCombatLockdown() then
             LEMO:ApplyChanges()
+            -- 同步官方设置
+            SyncWithOfficialSettings()
         end
     end)
+    
+    -- 初始化技能高亮功能
+    if BCDM.Assistant then
+        BCDM.Assistant:Initialize()
+    end
 end
 
 function BCDM:UpdateCooldownViewer(viewerType)
@@ -357,7 +545,10 @@ function BCDM:UpdateCooldownViewer(viewerType)
     if viewerType == "Trinket" then BCDM:UpdateTrinketBar() return end
     if viewerType == "ItemSpell" then BCDM:UpdateCustomItemsSpellsBar() return end
     if viewerType == "Buffs" then SetupCenterBuffs() end
+    if viewerType == "Utility" then SetupCenterUtility() end
+    if viewerType == "Essential" then SetupCenterEssential() end
 
+    if not cooldownViewerFrame then return end
 
     for _, childFrame in ipairs({cooldownViewerFrame:GetChildren()}) do
         if childFrame then
@@ -387,9 +578,43 @@ function BCDM:UpdateCooldownViewer(viewerType)
 
     ApplyCooldownText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
 
+    -- 重新应用居中布局，确保使用最新的设置
+    if viewerType == "Essential" and cooldownManagerSettings.Essential.CenterEssential then
+        local iconLimit = cooldownManagerSettings.Essential.IconLimitPerRow or cooldownViewerFrame.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(EssentialCooldownViewer, "CENTER", iconLimit)
+    elseif viewerType == "Utility" and cooldownManagerSettings.Utility.CenterUtility then
+        local iconLimit = cooldownManagerSettings.Utility.IconLimitPerRow or cooldownViewerFrame.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(UtilityCooldownViewer, "CENTER", iconLimit)
+    elseif viewerType == "Buffs" and cooldownManagerSettings.Buffs.CenterBuffs then
+        local iconLimit = cooldownManagerSettings.Buffs.IconLimitPerRow or cooldownViewerFrame.iconLimit or 20
+        BCDM.CooldownCentering.CenterAllRowsForViewer(BuffIconCooldownViewer, "CENTER", iconLimit)
+    end
+
+    -- 强制更新Overlay框架的锚点，确保它们正确反映当前布局
+    C_Timer.After(0.1, function()
+        if viewerType == "Essential" and BCDM.EssentialCooldownViewerOverlay then
+            BCDM.EssentialCooldownViewerOverlay:ClearAllPoints()
+            BCDM.EssentialCooldownViewerOverlay:SetPoint("TOPLEFT", _G["EssentialCooldownViewer"], "TOPLEFT", -8, 8)
+            BCDM.EssentialCooldownViewerOverlay:SetPoint("BOTTOMRIGHT", _G["EssentialCooldownViewer"], "BOTTOMRIGHT", 8, -8)
+        elseif viewerType == "Utility" and BCDM.UtilityCooldownViewerOverlay then
+            BCDM.UtilityCooldownViewerOverlay:ClearAllPoints()
+            BCDM.UtilityCooldownViewerOverlay:SetPoint("TOPLEFT", _G["UtilityCooldownViewer"], "TOPLEFT", -8, 8)
+            BCDM.UtilityCooldownViewerOverlay:SetPoint("BOTTOMRIGHT", _G["UtilityCooldownViewer"], "BOTTOMRIGHT", 8, -8)
+        elseif viewerType == "Buffs" and BCDM.BuffIconCooldownViewerOverlay then
+            BCDM.BuffIconCooldownViewerOverlay:ClearAllPoints()
+            BCDM.BuffIconCooldownViewerOverlay:SetPoint("TOPLEFT", _G["BuffIconCooldownViewer"], "TOPLEFT", -8, 8)
+            BCDM.BuffIconCooldownViewerOverlay:SetPoint("BOTTOMRIGHT", _G["BuffIconCooldownViewer"], "BOTTOMRIGHT", 8, -8)
+        end
+    end)
+
     BCDM:UpdatePowerBarWidth()
     BCDM:UpdateSecondaryPowerBarWidth()
     BCDM:UpdateCastBarWidth()
+    
+    -- 如果启用了技能高亮，重新初始化助理模块
+    if BCDM.Assistant then
+        BCDM.Assistant:Initialize()
+    end
 end
 
 function BCDM:UpdateCooldownViewers()
@@ -404,4 +629,7 @@ function BCDM:UpdateCooldownViewers()
     BCDM:UpdatePowerBar()
     BCDM:UpdateSecondaryPowerBar()
     BCDM:UpdateCastBar()
+    
+    -- 应用同步设置
+    SyncWithOfficialSettings()
 end
