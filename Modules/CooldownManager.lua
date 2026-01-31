@@ -177,7 +177,9 @@ local function Position()
 
             if viewerName == "EssentialCooldownViewer" then
                 -- 仅 Essential 使用 LEMO 接管
-                BCDM.LEMO:ReanchorFrame(viewerFrame, viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+                if BCDM.LEMO:AreLayoutsLoaded() and BCDM.LEMO:CanEditActiveLayout() then
+                    BCDM.LEMO:ReanchorFrame(viewerFrame, viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
+                end
                 -- 手动设置位置，避免依赖 ApplyChanges 导致死循环
                 viewerFrame:ClearAllPoints()
                 viewerFrame:SetPoint(viewerSettings.Layout[1], anchorParent, viewerSettings.Layout[3], viewerSettings.Layout[4], viewerSettings.Layout[5])
