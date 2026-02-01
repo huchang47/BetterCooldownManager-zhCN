@@ -245,7 +245,7 @@ local function LayoutTrinketBar()
         end
     end
 
-    BCDM.TrinketBarContainer:Show()
+    if CustomDB.Enabled then  BCDM.TrinketBarContainer:Show() else BCDM.TrinketBarContainer:Hide() end
 end
 
 function BCDM:SetupTrinketBar()
