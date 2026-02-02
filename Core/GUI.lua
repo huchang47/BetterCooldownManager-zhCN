@@ -1186,19 +1186,6 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         end)
         centerUtilityCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(centerUtilityCheckbox)
-        
-        -- 添加技能高亮设置
-        local highlightUtilityCheckbox = AG:Create("CheckBox")
-        highlightUtilityCheckbox:SetLabel(L["Show Rotation Highlight (Assistant)"])
-        highlightUtilityCheckbox:SetValue(BCDM.db.profile.CooldownManager.Utility.ShowHighlight)
-        highlightUtilityCheckbox:SetCallback("OnValueChanged", function(_, _, value)
-            BCDM.db.profile.CooldownManager.Utility.ShowHighlight = value
-            if BCDM.Assistant then
-                BCDM.Assistant:OnSettingChanged("Utility")
-            end
-        end)
-        highlightUtilityCheckbox:SetRelativeWidth(1)
-        toggleContainer:AddChild(highlightUtilityCheckbox)
     end
 
     if viewerType == "Essential" then
@@ -1268,19 +1255,6 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         end)
         centerBuffsCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(centerBuffsCheckbox)
-        
-        -- 添加技能高亮设置
-        local highlightBuffsCheckbox = AG:Create("CheckBox")
-        highlightBuffsCheckbox:SetLabel(L["Show Rotation Highlight (Assistant)"])
-        highlightBuffsCheckbox:SetValue(BCDM.db.profile.CooldownManager.Buffs.ShowHighlight)
-        highlightBuffsCheckbox:SetCallback("OnValueChanged", function(_, _, value)
-            BCDM.db.profile.CooldownManager.Buffs.ShowHighlight = value
-            if BCDM.Assistant then
-                BCDM.Assistant:OnSettingChanged("Buffs")
-            end
-        end)
-        highlightBuffsCheckbox:SetRelativeWidth(1)
-        toggleContainer:AddChild(highlightBuffsCheckbox)
     end
 
     -- local foregroundColourPicker;
@@ -1464,6 +1438,195 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     ScrollFrame:DoLayout()
 
     parentContainer:DoLayout()
+
+    return ScrollFrame
+end
+
+local function CreateCastSequenceBarSettings(parentContainer)
+    local ScrollFrame = AG:Create("ScrollFrame")
+    ScrollFrame:SetLayout("Flow")
+    ScrollFrame:SetFullWidth(true)
+    ScrollFrame:SetFullHeight(true)
+    parentContainer:AddChild(ScrollFrame)
+
+    local toggleContainer = AG:Create("InlineGroup")
+    toggleContainer:SetTitle(L["Toggles & Colours"])
+    toggleContainer:SetFullWidth(true)
+    toggleContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(toggleContainer)
+
+    local enabledCheckbox = AG:Create("CheckBox")
+    enabledCheckbox:SetLabel(L["Enable Cast Sequence Bar"])
+    enabledCheckbox:SetValue(BCDM.db.profile.CastSequenceBar.Enabled)
+    enabledCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Enabled = value BCDM:UpdateCastSequenceBar() RefreshCastSequenceBarGUISettings() end)
+    enabledCheckbox:SetRelativeWidth(0.33)
+    toggleContainer:AddChild(enabledCheckbox)
+
+    local debugCheckbox = AG:Create("CheckBox")
+    debugCheckbox:SetLabel(L["Debug Mode"])
+    debugCheckbox:SetValue(BCDM.db.profile.CastSequenceBar.DebugMode)
+    debugCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.DebugMode = value end)
+    debugCheckbox:SetRelativeWidth(0.33)
+    toggleContainer:AddChild(debugCheckbox)
+
+    local tooltipCheckbox = AG:Create("CheckBox")
+    tooltipCheckbox:SetLabel(L["Show Tooltip"])
+    tooltipCheckbox:SetValue(BCDM.db.profile.CastSequenceBar.ShowTooltip)
+    tooltipCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.ShowTooltip = value end)
+    tooltipCheckbox:SetRelativeWidth(0.33)
+    toggleContainer:AddChild(tooltipCheckbox)
+
+    local timelineAnimationCheckbox = AG:Create("CheckBox")
+    timelineAnimationCheckbox:SetLabel(L["Timeline Animation"])
+    timelineAnimationCheckbox:SetValue(BCDM.db.profile.CastSequenceBar.TimelineAnimation)
+    timelineAnimationCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.TimelineAnimation = value BCDM:ClearCastSequenceBar() end)
+    timelineAnimationCheckbox:SetRelativeWidth(0.33)
+    toggleContainer:AddChild(timelineAnimationCheckbox)
+
+    local backgroundColourPicker = AG:Create("ColorPicker")
+    backgroundColourPicker:SetLabel(L["Background Colour"])
+    backgroundColourPicker:SetColor(BCDM.db.profile.CastSequenceBar.BackgroundColour[1], BCDM.db.profile.CastSequenceBar.BackgroundColour[2], BCDM.db.profile.CastSequenceBar.BackgroundColour[3], BCDM.db.profile.CastSequenceBar.BackgroundColour[4])
+    backgroundColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.CastSequenceBar.BackgroundColour = {r, g, b, a} BCDM:UpdateCastSequenceBar() end)
+    backgroundColourPicker:SetRelativeWidth(0.33)
+    backgroundColourPicker:SetHasAlpha(true)
+    toggleContainer:AddChild(backgroundColourPicker)
+
+    local borderColourPicker = AG:Create("ColorPicker")
+    borderColourPicker:SetLabel(L["Border Colour"])
+    borderColourPicker:SetColor(BCDM.db.profile.CastSequenceBar.BorderColour[1], BCDM.db.profile.CastSequenceBar.BorderColour[2], BCDM.db.profile.CastSequenceBar.BorderColour[3], BCDM.db.profile.CastSequenceBar.BorderColour[4])
+    borderColourPicker:SetCallback("OnValueChanged", function(self, _, r, g, b, a) BCDM.db.profile.CastSequenceBar.BorderColour = {r, g, b, a} BCDM:UpdateCastSequenceBar() end)
+    borderColourPicker:SetRelativeWidth(0.33)
+    borderColourPicker:SetHasAlpha(true)
+    toggleContainer:AddChild(borderColourPicker)
+
+    local layoutContainer = AG:Create("InlineGroup")
+    layoutContainer:SetTitle(L["Layout & Positioning"])
+    layoutContainer:SetFullWidth(true)
+    layoutContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(layoutContainer)
+
+    local anchorFromDropdown = AG:Create("Dropdown")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
+    anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
+    anchorFromDropdown:SetValue(BCDM.db.profile.CastSequenceBar.Layout[1])
+    anchorFromDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Layout[1] = value BCDM:UpdateCastSequenceBar() end)
+    anchorFromDropdown:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(anchorFromDropdown)
+
+    local anchorParentDropdown = AG:Create("Dropdown")
+    anchorParentDropdown:SetLabel(L["Anchor Parent"])
+    anchorParentDropdown:SetList(AnchorParents["CastBar"][1], AnchorParents["CastBar"][2]) -- Using CastBar parents as they are likely generic enough, or I can add "UIParent" manually if needed. Wait, Defaults says "UIParent" but AnchorParents table might not have it directly if not defined. Let's assume AnchorParents["CastBar"] covers common frames.
+    -- Actually, looking at Defaults, it uses "UIParent". AnchorParents["CastBar"] usually contains frames like "UIParent", "EssentialCooldownViewer", etc.
+    anchorParentDropdown:SetValue(BCDM.db.profile.CastSequenceBar.Layout[2])
+    anchorParentDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Layout[2] = value BCDM:UpdateCastSequenceBar() end)
+    anchorParentDropdown:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(anchorParentDropdown)
+
+    local anchorToDropdown = AG:Create("Dropdown")
+    anchorToDropdown:SetLabel(L["Anchor To"])
+    anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
+    anchorToDropdown:SetValue(BCDM.db.profile.CastSequenceBar.Layout[3])
+    anchorToDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Layout[3] = value BCDM:UpdateCastSequenceBar() end)
+    anchorToDropdown:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(anchorToDropdown)
+
+    local xOffsetSlider = AG:Create("Slider")
+    xOffsetSlider:SetLabel(L["X Offset"])
+    xOffsetSlider:SetValue(BCDM.db.profile.CastSequenceBar.Layout[4])
+    xOffsetSlider:SetSliderValues(-2000, 2000, 1)
+    xOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Layout[4] = value BCDM:UpdateCastSequenceBar() end)
+    xOffsetSlider:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(xOffsetSlider)
+
+    local yOffsetSlider = AG:Create("Slider")
+    yOffsetSlider:SetLabel(L["Y Offset"])
+    yOffsetSlider:SetValue(BCDM.db.profile.CastSequenceBar.Layout[5])
+    yOffsetSlider:SetSliderValues(-2000, 2000, 1)
+    yOffsetSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Layout[5] = value BCDM:UpdateCastSequenceBar() end)
+    yOffsetSlider:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(yOffsetSlider)
+
+    local widthSlider = AG:Create("Slider")
+    widthSlider:SetLabel(L["Width"])
+    widthSlider:SetValue(BCDM.db.profile.CastSequenceBar.Width)
+    widthSlider:SetSliderValues(50, 3000, 1)
+    widthSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Width = value BCDM:UpdateCastSequenceBar() end)
+    widthSlider:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(widthSlider)
+
+    local matchAnchorWidthCheckbox = AG:Create("CheckBox")
+    matchAnchorWidthCheckbox:SetLabel(L["Match Width Of Anchor"])
+    matchAnchorWidthCheckbox:SetValue(BCDM.db.profile.CastSequenceBar.MatchWidthOfAnchor)
+    matchAnchorWidthCheckbox:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.MatchWidthOfAnchor = value BCDM:UpdateCastSequenceBar() RefreshCastSequenceBarGUISettings() end)
+    matchAnchorWidthCheckbox:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(matchAnchorWidthCheckbox)
+
+    local squareSizeSlider = AG:Create("Slider")
+    squareSizeSlider:SetLabel(L["Square Size"])
+    squareSizeSlider:SetValue(BCDM.db.profile.CastSequenceBar.SquareSize)
+    squareSizeSlider:SetSliderValues(10, 100, 1)
+    squareSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.SquareSize = value BCDM:UpdateCastSequenceBar() end)
+    squareSizeSlider:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(squareSizeSlider)
+
+    local squareAmountSlider = AG:Create("Slider")
+    squareAmountSlider:SetLabel(L["Square Amount"])
+    squareAmountSlider:SetValue(BCDM.db.profile.CastSequenceBar.SquareAmount)
+    squareAmountSlider:SetSliderValues(1, 20, 1)
+    squareAmountSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.SquareAmount = value BCDM:UpdateCastSequenceBar() end)
+    squareAmountSlider:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(squareAmountSlider)
+
+    local spacingSlider = AG:Create("Slider")
+    spacingSlider:SetLabel(L["Spacing"])
+    spacingSlider:SetValue(BCDM.db.profile.CastSequenceBar.Spacing)
+    spacingSlider:SetSliderValues(0, 20, 1)
+    spacingSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Spacing = value BCDM:UpdateCastSequenceBar() end)
+    spacingSlider:SetRelativeWidth(0.33)
+    layoutContainer:AddChild(spacingSlider)
+
+    local growDirectionDropdown = AG:Create("Dropdown")
+    growDirectionDropdown:SetLabel(L["Grow Direction"])
+    growDirectionDropdown:SetList({ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] }, { "LEFT", "RIGHT" })
+    growDirectionDropdown:SetValue(BCDM.db.profile.CastSequenceBar.GrowDirection)
+    growDirectionDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.GrowDirection = value BCDM:ClearCastSequenceBar() BCDM:UpdateCastSequenceBar() end)
+    growDirectionDropdown:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(growDirectionDropdown)
+
+    local frameStrataDropdown = AG:Create("Dropdown")
+    frameStrataDropdown:SetLabel(L["Frame Strata"])
+    frameStrataDropdown:SetList({["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}, {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"})
+    frameStrataDropdown:SetValue(BCDM.db.profile.CastSequenceBar.FrameStrata)
+    frameStrataDropdown:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.FrameStrata = value BCDM:UpdateCastSequenceBar() end)
+    frameStrataDropdown:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(frameStrataDropdown)
+
+    function RefreshCastSequenceBarGUISettings()
+        if not BCDM.db.profile.CastSequenceBar.Enabled then
+            for _, child in ipairs(toggleContainer.children) do
+                if child ~= enabledCheckbox then child:SetDisabled(true) end
+            end
+            for _, child in ipairs(layoutContainer.children) do
+                child:SetDisabled(true)
+            end
+        else
+            for _, child in ipairs(toggleContainer.children) do
+                child:SetDisabled(false)
+            end
+            for _, child in ipairs(layoutContainer.children) do
+                child:SetDisabled(false)
+            end
+        end
+        if BCDM.db.profile.CastSequenceBar.MatchWidthOfAnchor then
+            widthSlider:SetDisabled(true)
+        else
+            widthSlider:SetDisabled(false)
+        end
+    end
+
+    RefreshCastSequenceBarGUISettings()
+
+    ScrollFrame:DoLayout()
 
     return ScrollFrame
 end
@@ -2627,6 +2790,8 @@ function BCDM:CreateGUI()
             CreateSecondaryPowerBarSettings(Wrapper)
         elseif MainTab == "CastBar" then
             CreateCastBarSettings(Wrapper)
+        elseif MainTab == "CastSequenceBar" then
+            CreateCastSequenceBarSettings(Wrapper)
         elseif MainTab == "Profiles" then
             CreateProfileSettings(Wrapper)
         end
@@ -2656,6 +2821,7 @@ function BCDM:CreateGUI()
         { text = L["Power Bar"], value = "PowerBar"},
         { text = L["Secondary Power Bar"], value = "SecondaryPowerBar"},
         { text = L["Cast Bar"], value = "CastBar"},
+        { text = L["Cast Sequence Bar"], value = "CastSequenceBar"},
         { text = L["Profiles"], value = "Profiles"},
     })
     ContainerTabGroup:SetCallback("OnGroupSelected", SelectTab)

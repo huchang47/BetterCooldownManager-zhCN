@@ -29,11 +29,7 @@ local function IsAssistantEnabledForAnyViewer()
         return false
     end
 
-    if
-        BCDM.db.profile.CooldownManager.Essential.ShowHighlight
-        or BCDM.db.profile.CooldownManager.Utility.ShowHighlight
-        or BCDM.db.profile.CooldownManager.Buffs.ShowHighlight
-    then
+    if BCDM.db.profile.CooldownManager.Essential.ShowHighlight then
         return true
     end
     return false
@@ -240,10 +236,8 @@ local function UpdateIconHighlight(icon, viewerSettingName)
     
     if viewerSettingName == "Essential" then
         enabledValue = BCDM.db.profile.CooldownManager.Essential[enabledKey]
-    elseif viewerSettingName == "Utility" then
-        enabledValue = BCDM.db.profile.CooldownManager.Utility[enabledKey]
-    elseif viewerSettingName == "Buffs" then
-        enabledValue = BCDM.db.profile.CooldownManager.Buffs[enabledKey]
+    else
+        enabledValue = false
     end
 
     if not enabledValue then
@@ -329,10 +323,8 @@ function Assistant:PrepareRotationBorders()
                 
                 if settingName == "Essential" then
                     enabledValue = BCDM.db.profile.CooldownManager.Essential[enabledKey]
-                elseif settingName == "Utility" then
-                    enabledValue = BCDM.db.profile.CooldownManager.Utility[enabledKey]
-                elseif settingName == "Buffs" then
-                    enabledValue = BCDM.db.profile.CooldownManager.Buffs[enabledKey]
+                else
+                    enabledValue = false
                 end
                 
                 if enabledValue then
@@ -386,21 +378,9 @@ end)
 hooksecurefunc(AssistedCombatManager, "UpdateAllAssistedHighlightFramesForSpell", function(self, spellID)
     if BCDM.db and BCDM.db.profile then
         local shouldUpdate = false
-        for _, settingName in pairs(viewersSettingKey) do
-            local enabledValue = false
-            
-            if settingName == "Essential" then
-                enabledValue = BCDM.db.profile.CooldownManager.Essential.ShowHighlight
-            elseif settingName == "Utility" then
-                enabledValue = BCDM.db.profile.CooldownManager.Utility.ShowHighlight
-            elseif settingName == "Buffs" then
-                enabledValue = BCDM.db.profile.CooldownManager.Buffs.ShowHighlight
-            end
-            
-            if enabledValue then
-                shouldUpdate = true
-                break
-            end
+        
+        if BCDM.db.profile.CooldownManager.Essential.ShowHighlight then
+            shouldUpdate = true
         end
 
         if shouldUpdate then
@@ -432,9 +412,6 @@ function Assistant:Shutdown()
 end
 
 function Assistant:Enable()
-    if C_CVar.GetCVar("assistedCombatHighlight") ~= "1" then
-        C_CVar.SetCVar("assistedCombatHighlight", "1")
-    end
     if isModuleAssistantEnabled then
         return
     end

@@ -249,18 +249,17 @@ local function LayoutTrinketBar()
 end
 
 function BCDM:SetupTrinketBar()
-    local CooldownManagerDB = BCDM.db.profile
-    local CustomDB = CooldownManagerDB.CooldownManager.Trinket
-    if CustomDB.Enabled then
-        LayoutTrinketBar()
-    end
+    LayoutTrinketBar()
 end
 
 function BCDM:UpdateTrinketBar()
     local CooldownManagerDB = BCDM.db.profile
     local CustomDB = CooldownManagerDB.CooldownManager.Trinket
     local isEnabled = CustomDB.Enabled
-    if isEnabled then
+    if BCDM.TrinketBarContainer and isEnabled then
+        BCDM.TrinketBarContainer:ClearAllPoints()
+        local anchorParent = CustomDB.Layout[2] == "NONE" and UIParent or _G[CustomDB.Layout[2]]
+        BCDM.TrinketBarContainer:SetPoint(CustomDB.Layout[1], anchorParent, CustomDB.Layout[3], CustomDB.Layout[4], CustomDB.Layout[5])
         LayoutTrinketBar()
     else
         if BCDM.TrinketBarContainer then
