@@ -30,7 +30,7 @@ function BCDM:ImportSavedVariables(encodedInfo, profileName)
         BCDMG.RefreshProfiles()
         LEMO:LoadLayouts()
         BCDM:UpdateBCDM()
-        LEMO:ApplyChanges()
+        BCDM:SafeApplyChanges()
         return
     end
     StaticPopupDialogs["BCDM_IMPORT_NEW_PROFILE"] = {
@@ -56,7 +56,7 @@ function BCDM:ImportSavedVariables(encodedInfo, profileName)
             BCDMG.RefreshProfiles()
             LEMO:LoadLayouts()
             BCDM:UpdateBCDM()
-            LEMO:ApplyChanges()
+            BCDM:SafeApplyChanges()
         end,
     }
 

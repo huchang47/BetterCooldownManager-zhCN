@@ -30,20 +30,12 @@ local Defaults = {
                     [1] = {1, 0, 0},                                            -- Rage
                     [2] = {1, 0.5, 0.25},                                       -- Focus
                     [3] = {1, 1, 0},                                            -- Energy
-                    [4] = {1, 0.96, 0.41},                                      -- Combo Points
-                    [5] = {0.77, 0.12, 0.23},                                   -- Runes
                     [6] = {0, 0.82, 1},                                         -- Runic Power
-                    [7] = {0.58, 0.51, 0.79},                                   -- Soul Shards
-                    [8] = {0.75, 0.52, 0.9},                                    -- Astral Power
-                    [9] = {0.95, 0.90, 0.60},                                   -- Holy Power
+                    [8] = {0.75, 0.52, 0.9},                                    -- Lunar Power
                     [11] = {0, 0.5, 1},                                         -- Maelstrom
-                    [12] = {0.71, 1.00, 0.92},                                  -- Chi
                     [13] = {0.4, 0, 0.8},                                       -- Insanity
-                    [16] = {0.10, 0.10, 0.98},                                  -- Arcane Charges
                     [17] = {0.79, 0.26, 0.99},                                  -- Fury
-                    [18] = {1, 0.61, 0},                                        -- Pain
-                    [19] = {0.20, 0.58, 0.50},                                  -- Essence
-                    [20] = {0, 0.5, 1}                                          -- Maelstrom (Evoker)
+                    [18] = {1, 0.61, 0}                                         -- Pain
                 },
                 SecondaryPower = {
                     MANA                           = {0.00, 0.00, 1.00, 1.0 },
@@ -470,6 +462,12 @@ local Defaults = {
             BackgroundColour = {0, 0, 0, 0.4},
             BorderColour = {0, 0, 0, 1},
             Layout = {"TOP", "EssentialCooldownViewer", "BOTTOM", 0, -1},
+            Lifetime = {
+                Enabled = true,
+                Duration = 8,
+                MinDuration = 3,
+                MaxDuration = 15
+            }
         },
         CastBar = {
             Enabled = true,

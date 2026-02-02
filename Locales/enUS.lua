@@ -59,8 +59,8 @@ L["Growth Direction"] = "Growth Direction"
 L["Match Width Of Anchor"] = "Match Width Of Anchor"
 L["Colour By Class"] = "Colour By Class"
 L["Background Colour"] = "Background Colour"
-L["Foreground Colour"] = "Foreground Colour"
 L["Border Colour"] = "Border Colour"
+L["Foreground Colour"] = "Foreground Colour"
 L["Toggles & Colours"] = "Toggles & Colours"
 L["Colour By Power Type"] = "Colour By Power Type"
 L["Icon"] = "Icon"
@@ -352,6 +352,10 @@ L["Icon Spacing"] = "Icon Spacing"
 L["Enable Power Text"] = "Enable Power Text"
 L["Enable Trinket Viewer"] = "Enable Trinket Viewer"
 L["Enable Skinning"] = "Enable Skinning"
+
+-- Lifetime Settings
+L["Lifetime"] = "Lifetime"
+L["Lifetime Duration"] = "Lifetime Duration"
 
 -- Profile Management
 L["Copy Profile"] = "Copy Profile"

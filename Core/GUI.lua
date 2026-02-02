@@ -354,20 +354,12 @@ local function CreateGeneralSettings(parentContainer)
             [1] = {1, 0, 0},            -- Rage
             [2] = {1, 0.5, 0.25},       -- Focus
             [3] = {1, 1, 0},            -- Energy
-            [4] = {1, 0.96, 0.41},      -- Combo Points
-            [5] = {0.77, 0.12, 0.23},   -- Runes
             [6] = {0, 0.82, 1},         -- Runic Power
-            [7] = {0.58, 0.51, 0.79},   -- Soul Shards
-            [8] = {0.75, 0.52, 0.9},    -- Astral Power
-            [9] = {0.95, 0.90, 0.60},   -- Holy Power
+            [8] = {0.75, 0.52, 0.9},     -- Lunar Power
             [11] = {0, 0.5, 1},         -- Maelstrom
-            [12] = {0.71, 1.00, 0.92},  -- Chi
             [13] = {0.4, 0, 0.8},       -- Insanity
-            [16] = {0.10, 0.10, 0.98},  -- Arcane Charges
             [17] = {0.79, 0.26, 0.99},  -- Fury
-            [18] = {1, 0.61, 0},        -- Pain
-            [19] = {0.20, 0.58, 0.50},  -- Essence
-            [20] = {0, 0.5, 1}          -- Maelstrom (Evoker)
+            [18] = {1, 0.61, 0}         -- Pain
         },
         SecondaryPower = {
             MANA                           = {0.00, 0.00, 1.00, 1.0 },
@@ -1399,7 +1391,7 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         local forceUpdateButton = AG:Create("Button")
         forceUpdateButton:SetText(L["Force Update"])
         forceUpdateButton:SetRelativeWidth(0.3)
-        forceUpdateButton:SetCallback("OnClick", function() LEMO:ApplyChanges() end)
+        forceUpdateButton:SetCallback("OnClick", function() BCDM:SafeApplyChanges() end)
         layoutContainer:AddChild(forceUpdateButton)
     end
 
@@ -1574,7 +1566,7 @@ local function CreateCastSequenceBarSettings(parentContainer)
     squareSizeSlider:SetValue(BCDM.db.profile.CastSequenceBar.SquareSize)
     squareSizeSlider:SetSliderValues(10, 100, 1)
     squareSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.SquareSize = value BCDM:UpdateCastSequenceBar() end)
-    squareSizeSlider:SetRelativeWidth(0.33)
+    squareSizeSlider:SetRelativeWidth(0.5)
     layoutContainer:AddChild(squareSizeSlider)
 
     local squareAmountSlider = AG:Create("Slider")
@@ -1582,7 +1574,7 @@ local function CreateCastSequenceBarSettings(parentContainer)
     squareAmountSlider:SetValue(BCDM.db.profile.CastSequenceBar.SquareAmount)
     squareAmountSlider:SetSliderValues(1, 20, 1)
     squareAmountSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.SquareAmount = value BCDM:UpdateCastSequenceBar() end)
-    squareAmountSlider:SetRelativeWidth(0.33)
+    squareAmountSlider:SetRelativeWidth(0.5)
     layoutContainer:AddChild(squareAmountSlider)
 
     local spacingSlider = AG:Create("Slider")
@@ -1590,8 +1582,17 @@ local function CreateCastSequenceBarSettings(parentContainer)
     spacingSlider:SetValue(BCDM.db.profile.CastSequenceBar.Spacing)
     spacingSlider:SetSliderValues(0, 20, 1)
     spacingSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Spacing = value BCDM:UpdateCastSequenceBar() end)
-    spacingSlider:SetRelativeWidth(0.33)
+    spacingSlider:SetRelativeWidth(0.5)
     layoutContainer:AddChild(spacingSlider)
+
+        -- 图标生命周期
+    local lifetimeSlider = AG:Create("Slider")
+    lifetimeSlider:SetLabel(L["Lifetime Duration"])
+    lifetimeSlider:SetValue(BCDM.db.profile.CastSequenceBar.Lifetime.Duration)
+    lifetimeSlider:SetSliderValues(3, 15, 1)
+    lifetimeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CastSequenceBar.Lifetime.Duration = value BCDM:UpdateCastSequenceBar() end)
+    lifetimeSlider:SetRelativeWidth(0.5)
+    layoutContainer:AddChild(lifetimeSlider)
 
     local growDirectionDropdown = AG:Create("Dropdown")
     growDirectionDropdown:SetLabel(L["Grow Direction"])
@@ -2759,7 +2760,7 @@ function BCDM:CreateGUI()
     Container:SetWidth(900)
     Container:SetHeight(600)
     Container:EnableResize(false)
-    Container:SetCallback("OnClose", function(widget) AG:Release(widget) LEMO:ApplyChanges() BCDM:UpdateBCDM() isGUIOpen = false BCDM.CAST_BAR_TEST_MODE = false BCDM:CreateTestCastBar() BCDM.EssentialCooldownViewerOverlay:Hide() BCDM.UtilityCooldownViewerOverlay:Hide() BCDM.BuffIconCooldownViewerOverlay:Hide() end)
+    Container:SetCallback("OnClose", function(widget) AG:Release(widget) BCDM:SafeApplyChanges() BCDM:UpdateBCDM() isGUIOpen = false BCDM.CAST_BAR_TEST_MODE = false BCDM:CreateTestCastBar() BCDM.EssentialCooldownViewerOverlay:Hide() BCDM.UtilityCooldownViewerOverlay:Hide() BCDM.BuffIconCooldownViewerOverlay:Hide() end)
 
     local function SelectTab(GUIContainer, _, MainTab)
         GUIContainer:ReleaseChildren()

@@ -29,7 +29,7 @@ function BCDMG:ImportBCDM(importString, profileKey)
         BCDM.db:SetProfile(profileKey)
         LEMO:LoadLayouts()
         BCDM:UpdateBCDM()
-        LEMO:ApplyChanges()
+        BCDM:SafeApplyChanges()
     end
 end
 

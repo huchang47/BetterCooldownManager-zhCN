@@ -12,7 +12,7 @@ function BCDM:SetupEventManager()
         if event == "PLAYER_SPECIALIZATION_CHANGED" then
             local unit = ...
             if unit ~= "player" then return end
-            LEMO:ApplyChanges()
+            BCDM:SafeApplyChanges()
             BCDM:UpdateBCDM()
         else
             BCDM:UpdateBCDM()

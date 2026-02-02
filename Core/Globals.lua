@@ -131,6 +131,51 @@ function BCDM:Init()
     SetupSlashCommands()
     BCDM:ResolveLSM()
     if C_AddOns.IsAddOnLoaded("Blizzard_CooldownViewer") then C_AddOns.LoadAddOn("Blizzard_CooldownViewer") end
+    
+    -- 修复 Blizzard_CooldownViewer CacheChargeValues 错误
+    if CacheChargeValues and not BCDM.OriginalCacheChargeValues then
+        BCDM.OriginalCacheChargeValues = CacheChargeValues
+        CacheChargeValues = function(self, spellID, charges, maxCharges, chargeStart, chargeDuration)
+            -- 在比较之前确保它是一个数字
+            if type(charges) ~= "number" then
+                charges = tonumber(charges) or 0
+            end
+            if type(maxCharges) ~= "number" then
+                maxCharges = tonumber(maxCharges) or 0
+            end
+            return BCDM.OriginalCacheChargeValues(self, spellID, charges, maxCharges, chargeStart, chargeDuration)
+        end
+    end
+end
+
+-- 安全保存布局的函数，处理预设布局的情况
+function BCDM:SafeApplyChanges()
+    local LEMO = BCDM.LEMO
+    if not LEMO:AreLayoutsLoaded() then
+        LEMO:LoadLayouts()
+    end
+    
+    -- 检查当前布局是否为预设布局
+    if not LEMO:CanEditActiveLayout() then
+        -- 使用玩家名字作为布局名称基础
+        local playerName = UnitName("player")
+        local layoutName = playerName .. " 的布局"
+        
+        -- 检查是否已存在该名称的布局
+        if LEMO:DoesLayoutExist(layoutName) then
+            -- 如果存在，直接设置为活动布局
+            LEMO:SetActiveLayout(layoutName)
+        else
+            -- 如果不存在，创建新布局并设为活动
+            LEMO:AddLayout(Enum.EditModeLayoutType.Character, layoutName)
+        end
+        
+        -- 重新应用所有设置，确保布局包含用户的更改
+        BCDM:UpdateBCDM()
+    end
+    
+    -- 应用更改
+    LEMO:ApplyChanges()
 end
 
 function BCDM:CopyTable(defaultTable)

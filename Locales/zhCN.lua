@@ -58,8 +58,8 @@ L["Growth Direction"] = "生长方向"
 L["Match Width Of Anchor"] = "匹配锚点宽度"
 L["Colour By Class"] = "按职业着色"
 L["Background Colour"] = "背景颜色"
-L["Foreground Colour"] = "前景颜色"
 L["Border Colour"] = "边框颜色"
+L["Foreground Colour"] = "前景颜色"
 L["Toggles & Colours"] = "开关与颜色"
 L["Icon"] = "图标"
 L["Spell Name"] = "法术名称"
@@ -360,6 +360,10 @@ L["Stagger Damage Per Second"] = "醉拳每秒伤害"
 L["Height (No Primary Bar)"] = "高度(无主能量条)"
 L["Enable Skinning"] = "启用皮肤"
 L["Enable Trinket Viewer"] = "启用饰品管理器"
+
+-- Lifetime Settings
+L["Lifetime"] = "生命周期"
+L["Lifetime Duration"] = "图标生命周期"
 
 -- Cast Sequence Bar
 L["Cast Sequence Bar"] = "施法序列条"

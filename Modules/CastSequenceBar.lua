@@ -160,18 +160,22 @@ function BCDM.CastSequenceBar:UpdateSquare(entry)
     local square = entry.square
     if not square then return end
 
-    local data = entry
+    -- 不再在这里检查生命周期过期，而是让 TrackSpellCast 通过淡入淡出效果处理
+    local alpha = entry.alpha or 1
+    local icon = entry.icon
+    local castID = entry.castID
+    local startTime = entry.startTime
+    local endTime = entry.endTime
+    
     square:Show()
-    square:SetAlpha(data.alpha or 1)
-    square.texture:SetTexture(data.icon)
+    square:SetAlpha(alpha)
+    square.texture:SetTexture(icon)
     square.texture:SetTexCoord(5/64, 59/64, 5/64, 59/64)
 
-    local castinfo = self.CastsTable[data.castID]
+    local castinfo = self.CastsTable[castID]
     local percent = castinfo and castinfo.Percent or 0
     if percent > 100 then percent = 100 end
 
-    local startTime = data.startTime
-    local endTime = data.endTime
     UpdateCooldownFrame(square, true, startTime, endTime, castinfo)
 
     if castinfo and castinfo.Interrupted and not castinfo.IsChanneled then
@@ -211,9 +215,10 @@ function BCDM.CastSequenceBar:NewCast(icon, spellName, spellId, target, backgrou
     local CastSequenceBarDB = BCDM.db.profile.CastSequenceBar
     local spacing = CastSequenceBarDB.Spacing
     local squareSize = CastSequenceBarDB.SquareSize
+    local growDirection = CastSequenceBarDB.GrowDirection
     
     local startX, startY = 0, 0
-    if CastSequenceBarDB.GrowDirection == "RIGHT" then
+    if growDirection == "RIGHT" then
         startX = -squareSize
         startY = -spacing
     else
@@ -221,6 +226,14 @@ function BCDM.CastSequenceBar:NewCast(icon, spellName, spellId, target, backgrou
         startY = -spacing
     end
 
+    -- Get lifetime settings
+    local lifetimeEnabled = CastSequenceBarDB.Lifetime.Enabled
+    local lifetime = 0
+    
+    if lifetimeEnabled then
+        lifetime = CastSequenceBarDB.Lifetime.Duration
+    end
+    
     local newEntry = {
         icon = icon,
         spellName = spellName,
@@ -232,17 +245,19 @@ function BCDM.CastSequenceBar:NewCast(icon, spellName, spellId, target, backgrou
         castStart = castStart,
         startTime = startTime,
         endTime = endTime,
+        lifetime = lifetime,
+        lifetimeEnabled = lifetimeEnabled,
         square = square,
         currentX = startX,
         currentY = startY,
-        alpha = 0 -- Start transparent for fade-in
+        alpha = 0
     }
     
     square.activeEntry = newEntry
     self:UpdateSquare(newEntry)
     
     square:ClearAllPoints()
-    if CastSequenceBarDB.GrowDirection == "RIGHT" then
+    if growDirection == "RIGHT" then
          square:SetPoint("TOPLEFT", self.MainFrame, "TOPLEFT", startX, startY)
     else
          square:SetPoint("TOPRIGHT", self.MainFrame, "TOPRIGHT", startX, startY)
@@ -310,6 +325,18 @@ function BCDM.CastSequenceBar:CastFinished(castId)
     self:NewCast(icon, spellName, spellId, target, backgroundcolor, bordercolor, castId, castStart, GetTime(), GetTime() + 1.2)
 end
 
+local function FadeIn(entry, FADE_IN_SPEED)
+    if (entry.alpha or 0) < 1 then
+        entry.alpha = (entry.alpha or 0) + FADE_IN_SPEED
+        if entry.alpha > 1 then entry.alpha = 1 end
+    end
+end
+
+local function FadeOut(entry, FADE_OUT_SPEED)
+    entry.alpha = (entry.alpha or 1) - FADE_OUT_SPEED
+    if entry.alpha < 0 then entry.alpha = 0 end
+end
+
 local function TrackSpellCast(frame, elapsed)
     local self = BCDM.CastSequenceBar
     if not self.castContent then return end
@@ -320,8 +347,8 @@ local function TrackSpellCast(frame, elapsed)
     local direction = CastSequenceBarDB.GrowDirection
     
     local LERP_FACTOR = 10 * (elapsed or 0.033)
-    local FADE_IN_SPEED = 2 * (elapsed or 0.033)
-    local FADE_OUT_SPEED = 2 * (elapsed or 0.033)
+    local FADE_IN_SPEED = 1 * (elapsed or 0.033)
+    local FADE_OUT_SPEED = 1 * (elapsed or 0.033)
     local toRemove = {}
 
     local isTimeline = CastSequenceBarDB.TimelineAnimation
@@ -334,25 +361,24 @@ local function TrackSpellCast(frame, elapsed)
     end
 
     for i, entry in ipairs(self.castContent) do
+        local elapsedTime = GetTime() - entry.castStart
+        local distance = 0
+        local maxDist = CastSequenceBarDB.Width + squareSize
+        local square = entry.square
+        local alpha = entry.alpha or 1
+        local lifetimeEnabled = entry.lifetimeEnabled
+        local lifetime = entry.lifetime
+        local currentX = entry.currentX
+        local currentY = entry.currentY
+        local castID = entry.castID
+
         if isTimeline then
-             local elapsedTime = GetTime() - entry.castStart
-             local distance = elapsedTime * speed
+             distance = elapsedTime * speed
              
              if direction == "RIGHT" then
                  entry.currentX = -squareSize + distance
              else
                  entry.currentX = squareSize - distance
-             end
-
-             local maxDist = CastSequenceBarDB.Width + squareSize
-             if distance > CastSequenceBarDB.Width then
-                 entry.alpha = (entry.alpha or 1) - FADE_OUT_SPEED
-                 if entry.alpha < 0 then entry.alpha = 0 end
-             else
-                 if (entry.alpha or 0) < 1 then
-                    entry.alpha = (entry.alpha or 0) + FADE_IN_SPEED
-                    if entry.alpha > 1 then entry.alpha = 1 end
-                 end
              end
         else
             local targetX = 0
@@ -362,37 +388,51 @@ local function TrackSpellCast(frame, elapsed)
                  targetX = -spacing - (i - 1) * (squareSize + spacing)
             end
             
-            local diff = targetX - entry.currentX
+            local diff = targetX - currentX
             if math.abs(diff) < 0.5 then
                 entry.currentX = targetX
             else
-                entry.currentX = entry.currentX + diff * LERP_FACTOR
+                entry.currentX = currentX + diff * LERP_FACTOR
             end
+        end
 
-            -- Fade In logic
-            if (entry.alpha or 0) < 1 and i <= self.totalSquares then
-                entry.alpha = (entry.alpha or 0) + FADE_IN_SPEED
-                if entry.alpha > 1 then entry.alpha = 1 end
+        -- 应用淡入淡出效果
+        -- 首先检查生命周期是否过期
+        local isLifetimeExpired = lifetimeEnabled and lifetime > 0 and elapsedTime > lifetime
+
+        if isLifetimeExpired then
+            -- 生命周期过期，只执行淡出逻辑
+            FadeOut(entry, FADE_OUT_SPEED)
+        elseif isTimeline then
+            -- 时间轴模式
+            if distance > maxDist then
+                -- 超出最大距离，淡出
+                FadeOut(entry, FADE_OUT_SPEED)
+            else
+                -- 未超出最大距离，淡入
+                FadeIn(entry, FADE_IN_SPEED)
             end
-
-            -- Fade Out logic
-            if i > self.totalSquares then
-                entry.alpha = (entry.alpha or 1) - FADE_OUT_SPEED
-                if entry.alpha < 0 then entry.alpha = 0 end
+        else
+            -- 普通模式
+            if i <= self.totalSquares then
+                -- 在显示范围内，淡入
+                FadeIn(entry, FADE_IN_SPEED)
+            else
+                -- 超出显示范围，淡出
+                FadeOut(entry, FADE_OUT_SPEED)
             end
         end
         
-        if entry.square then
-             entry.square:SetAlpha(entry.alpha or 1)
-             entry.square:ClearAllPoints()
+        if square then
+             square:SetAlpha(entry.alpha or 1)
+             square:ClearAllPoints()
              if direction == "RIGHT" then
-                 entry.square:SetPoint("TOPLEFT", self.MainFrame, "TOPLEFT", entry.currentX, entry.currentY)
+                 square:SetPoint("TOPLEFT", self.MainFrame, "TOPLEFT", entry.currentX, currentY)
              else
-                 entry.square:SetPoint("TOPRIGHT", self.MainFrame, "TOPRIGHT", entry.currentX, entry.currentY)
+                 square:SetPoint("TOPRIGHT", self.MainFrame, "TOPRIGHT", entry.currentX, currentY)
              end
              
-             local square = entry.square
-             local castInfo = self.CastsTable[entry.castID]
+             local castInfo = self.CastsTable[castID]
              
              if castInfo and not castInfo.Done then
                 if castInfo.PendingInterrupt then
@@ -447,13 +487,18 @@ local function TrackSpellCast(frame, elapsed)
         end
 
         if isTimeline then
-            if (entry.alpha or 0) <= 0 and (GetTime() - entry.castStart) > 0.5 then
+            if (entry.alpha or 0) <= 0 and elapsedTime > 0.5 then
                 table.insert(toRemove, i)
             end
         else
             if i > self.totalSquares and (entry.alpha or 0) <= 0 then
                 table.insert(toRemove, i)
             end
+        end
+        
+        -- Check if entry has exceeded its lifetime and fully faded out
+        if lifetimeEnabled and lifetime > 0 and elapsedTime > lifetime and (entry.alpha or 0) <= 0 then
+            table.insert(toRemove, i)
         end
     end
     
