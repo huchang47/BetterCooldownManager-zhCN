@@ -7,6 +7,7 @@ local Defaults = {
     },
     profile = {
         General = {
+            HideOutOfCombat = false,
             Fonts = {
                 Font = "Friz Quadrata TT",
                 FontFlag = "OUTLINE",

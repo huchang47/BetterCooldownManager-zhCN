@@ -568,6 +568,16 @@ local function CreateGlobalSettings(parentContainer)
     end)
     enableCDMSkinningCheckbox:SetRelativeWidth(1)
     globalSettingsContainer:AddChild(enableCDMSkinningCheckbox)
+-- 战斗外隐藏功能选项
+    local hideOutOfCombatCheckbox = AG:Create("CheckBox")
+    hideOutOfCombatCheckbox:SetLabel(L["Hide Out of Combat"])
+    hideOutOfCombatCheckbox:SetValue(BCDM.db.profile.General.HideOutOfCombat)
+    hideOutOfCombatCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+        BCDM.db.profile.General.HideOutOfCombat = value
+        BCDM:UpdateCombatVisibility()
+    end)
+    hideOutOfCombatCheckbox:SetRelativeWidth(1)
+    globalSettingsContainer:AddChild(hideOutOfCombatCheckbox)
 
     local iconZoomSlider = AG:Create("Slider")
     iconZoomSlider:SetLabel(L["Icon Zoom"])
