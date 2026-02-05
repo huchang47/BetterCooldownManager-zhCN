@@ -8,6 +8,8 @@ local L = BCDM.L
 
 L["Slash Commands"] = "'|cFF8080FF/bcdm|r' for in-game configuration."
 L["Cooldown Text Settings"] = "Cooldown Text Settings"
+L["Keybinding Text Settings"] = "Keybinding Text Settings"
+L["Enable Keybinding Text"] = "Enable Keybinding Text"
 L["Text Colour"] = "Text Colour"
 L["Scale By Icon Size"] = "Scale By Icon Size"
 L["Anchor From"] = "Anchor From"

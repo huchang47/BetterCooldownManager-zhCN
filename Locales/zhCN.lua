@@ -8,6 +8,8 @@ local L = BCDM.L
 
 L["Slash Commands"] = "输入 '|cFF8080FF/bcdm|r' 或点击小地图图标，打开游戏内配置界面。"
 L["Cooldown Text Settings"] = "冷却文本设置"
+L["Keybinding Text Settings"] = "按键绑定文本设置"
+L["Enable Keybinding Text"] = "启用按键绑定文本"
 L["Text Colour"] = "文本颜色"
 L["Scale By Icon Size"] = "根据图标大小缩放"
 L["Anchor From"] = "锚点来自"

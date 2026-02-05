@@ -265,6 +265,82 @@ local function CreateInformationTag(containerParent, labelDescription, textJusti
     return informationLabel
 end
 
+local function CreateKeyBindingTextSettings(containerParent)
+    local KeyBindingTextDB = BCDM.db.profile.CooldownManager.General.KeyBindingText
+
+    local keyBindingTextContainer = AG:Create("InlineGroup")
+    keyBindingTextContainer:SetTitle(L["Keybinding Text Settings"])
+    keyBindingTextContainer:SetFullWidth(true)
+    keyBindingTextContainer:SetLayout("Flow")
+    containerParent:AddChild(keyBindingTextContainer)
+
+    local enableKeyBindingTextCheckbox = AG:Create("CheckBox")
+    enableKeyBindingTextCheckbox:SetLabel(L["Enable Keybinding Text"])
+    enableKeyBindingTextCheckbox:SetValue(KeyBindingTextDB.Enabled)
+    enableKeyBindingTextCheckbox:SetRelativeWidth(0.5)
+    keyBindingTextContainer:AddChild(enableKeyBindingTextCheckbox)
+
+    enableKeyBindingTextCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+        KeyBindingTextDB.Enabled = value
+        DeepDisable(keyBindingTextContainer, not value, enableKeyBindingTextCheckbox)
+        if value and BCDM.KeyBindingManager then
+            BCDM.KeyBindingManager:UpdateKeyBindings()
+        end
+        BCDM:UpdateCooldownViewers()
+    end)
+
+    local colourPicker = AG:Create("ColorPicker")
+    colourPicker:SetLabel(L["Text Colour"])
+    colourPicker:SetColor(unpack(KeyBindingTextDB.Colour))
+    colourPicker:SetCallback("OnValueChanged", function(_, _, r, g, b) KeyBindingTextDB.Colour = {r, g, b} BCDM:UpdateCooldownViewers() end)
+    colourPicker:SetRelativeWidth(0.5)
+    keyBindingTextContainer:AddChild(colourPicker)
+
+    local anchorFromDropdown = AG:Create("Dropdown")
+    anchorFromDropdown:SetLabel(L["Anchor From"])
+    anchorFromDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
+    anchorFromDropdown:SetValue(KeyBindingTextDB.Layout[1])
+    anchorFromDropdown:SetCallback("OnValueChanged", function(_, _, value) KeyBindingTextDB.Layout[1] = value BCDM:UpdateCooldownViewers() end)
+    anchorFromDropdown:SetRelativeWidth(0.5)
+    keyBindingTextContainer:AddChild(anchorFromDropdown)
+
+    local anchorToDropdown = AG:Create("Dropdown")
+    anchorToDropdown:SetLabel(L["Anchor To"])
+    anchorToDropdown:SetList(AnchorPoints[1], AnchorPoints[2])
+    anchorToDropdown:SetValue(KeyBindingTextDB.Layout[2])
+    anchorToDropdown:SetCallback("OnValueChanged", function(_, _, value) KeyBindingTextDB.Layout[2] = value BCDM:UpdateCooldownViewers() end)
+    anchorToDropdown:SetRelativeWidth(0.5)
+    keyBindingTextContainer:AddChild(anchorToDropdown)
+
+    local xOffsetSlider = AG:Create("Slider")
+    xOffsetSlider:SetLabel(L["X Offset"])
+    xOffsetSlider:SetValue(KeyBindingTextDB.Layout[3])
+    xOffsetSlider:SetSliderValues(-100, 100, 1)
+    xOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) KeyBindingTextDB.Layout[3] = value BCDM:UpdateCooldownViewers() end)
+    xOffsetSlider:SetRelativeWidth(0.33)
+    keyBindingTextContainer:AddChild(xOffsetSlider)
+
+    local yOffsetSlider = AG:Create("Slider")
+    yOffsetSlider:SetLabel(L["Y Offset"])
+    yOffsetSlider:SetValue(KeyBindingTextDB.Layout[4])
+    yOffsetSlider:SetSliderValues(-100, 100, 1)
+    yOffsetSlider:SetCallback("OnValueChanged", function(_, _, value) KeyBindingTextDB.Layout[4] = value BCDM:UpdateCooldownViewers() end)
+    yOffsetSlider:SetRelativeWidth(0.33)
+    keyBindingTextContainer:AddChild(yOffsetSlider)
+
+    local fontSizeSlider = AG:Create("Slider")
+    fontSizeSlider:SetLabel(L["Font Size"])
+    fontSizeSlider:SetValue(KeyBindingTextDB.FontSize)
+    fontSizeSlider:SetSliderValues(8, 32, 1)
+    fontSizeSlider:SetCallback("OnValueChanged", function(_, _, value) KeyBindingTextDB.FontSize = value BCDM:UpdateCooldownViewers() end)
+    fontSizeSlider:SetRelativeWidth(0.33)
+    keyBindingTextContainer:AddChild(fontSizeSlider)
+
+    DeepDisable(keyBindingTextContainer, not KeyBindingTextDB.Enabled, enableKeyBindingTextCheckbox)
+
+    return keyBindingTextContainer
+end
+
 local function CreateCooldownTextSettings(containerParent)
     local CooldownTextDB = BCDM.db.profile.CooldownManager.General.CooldownText
 
@@ -783,6 +859,8 @@ local function CreateGlobalSettings(parentContainer)
     globalSettingsContainer:SetLayout("Flow")
     ScrollFrame:AddChild(globalSettingsContainer)
 
+    local keyBindingTextGroup
+
     local enableCDMSkinningCheckbox = AG:Create("CheckBox")
     enableCDMSkinningCheckbox:SetLabel(L["Enable Skinning - Reload Required"])
     enableCDMSkinningCheckbox:SetValue(BCDM.db.profile.CooldownManager.Enable)
@@ -837,6 +915,9 @@ local function CreateGlobalSettings(parentContainer)
     end)
     hideWhileMountedCheckbox:SetRelativeWidth(0.33)
     globalSettingsContainer:AddChild(hideWhileMountedCheckbox)
+
+    keyBindingTextGroup = CreateKeyBindingTextSettings(globalSettingsContainer)
+    DeepDisable(keyBindingTextGroup, not BCDM.db.profile.CooldownManager.General.KeyBindingText.Enabled)
 
     local iconZoomSlider = AG:Create("Slider")
     iconZoomSlider:SetLabel(L["Icon Zoom"])

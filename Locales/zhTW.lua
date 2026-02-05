@@ -8,6 +8,8 @@ local L = BCDM.L
 
 L["Slash Commands"] = "輸入 '|cFF8080FF/bcdm|r' 開啟遊戲內設定介面。"
 L["Cooldown Text Settings"] = "冷卻文字設定"
+L["Keybinding Text Settings"] = "按鍵綁定文字設定"
+L["Enable Keybinding Text"] = "啟用按鍵綁定文字"
 L["Text Colour"] = "文字顏色"
 L["Scale By Icon Size"] = "根據圖示大小縮放"
 L["Anchor From"] = "錨點來自"

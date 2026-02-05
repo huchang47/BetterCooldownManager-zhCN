@@ -13,6 +13,7 @@
 	<Script file="PowerBar.lua"/>
 	<Script file="SecondaryPowerBar.lua"/>
 	<Script file="EditMode.lua"/>
+	<Script file="KeyBindingManager.lua"/>
 	<Script file="Assistant.lua"/>
 	<Script file="CastSequenceBar.lua"/>
 </Ui>

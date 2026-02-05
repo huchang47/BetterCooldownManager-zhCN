@@ -71,6 +71,91 @@ local function ApplyCooldownText(cooldownViewer)
     end
 end
 
+local function ApplyKeyBindingText(cooldownViewer)
+    local CooldownManagerDB = BCDM.db.profile
+    local GeneralDB = CooldownManagerDB.General
+    local KeyBindingTextDB = CooldownManagerDB.CooldownManager.General.KeyBindingText
+    local Viewer = _G[cooldownViewer]
+    if not Viewer then return end
+
+    for _, icon in ipairs({ Viewer:GetChildren() }) do
+        -- Try to find spellId from icon (custom icons store it) or check if it's a known frame type
+        local spellId = icon.spellId or icon.spellID
+        if not spellId and icon.GetSpellID then
+            spellId = icon:GetSpellID()
+        end
+        local itemId = icon.itemId or icon.itemID
+        if not itemId and icon.GetItemID then
+            itemId = icon:GetItemID()
+        end
+        
+        local bindingText = ""
+        if spellId then
+            bindingText = BCDM.KeyBindingManager:GetKeyBinding(spellId, "spell")
+        elseif itemId then
+            bindingText = BCDM.KeyBindingManager:GetKeyBinding(itemId, "item")
+        end
+        
+        -- Try to find binding by texture if not found by ID
+        if bindingText == "" and icon.Icon and icon.Icon.GetTexture then
+            local texture = icon.Icon:GetTexture()
+            if texture then
+                bindingText = BCDM.KeyBindingManager:GetKeyBindingByTexture(texture)
+            end
+        end
+        
+        if bindingText ~= "" or spellId or itemId then
+            if not icon.KeyBindingText then
+                -- Attach to HighLevelContainer if available (Custom Icons), otherwise icon itself
+                local parent = icon.HighLevelContainer or icon
+                
+                local textFrame = CreateFrame("Frame", nil, parent)
+                textFrame:SetAllPoints(parent)
+                icon.KeyBindingTextFrame = textFrame
+                
+                icon.KeyBindingText = textFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+            end
+            
+            if icon.KeyBindingTextFrame then
+                local parent = icon.HighLevelContainer or icon
+                icon.KeyBindingTextFrame:SetFrameLevel(parent:GetFrameLevel() + 20)
+            end
+            
+            local keyBindingText = icon.KeyBindingText
+
+            if KeyBindingTextDB.Enabled and bindingText ~= "" then
+                keyBindingText:Show()
+                keyBindingText:SetText(bindingText)
+                
+                if KeyBindingTextDB.ScaleByIconSize then -- Assuming this setting might exist or we use fixed size
+                     -- If KeyBindingTextDB doesn't have ScaleByIconSize, we can default to false or check structure
+                     -- For now, let's assume standard behavior similar to CooldownText
+                     -- If KeyBindingText structure in Defaults.lua doesn't have ScaleByIconSize, we skip.
+                     -- Checked Defaults.lua: KeyBindingText has FontSize but not ScaleByIconSize explicitly added yet.
+                     -- Let's just use FontSize.
+                     keyBindingText:SetFont(BCDM.Media.Font, KeyBindingTextDB.FontSize, GeneralDB.Fonts.FontFlag)
+                else
+                     keyBindingText:SetFont(BCDM.Media.Font, KeyBindingTextDB.FontSize, GeneralDB.Fonts.FontFlag)
+                end
+                
+                keyBindingText:SetTextColor(KeyBindingTextDB.Colour[1], KeyBindingTextDB.Colour[2], KeyBindingTextDB.Colour[3], 1)
+                keyBindingText:ClearAllPoints()
+                keyBindingText:SetPoint(KeyBindingTextDB.Layout[1], icon, KeyBindingTextDB.Layout[2], KeyBindingTextDB.Layout[3], KeyBindingTextDB.Layout[4])
+                
+                if GeneralDB.Fonts.Shadow.Enabled then
+                    keyBindingText:SetShadowColor(GeneralDB.Fonts.Shadow.Colour[1], GeneralDB.Fonts.Shadow.Colour[2], GeneralDB.Fonts.Shadow.Colour[3], GeneralDB.Fonts.Shadow.Colour[4])
+                    keyBindingText:SetShadowOffset(GeneralDB.Fonts.Shadow.OffsetX, GeneralDB.Fonts.Shadow.OffsetY)
+                else
+                    keyBindingText:SetShadowColor(0, 0, 0, 0)
+                    keyBindingText:SetShadowOffset(0, 0)
+                end
+            else
+                keyBindingText:Hide()
+            end
+        end
+    end
+end
+
 -- local function StyleBuffsBars()
 --     local GeneralDB = BCDM.db.profile.General
 --     local GeneralCooldownManagerSetting = BCDM.db.profile.CooldownManager.General
@@ -576,7 +661,10 @@ function BCDM:SkinCooldownManager()
     SetupCenterUtility()
     SetupCenterEssential()
     for _, viewerName in ipairs(BCDM.CooldownManagerViewers) do
-        C_Timer.After(0.1, function() ApplyCooldownText(viewerName) end)
+        C_Timer.After(0.1, function() 
+            ApplyCooldownText(viewerName) 
+            ApplyKeyBindingText(viewerName)
+        end)
     end
 
     C_Timer.After(1, function()
@@ -637,6 +725,7 @@ function BCDM:UpdateCooldownViewer(viewerType)
     StyleChargeCount()
 
     ApplyCooldownText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
+    ApplyKeyBindingText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
 
     -- 重新应用居中布局，确保使用最新的设置
     if viewerType == "Essential" and cooldownManagerSettings.Essential.CenterEssential then

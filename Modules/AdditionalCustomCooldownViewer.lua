@@ -41,6 +41,47 @@ local function ApplyCooldownText()
     end
 end
 
+local function ApplyKeyBindingText()
+    local CooldownManagerDB = BCDM.db.profile
+    local GeneralDB = CooldownManagerDB.General
+    local KeyBindingTextDB = CooldownManagerDB.CooldownManager.General.KeyBindingText
+    local Viewer = _G["BCDM_AdditionalCustomCooldownViewer"]
+    if not Viewer then return end
+
+    for _, icon in ipairs({ Viewer:GetChildren() }) do
+        local spellId = icon.spellId
+        if spellId then
+            local bindingText = BCDM.KeyBindingManager:GetKeyBinding(spellId, "spell")
+            
+            if not icon.KeyBindingText then
+                local parent = icon.HighLevelContainer or icon
+                icon.KeyBindingText = parent:CreateFontString(nil, "OVERLAY")
+            end
+            
+            local keyBindingText = icon.KeyBindingText
+
+            if KeyBindingTextDB.Enabled and bindingText ~= "" then
+                keyBindingText:Show()
+                keyBindingText:SetText(bindingText)
+                keyBindingText:SetFont(BCDM.Media.Font, KeyBindingTextDB.FontSize, GeneralDB.Fonts.FontFlag)
+                keyBindingText:SetTextColor(KeyBindingTextDB.Colour[1], KeyBindingTextDB.Colour[2], KeyBindingTextDB.Colour[3], 1)
+                keyBindingText:ClearAllPoints()
+                keyBindingText:SetPoint(KeyBindingTextDB.Layout[1], icon, KeyBindingTextDB.Layout[2], KeyBindingTextDB.Layout[3], KeyBindingTextDB.Layout[4])
+                
+                if GeneralDB.Fonts.Shadow.Enabled then
+                    keyBindingText:SetShadowColor(GeneralDB.Fonts.Shadow.Colour[1], GeneralDB.Fonts.Shadow.Colour[2], GeneralDB.Fonts.Shadow.Colour[3], GeneralDB.Fonts.Shadow.Colour[4])
+                    keyBindingText:SetShadowOffset(GeneralDB.Fonts.Shadow.OffsetX, GeneralDB.Fonts.Shadow.OffsetY)
+                else
+                    keyBindingText:SetShadowColor(0, 0, 0, 0)
+                    keyBindingText:SetShadowOffset(0, 0)
+                end
+            else
+                keyBindingText:Hide()
+            end
+        end
+    end
+end
+
 local function IsCooldownFrameActive(customIcon)
     if not customIcon or not customIcon.Cooldown then return end
 
@@ -66,6 +107,7 @@ local function CreateCustomIcon(spellId)
     else
         customIcon:SetBackdropBorderColor(0, 0, 0, 1)
     end
+    customIcon.spellId = spellId
     local iconWidth, iconHeight = BCDM:GetIconDimensions(CustomDB)
     customIcon:SetSize(iconWidth, iconHeight)
     local anchorParent = CustomDB.Layout[2] == "NONE" and UIParent or _G[CustomDB.Layout[2]]
@@ -235,7 +277,6 @@ local function LayoutAdditionalCustomCooldownViewer()
 
             local xOffset = startOffset + ((i - 1) * (iconWidth + iconSpacing))
             spellIcon:SetPoint("CENTER", BCDM.AdditionalCustomCooldownViewerContainer, "CENTER", xOffset, 0)
-            ApplyCooldownText()
             spellIcon:Show()
         end
     else
@@ -258,10 +299,12 @@ local function LayoutAdditionalCustomCooldownViewer()
                     spellIcon:SetPoint("TOP", AdditionalCustomCooldownViewerIcons[i - 1], "BOTTOM", 0, -iconSpacing)
                 end
             end
-            ApplyCooldownText()
             spellIcon:Show()
         end
     end
+    
+    ApplyCooldownText()
+    ApplyKeyBindingText()
 
     BCDM.AdditionalCustomCooldownViewerContainer:Show()
 end

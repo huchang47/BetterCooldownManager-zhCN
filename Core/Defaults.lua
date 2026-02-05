@@ -128,6 +128,12 @@ local Defaults = {
                     Layout = {"CENTER", "CENTER", 0, 0},
                     ScaleByIconSize = false
                 },
+                KeyBindingText = {
+                    Enabled = true,
+                    FontSize = 12,
+                    Colour = {1, 1, 1},
+                    Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                },
             },
             Essential = {
                 IconSize = 42,
