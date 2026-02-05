@@ -105,7 +105,7 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
     KBM:UpdateKeyBindings()
     -- Also refresh the cooldown text when bindings change
-    if BCDM.UpdateCooldownViewers then
+    if BCDM.UpdateCooldownViewers and BCDM.Media then
         BCDM:UpdateCooldownViewers()
     end
 end)
