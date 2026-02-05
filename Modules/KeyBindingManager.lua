@@ -96,27 +96,16 @@ function KBM:GetKeyBindingByTexture(texture)
 end
 
 -- Initialize event handling
-local updateTimer
-
-local function PerformUpdate()
-    KBM:UpdateKeyBindings()
-    if BCDM and BCDM.UpdateCooldownViewers then
-        BCDM:UpdateCooldownViewers()
-    end
-    updateTimer = nil
-end
-
-local function RequestUpdate()
-    if updateTimer then
-        updateTimer:Cancel()
-    end
-    updateTimer = C_Timer.NewTimer(0.2, PerformUpdate)
-end
-
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("UPDATE_BINDINGS")
 frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+frame:RegisterEvent("ACTIONBAR_PAGE_CHANGED")
+frame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
-    RequestUpdate()
+    KBM:UpdateKeyBindings()
+    -- Also refresh the cooldown text when bindings change
+    if BCDM.UpdateCooldownViewers then
+        BCDM:UpdateCooldownViewers()
+    end
 end)

@@ -108,17 +108,8 @@ local function ApplyKeyBindingText(cooldownViewer)
             if not icon.KeyBindingText then
                 -- Attach to HighLevelContainer if available (Custom Icons), otherwise icon itself
                 local parent = icon.HighLevelContainer or icon
-                
-                local textFrame = CreateFrame("Frame", nil, parent)
-                textFrame:SetAllPoints(parent)
-                icon.KeyBindingTextFrame = textFrame
-                
-                icon.KeyBindingText = textFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            end
-            
-            if icon.KeyBindingTextFrame then
-                local parent = icon.HighLevelContainer or icon
-                icon.KeyBindingTextFrame:SetFrameLevel(parent:GetFrameLevel() + 20)
+                icon.KeyBindingText = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                icon.KeyBindingText:SetDrawLayer("OVERLAY", 7)
             end
             
             local keyBindingText = icon.KeyBindingText
