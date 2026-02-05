@@ -87,17 +87,39 @@ local Defaults = {
             General = {
                 IconZoom = 0.1,
                 BorderSize = 1,
+                DisableAuraOverlay = false,
                 Glow = {
                     Enabled = true,
-                    GlowType = "PIXEL",
-                    Thickness = 1,
-                    Particles = 10,
-                    Scale = 1,
-                    Colour = {1, 1, 1, 1},
-                    Frequency = 0.25,
-                    XOffset = -1,
-                    YOffset = -1,
-                    Lines = 5,
+                    Type = "Pixel",
+                    Pixel = {
+                        Color = {1, 1, 1, 1},
+                        Lines = 5,
+                        Frequency = 0.25,
+                        Length = 2,
+                        Thickness = 1,
+                        XOffset = -1,
+                        YOffset = -1,
+                        Border = false,
+                    },
+                    Autocast = {
+                        Color = {1, 1, 1, 1},
+                        Particles = 10,
+                        Frequency = 0.25,
+                        Scale = 1,
+                        XOffset = -1,
+                        YOffset = -1,
+                    },
+                    Proc = {
+                        Color = {1, 1, 1, 1},
+                        StartAnim = true,
+                        Duration = 1,
+                        XOffset = 0,
+                        YOffset = 0,
+                    },
+                    Button = {
+                        Color = {1, 1, 1, 1},
+                        Frequency = 0.125,
+                    },
                 },
                 CooldownText = {
                     FontSize = 15,
@@ -108,7 +130,9 @@ local Defaults = {
             },
             Essential = {
                 IconSize = 42,
-                CenterEssential = false,
+                IconWidth = 42,
+                IconHeight = 42,
+                KeepAspectRatio = true,
                 IconLimitPerRow = 0, -- 0表示无限制，使用原来的居中方式
                 GrowDirection = "TOP", -- 用于多行时新行的增长方向
                 ShowHighlight = false, -- 是否显示技能高亮
@@ -121,7 +145,9 @@ local Defaults = {
             },
             Utility = {
                 IconSize = 36,
-                CenterUtility = false,
+                IconWidth = 36,
+                IconHeight = 36,
+                KeepAspectRatio = true,
                 IconLimitPerRow = 0, -- 0表示无限制，使用原来的居中方式
                 GrowDirection = "TOP", -- 用于多行时新行的增长方向
                 ShowHighlight = false, -- 是否显示技能高亮
@@ -134,6 +160,9 @@ local Defaults = {
             },
             Buffs = {
                 IconSize = 32,
+                IconWidth = 32,
+                IconHeight = 32,
+                KeepAspectRatio = true,
                 CenterBuffs = false,
                 IconLimitPerRow = 0, -- 0表示无限制，使用原来的居中方式
                 GrowDirection = "TOP", -- 用于多行时新行的增长方向
@@ -176,6 +205,9 @@ local Defaults = {
             },
             Custom = {
                 IconSize = 38,
+                IconWidth = 38,
+                IconHeight = 38,
+                KeepAspectRatio = true,
                 FrameStrata = "LOW",
                 Layout = {"CENTER", "NONE", "CENTER", 0, 0},
                 Spacing = 1,
@@ -269,6 +301,9 @@ local Defaults = {
             },
             AdditionalCustom = {
                 IconSize = 38,
+                IconWidth = 38,
+                IconHeight = 38,
+                KeepAspectRatio = true,
                 FrameStrata = "LOW",
                 Layout = {"CENTER", "NONE", "CENTER", 0, 0},
                 Spacing = 1,
@@ -362,6 +397,9 @@ local Defaults = {
             },
             Item = {
                 IconSize = 38,
+                IconWidth = 38,
+                IconHeight = 38,
+                KeepAspectRatio = true,
                 FrameStrata = "LOW",
                 Layout = {"CENTER", "NONE", "CENTER", 0, 0},
                 Spacing = 1,
@@ -375,8 +413,11 @@ local Defaults = {
                 Items = {},
             },
             Trinket = {
-                Enabled = true,
+                Enabled = false,
                 IconSize = 38,
+                IconWidth = 38,
+                IconHeight = 38,
+                KeepAspectRatio = true,
                 FrameStrata = "LOW",
                 Layout = {"CENTER", "NONE", "CENTER", 0, 0},
                 Spacing = 1,
@@ -391,6 +432,9 @@ local Defaults = {
             },
             ItemSpell = {
                 IconSize = 38,
+                IconWidth = 38,
+                IconHeight = 38,
+                KeepAspectRatio = true,
                 FrameStrata = "LOW",
                 Layout = {"CENTER", "NONE", "CENTER", 0, 0},
                 Spacing = 1,
@@ -449,7 +493,7 @@ local Defaults = {
             },
         },
         CastSequenceBar = {
-            Enabled = true,
+            Enabled = false,
             Width = 300,
             SquareSize = 32,
             SquareAmount = 20,

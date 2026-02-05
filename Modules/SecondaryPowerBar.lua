@@ -248,31 +248,11 @@ local function LayoutEssenceTicks()
 end
 
 local function StartRuneOnUpdate(runeBar, runeIndex)
-    local generalDB = BCDM.db.profile.General
-
-    runeBar:SetScript("OnUpdate", function(self)
-        local runeStartTime, runeDuration, runeReady = GetRuneCooldown(runeIndex)
-
-        if runeReady then
-            self:SetScript("OnUpdate", nil)
-            self:SetValue(1)
-            local r, g, b, a = GetPowerBarColor()
-            self:SetStatusBarColor(r, g, b, a)
-            return
-        end
-
-        if runeDuration and runeDuration > 0 then
-            local now = GetTime()
-            local elapsed = now - runeStartTime
-            local progress = math.min(1, elapsed / runeDuration)
-            self:SetValue(progress)
-
-            local rechargeColour = generalDB.Colours.SecondaryPower["RUNE_RECHARGE"]
-            if rechargeColour then
-                self:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
-            end
-        end
-    end)
+    -- 不再使用独立的 OnUpdate，由统一的 UpdateAllPowerBars 处理
+    -- 确保更新框架正在运行
+    if not powerBarUpdateFrame:GetScript("OnUpdate") then
+        StartPowerBarUpdate()
+    end
 end
 
 local function UpdateRuneDisplay()
@@ -370,27 +350,95 @@ local function UpdateComboDisplay()
     end
 end
 
+-- 合并所有符文和精华的 OnUpdate 为一个统一的更新函数
+local powerBarUpdateThrottle = 0.05
+local nextPowerBarUpdate = 0
+local function UpdateAllPowerBars()
+    local now = GetTime()
+    if now < nextPowerBarUpdate then return end
+    nextPowerBarUpdate = now + powerBarUpdateThrottle
+    
+    -- 更新符文
+    if #runeBars > 0 then
+        local r, g, b, a = GetPowerBarColor()
+        for i = 1, 6 do
+            local runeBar = runeBars[i]
+            if runeBar then
+                local _, _, runeReady = GetRuneCooldown(i)
+                if runeReady then
+                    runeBar:SetValue(1)
+                    runeBar:SetStatusBarColor(r, g, b, a)
+                else
+                    local runeStartTime, runeDuration = GetRuneCooldown(i)
+                    if runeStartTime and runeDuration and runeDuration > 0 then
+                        local elapsed = now - runeStartTime
+                        local progress = math.min(1, elapsed / runeDuration)
+                        runeBar:SetValue(progress)
+                        
+                        local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["RUNE_RECHARGE"]
+                        if rechargeColour then
+                            runeBar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    -- 更新精华
+    if #essenceTicks > 0 then
+        local powerCurrent = UnitPower("player", Enum.PowerType.Essence) or 0
+        local r, g, b, a = GetPowerBarColor()
+        local parent = BCDM.SecondaryPowerBar
+        
+        for i = 1, #essenceTicks do
+            local tick = essenceTicks[i]
+            local bar = tick.bar
+            
+            if i <= powerCurrent then
+                bar:SetValue(1)
+                bar:SetStatusBarColor(r, g, b, a)
+            elseif i == powerCurrent + 1 and parent and parent._NextEssenceTick then
+                local remaining = math.max(0, parent._NextEssenceTick - now)
+                local regen = GetPowerRegenForPowerType(Enum.PowerType.Essence) or 0.2
+                local tickDuration = 1 / regen
+                
+                if remaining <= 0 then
+                    bar:SetValue(1)
+                    bar:SetStatusBarColor(r, g, b, a)
+                else
+                    local value = 1 - (remaining / tickDuration)
+                    bar:SetValue(value)
+                    
+                    local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["ESSENCE_RECHARGE"]
+                    if rechargeColour then
+                        bar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
+                    end
+                end
+            else
+                bar:SetValue(0)
+                bar:SetStatusBarColor(0, 0, 0, 1)
+            end
+        end
+    end
+end
+
+local powerBarUpdateFrame = CreateFrame("Frame")
+
+local function StartPowerBarUpdate()
+    powerBarUpdateFrame:SetScript("OnUpdate", UpdateAllPowerBars)
+end
+
+local function StopPowerBarUpdate()
+    powerBarUpdateFrame:SetScript("OnUpdate", nil)
+end
+
 local function StartEssenceOnUpdate(tick, tickDuration, nextTickTime)
-    tick.bar:SetScript("OnUpdate", function(self)
-        local now = GetTime()
-        local remaining = math.max(0, nextTickTime - now)
-
-        if remaining <= 0 then
-            self:SetScript("OnUpdate", nil)
-            tick.bar:SetValue(1)
-            local r, g, b, a = GetPowerBarColor()
-            tick.bar:SetStatusBarColor(r, g, b, a)
-            return
-        end
-
-        local value = 1 - (remaining / tickDuration)
-        tick.bar:SetValue(value)
-
-        local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["ESSENCE_RECHARGE"]
-        if rechargeColour then
-            tick.bar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
-        end
-    end)
+    -- 不再使用独立的 OnUpdate，由统一的 UpdateAllPowerBars 处理
+    -- 确保更新框架正在运行
+    if not powerBarUpdateFrame:GetScript("OnUpdate") then
+        StartPowerBarUpdate()
+    end
 end
 
 local function UpdateEssenceDisplay()
@@ -763,6 +811,15 @@ function BCDM:CreateSecondaryPowerBar()
                 or event == "UNIT_AURA" then                
                 local unit = ...
                 if unit and unit ~= "player" then return end
+            end
+            -- PERFORMANCE FIX 2026-02-03 BY 哑吡: 跳过不需要UNIT_AURA的能量类型
+            -- 只有漩涡值(增强萨满)和SOUL(复仇恶魔猎手)需要通过光环追踪
+            -- 其他专精(如武僧坦)不需要UNIT_AURA，减少与DandersFrames的性能冲突
+            if event == "UNIT_AURA" then
+                local powerType = DetectSecondaryPower()
+                if powerType ~= Enum.PowerType.Maelstrom and powerType ~= "SOUL" then
+                    return
+                end
             end
             UpdatePowerValues()
         end)

@@ -1,7 +1,7 @@
 ## Title: |cFF8080FFBetter|rCooldownManager
 ## Title-zhCN: |cFF8080FFBetter|rCooldownManager 汉化增强版
 ## Interface: 120000, 120001
-## Version: V12.0.19
+## Version: V12.0.20
 ## Author: |cFF8080FFUnhalted|r
 ## Notes: |cFF8080FFBetter|rCooldownManager is an all-in-one AddOn that provides additional customization to the Cooldown Manager, developed by |cFF8080FFUnhalted|r
 ## Notes-zhCN: |cFF8080FFBetter|rCooldownManager 是一款一体化插件，为冷却管理器提供额外的自定义功能，|cFF8080FFUnhalted|r 开发，|cFF8080FF胡里胡涂|r 汉化。

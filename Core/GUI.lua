@@ -154,8 +154,7 @@ local function GenerateSupportText(parentFrame)
             icon = "|TInterface\\AddOns\\BetterCooldownManager\\Media\\Emotes\\peepoLove.png:18:18|t "
         }
     }
-    local selectedOption = SupportOptions[math.random(1, #SupportOptions)]
-    parentFrame.statustext:SetText(string.format(selectedOption.text, selectedOption.icon))
+    parentFrame.statustext:SetText(SupportOptions[math.random(1, #SupportOptions)].text)
 end
 
 local function FetchItemInformation(itemId)
@@ -332,6 +331,271 @@ local function CreateCooldownTextSettings(containerParent)
     return cooldownTextContainer
 end
 
+local function CreateCustomGlowSettings(parentContainer)
+    local glowSettings = BCDM:GetCustomGlowSettings()
+    if not glowSettings then
+        return
+    end
+
+    local glowContainer = AG:Create("InlineGroup")
+    glowContainer:SetTitle(L["Custom Glows"])
+    glowContainer:SetFullWidth(true)
+    glowContainer:SetLayout("Flow")
+    parentContainer:AddChild(glowContainer)
+
+    local enableGlow = AG:Create("CheckBox")
+    enableGlow:SetLabel(L["Enable Custom Glow"])
+    enableGlow:SetValue(glowSettings.Enabled)
+    enableGlow:SetRelativeWidth(0.5)
+    glowContainer:AddChild(enableGlow)
+
+    local glowType = AG:Create("Dropdown")
+    glowType:SetLabel(L["Glow Type"])
+    glowType:SetList({
+        Pixel = L["Pixel"],
+        Autocast = L["Autocast"],
+        Proc = L["Proc"],
+        Button = L["Action Button"],
+    })
+    glowType:SetValue(glowSettings.Type or "Pixel")
+    glowType:SetRelativeWidth(0.5)
+    glowContainer:AddChild(glowType)
+
+    local dynamicGlowSettingsGroup = AG:Create("InlineGroup")
+    dynamicGlowSettingsGroup:SetTitle(L["Glow Options"])
+    dynamicGlowSettingsGroup:SetLayout("Flow")
+    dynamicGlowSettingsGroup:SetFullWidth(true)
+    glowContainer:AddChild(dynamicGlowSettingsGroup)
+
+    local function RefreshGlowSettingsState()
+        local disabled = not glowSettings.Enabled
+        glowType:SetDisabled(disabled)
+        DeepDisable(dynamicGlowSettingsGroup, disabled)
+    end
+
+    local function AddCustomGlowOptions()
+        dynamicGlowSettingsGroup:ReleaseChildren()
+
+        if glowSettings.Type == "Proc" then
+            local glowColor = AG:Create("ColorPicker")
+            glowColor:SetRelativeWidth(0.5)
+            glowColor:SetLabel(L["Glow Color"])
+            glowColor:SetHasAlpha(true)
+            glowColor:SetColor(unpack(glowSettings.Proc.Color))
+            glowColor:SetCallback("OnValueChanged", function(_, _, r, g, b, a)
+                glowSettings.Proc.Color = { r, g, b, a }
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(glowColor)
+
+            local startAnim = AG:Create("CheckBox")
+            startAnim:SetRelativeWidth(0.5)
+            startAnim:SetValue(glowSettings.Proc.StartAnim)
+            startAnim:SetLabel(L["Start Animation"])
+            startAnim:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Proc.StartAnim = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(startAnim)
+
+            local duration = AG:Create("Slider")
+            duration:SetRelativeWidth(0.33)
+            duration:SetValue(glowSettings.Proc.Duration)
+            duration:SetLabel(L["Duration"])
+            duration:SetSliderValues(0.1, 5, 0.05)
+            duration:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Proc.Duration = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(duration)
+
+            local xOffset = AG:Create("Slider")
+            xOffset:SetRelativeWidth(0.33)
+            xOffset:SetValue(glowSettings.Proc.XOffset)
+            xOffset:SetLabel(L["X Offset"])
+            xOffset:SetSliderValues(-30, 30, 1)
+            xOffset:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Proc.XOffset = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(xOffset)
+
+            local yOffset = AG:Create("Slider")
+            yOffset:SetRelativeWidth(0.33)
+            yOffset:SetValue(glowSettings.Proc.YOffset)
+            yOffset:SetLabel(L["Y Offset"])
+            yOffset:SetSliderValues(-30, 30, 1)
+            yOffset:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Proc.YOffset = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(yOffset)
+        elseif glowSettings.Type == "Autocast" then
+            local glowColor = AG:Create("ColorPicker")
+            glowColor:SetRelativeWidth(1)
+            glowColor:SetLabel(L["Glow Color"])
+            glowColor:SetHasAlpha(true)
+            glowColor:SetColor(unpack(glowSettings.Autocast.Color))
+            glowColor:SetCallback("OnValueChanged", function(_, _, r, g, b, a) glowSettings.Autocast.Color = { r, g, b, a } BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(glowColor)
+
+            local numParticles = AG:Create("Slider")
+            numParticles:SetRelativeWidth(0.33)
+            numParticles:SetValue(glowSettings.Autocast.Particles)
+            numParticles:SetLabel(L["Particles"])
+            numParticles:SetSliderValues(1, 30, 1)
+            numParticles:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Autocast.Particles = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(numParticles)
+
+            local frequency = AG:Create("Slider")
+            frequency:SetRelativeWidth(0.33)
+            frequency:SetValue(glowSettings.Autocast.Frequency)
+            frequency:SetLabel(L["Frequency"])
+            frequency:SetSliderValues(-3, 3, 0.05)
+            frequency:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Autocast.Frequency = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(frequency)
+
+            local scale = AG:Create("Slider")
+            scale:SetRelativeWidth(0.33)
+            scale:SetValue(glowSettings.Autocast.Scale)
+            scale:SetLabel(L["Scale"])
+            scale:SetSliderValues(0.01, 5, 0.01)
+            scale:SetIsPercent(true)
+            scale:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Autocast.Scale = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(scale)
+
+            local xOffset = AG:Create("Slider")
+            xOffset:SetRelativeWidth(0.5)
+            xOffset:SetValue(glowSettings.Autocast.XOffset)
+            xOffset:SetLabel(L["X Offset"])
+            xOffset:SetSliderValues(-30, 30, 1)
+            xOffset:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Autocast.XOffset = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(xOffset)
+
+            local yOffset = AG:Create("Slider")
+            yOffset:SetRelativeWidth(0.5)
+            yOffset:SetValue(glowSettings.Autocast.YOffset)
+            yOffset:SetLabel(L["Y Offset"])
+            yOffset:SetSliderValues(-30, 30, 1)
+            yOffset:SetCallback("OnValueChanged", function(_, _, value)
+                glowSettings.Autocast.YOffset = value
+                BCDM:RefreshCustomGlows()
+            end)
+            dynamicGlowSettingsGroup:AddChild(yOffset)
+        elseif glowSettings.Type == "Pixel" then
+            local glowColor = AG:Create("ColorPicker")
+            glowColor:SetRelativeWidth(0.5)
+            glowColor:SetLabel(L["Glow Color"])
+            glowColor:SetHasAlpha(true)
+            glowColor:SetColor(unpack(glowSettings.Pixel.Color))
+            glowColor:SetCallback("OnValueChanged", function(_, _, r, g, b, a) glowSettings.Pixel.Color = { r, g, b, a } BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(glowColor)
+
+            local border = AG:Create("CheckBox")
+            border:SetRelativeWidth(0.5)
+            border:SetValue(glowSettings.Pixel.Border)
+            border:SetLabel(L["Border"])
+            border:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.Border = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(border)
+
+            local numLines = AG:Create("Slider")
+            numLines:SetRelativeWidth(0.33)
+            numLines:SetValue(glowSettings.Pixel.Lines)
+            numLines:SetLabel(L["Lines"])
+            numLines:SetSliderValues(1, 30, 1)
+            numLines:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.Lines = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(numLines)
+
+            local frequency = AG:Create("Slider")
+            frequency:SetRelativeWidth(0.33)
+            frequency:SetValue(glowSettings.Pixel.Frequency)
+            frequency:SetLabel(L["Frequency"])
+            frequency:SetSliderValues(-5, 5, 1)
+            frequency:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.Frequency = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(frequency)
+
+            local length = AG:Create("Slider")
+            length:SetRelativeWidth(0.33)
+            length:SetValue(glowSettings.Pixel.Length)
+            length:SetLabel(L["Length"])
+            length:SetSliderValues(1, 32, 1)
+            length:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.Length = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(length)
+
+            local thickness = AG:Create("Slider")
+            thickness:SetRelativeWidth(0.33)
+            thickness:SetValue(glowSettings.Pixel.Thickness)
+            thickness:SetLabel(L["Thickness"])
+            thickness:SetSliderValues(1, 6, 1)
+            thickness:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.Thickness = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(thickness)
+
+            local xOffset = AG:Create("Slider")
+            xOffset:SetRelativeWidth(0.33)
+            xOffset:SetValue(glowSettings.Pixel.XOffset)
+            xOffset:SetLabel(L["X Offset"])
+            xOffset:SetSliderValues(-32, 32, 1)
+            xOffset:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.XOffset = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(xOffset)
+
+            local yOffset = AG:Create("Slider")
+            yOffset:SetRelativeWidth(0.33)
+            yOffset:SetValue(glowSettings.Pixel.YOffset)
+            yOffset:SetLabel(L["Y Offset"])
+            yOffset:SetSliderValues(-32, 32, 1)
+            yOffset:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Pixel.YOffset = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(yOffset)
+        elseif glowSettings.Type == "Button" then
+            local frequency = AG:Create("Slider")
+            frequency:SetRelativeWidth(0.5)
+            frequency:SetValue(glowSettings.Button.Frequency)
+            frequency:SetLabel(L["Frequency"])
+            frequency:SetSliderValues(-3, 3, 0.05)
+            frequency:SetCallback("OnValueChanged", function(_, _, value) glowSettings.Button.Frequency = value BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(frequency)
+
+            local glowColor = AG:Create("ColorPicker")
+            glowColor:SetRelativeWidth(0.5)
+            glowColor:SetLabel(L["Glow Color"])
+            glowColor:SetHasAlpha(true)
+            glowColor:SetColor(unpack(glowSettings.Button.Color))
+            glowColor:SetCallback("OnValueChanged", function(_, _, r, g, b, a) glowSettings.Button.Color = { r, g, b, a } BCDM:RefreshCustomGlows() end)
+            dynamicGlowSettingsGroup:AddChild(glowColor)
+        end
+
+        RefreshGlowSettingsState()
+        glowContainer:DoLayout()
+        parentContainer:DoLayout()
+    end
+
+    enableGlow:SetCallback("OnValueChanged", function(_, _, value)
+        glowSettings.Enabled = value
+        RefreshGlowSettingsState()
+        BCDM:RefreshCustomGlows()
+    end)
+
+    glowType:SetCallback("OnValueChanged", function(_, _, value)
+        glowSettings.Type = value
+        AddCustomGlowOptions()
+        BCDM:RefreshCustomGlows()
+    end)
+
+    AddCustomGlowOptions()
+    RefreshGlowSettingsState()
+end
+
 local function CreateGeneralSettings(parentContainer)
     local GeneralDB = BCDM.db.profile.General
     local CooldownManagerDB = BCDM.db.profile.CooldownManager
@@ -418,7 +682,7 @@ local function CreateGeneralSettings(parentContainer)
 
     if isUnitDeathKnight then
         local runeColourContainer = AG:Create("InlineGroup")
-        runeColourContainer:SetTitle("Death Knight Rune Colours")
+        runeColourContainer:SetTitle(L["Death Knight Rune Colours"])
         runeColourContainer:SetFullWidth(true)
         runeColourContainer:SetLayout("Flow")
         CustomColoursContainer:AddChild(runeColourContainer)
@@ -437,7 +701,7 @@ local function CreateGeneralSettings(parentContainer)
 
     if isUnitMonk then
         local runeColourContainer = AG:Create("InlineGroup")
-        runeColourContainer:SetTitle("Stagger Colours")
+        runeColourContainer:SetTitle(L["Stagger Colours"])
         runeColourContainer:SetFullWidth(true)
         runeColourContainer:SetLayout("Flow")
         CustomColoursContainer:AddChild(runeColourContainer)
@@ -470,26 +734,6 @@ local function CreateGeneralSettings(parentContainer)
     SupportMeContainer:SetFullWidth(true)
     ScrollFrame:AddChild(SupportMeContainer)
 
-    local KoFiInteractive = AG:Create("InteractiveLabel")
-    KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFF8080FFKo-Fi|r")
-    KoFiInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
-    KoFiInteractive:SetJustifyV("MIDDLE")
-    KoFiInteractive:SetRelativeWidth(0.33)
-    KoFiInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Ko-Fi"), "https://ko-fi.com/unhalted") end)
-    KoFiInteractive:SetCallback("OnEnter", function() KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFFFFFFFFKo-Fi|r") end)
-    KoFiInteractive:SetCallback("OnLeave", function() KoFiInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Ko-Fi.png:16:21|t |cFF8080FFKo-Fi|r") end)
-    SupportMeContainer:AddChild(KoFiInteractive)
-
-    local PayPalInteractive = AG:Create("InteractiveLabel")
-    PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFF8080FFPayPal|r")
-    PayPalInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
-    PayPalInteractive:SetJustifyV("MIDDLE")
-    PayPalInteractive:SetRelativeWidth(0.33)
-    PayPalInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "PayPal"), "https://www.paypal.com/paypalme/dhunt1911") end)
-    PayPalInteractive:SetCallback("OnEnter", function() PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFFFFFFFFPayPal|r") end)
-    PayPalInteractive:SetCallback("OnLeave", function() PayPalInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\PayPal.png:23:21|t |cFF8080FFPayPal|r") end)
-    SupportMeContainer:AddChild(PayPalInteractive)
-
     local TwitchInteractive = AG:Create("InteractiveLabel")
     TwitchInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Twitch.png:25:21|t |cFF8080FFTwitch|r")
     TwitchInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
@@ -509,16 +753,6 @@ local function CreateGeneralSettings(parentContainer)
     DiscordInteractive:SetCallback("OnEnter", function() DiscordInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Discord.png:21:21|t |cFFFFFFFFDiscord|r") end)
     DiscordInteractive:SetCallback("OnLeave", function() DiscordInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Discord.png:21:21|t |cFF8080FFDiscord|r") end)
     SupportMeContainer:AddChild(DiscordInteractive)
-
-    local PatreonInteractive = AG:Create("InteractiveLabel")
-    PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFF8080FFPatreon|r")
-    PatreonInteractive:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE")
-    PatreonInteractive:SetJustifyV("MIDDLE")
-    PatreonInteractive:SetRelativeWidth(0.33)
-    PatreonInteractive:SetCallback("OnClick", function() BCDM:OpenURL(string.format(L["Support Me on %s"], "Patreon"), "https://www.patreon.com/unhalted") end)
-    PatreonInteractive:SetCallback("OnEnter", function() PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFFFFFFFFPatreon|r") end)
-    PatreonInteractive:SetCallback("OnLeave", function() PatreonInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Patreon.png:21:21|t |cFF8080FFPatreon|r") end)
-    SupportMeContainer:AddChild(PatreonInteractive)
 
     local GithubInteractive = AG:Create("InteractiveLabel")
     GithubInteractive:SetText("|TInterface\\AddOns\\BetterCooldownManager\\Media\\Support\\Github.png:21:21|t |cFF8080FFGithub|r")
@@ -568,7 +802,21 @@ local function CreateGlobalSettings(parentContainer)
     end)
     enableCDMSkinningCheckbox:SetRelativeWidth(1)
     globalSettingsContainer:AddChild(enableCDMSkinningCheckbox)
--- 战斗外隐藏功能选项
+
+    local disableAuraOverlayCheckbox = AG:Create("CheckBox")
+    disableAuraOverlayCheckbox:SetLabel(L["Disable Aura Overlay"])
+    disableAuraOverlayCheckbox:SetValue(CooldownManagerDB.General.DisableAuraOverlay)
+    disableAuraOverlayCheckbox:SetCallback("OnValueChanged", function(_, _, value) CooldownManagerDB.General.DisableAuraOverlay = value BCDM:RefreshAuraOverlayRemoval() end)
+    disableAuraOverlayCheckbox:SetCallback("OnEnter", function()
+        GameTooltip:SetOwner(disableAuraOverlayCheckbox.frame, "ANCHOR_CURSOR")
+        GameTooltip:AddLine(L["Disable Aura Overlay Description"], 1, 1, 1, false)
+        GameTooltip:Show()
+    end)
+    disableAuraOverlayCheckbox:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+    disableAuraOverlayCheckbox:SetRelativeWidth(0.33)
+    globalSettingsContainer:AddChild(disableAuraOverlayCheckbox)
+    
+    -- 战斗外隐藏开关
     local hideOutOfCombatCheckbox = AG:Create("CheckBox")
     hideOutOfCombatCheckbox:SetLabel(L["Hide Out of Combat"])
     hideOutOfCombatCheckbox:SetValue(BCDM.db.profile.General.HideOutOfCombat)
@@ -576,7 +824,7 @@ local function CreateGlobalSettings(parentContainer)
         BCDM.db.profile.General.HideOutOfCombat = value
         BCDM:UpdateCombatVisibility()
     end)
-    hideOutOfCombatCheckbox:SetRelativeWidth(1)
+    hideOutOfCombatCheckbox:SetRelativeWidth(0.33)
     globalSettingsContainer:AddChild(hideOutOfCombatCheckbox)
 
     local iconZoomSlider = AG:Create("Slider")
@@ -595,6 +843,8 @@ local function CreateGlobalSettings(parentContainer)
     borderSizeSlider:SetCallback("OnValueChanged", function(_, _, value) CooldownManagerDB.General.BorderSize = value BCDM:UpdateBCDM() end)
     borderSizeSlider:SetRelativeWidth(0.5)
     globalSettingsContainer:AddChild(borderSizeSlider)
+
+    CreateCustomGlowSettings(globalSettingsContainer)
 
     local FontContainer = AG:Create("InlineGroup")
     FontContainer:SetTitle(L["Font Settings"])
@@ -1371,6 +1621,8 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         layoutContainer:AddChild(spacingSlider)
     end
 
+    local isPrimaryViewer = viewerType == "Essential" or viewerType == "Utility" or viewerType == "Buffs"
+
     local xOffsetSlider = AG:Create("Slider")
     xOffsetSlider:SetLabel(L["X Offset"])
     xOffsetSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].Layout[4])
@@ -1387,23 +1639,85 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
     yOffsetSlider:SetRelativeWidth(isCustomViewer and 0.25 or 0.33)
     layoutContainer:AddChild(yOffsetSlider)
 
+    local iconContainer = AG:Create("InlineGroup")
+    iconContainer:SetTitle(L["Icon Settings"])
+    iconContainer:SetFullWidth(true)
+    iconContainer:SetLayout("Flow")
+    ScrollFrame:AddChild(iconContainer)
+
+    local keepAspectCheckbox = AG:Create("CheckBox")
+    keepAspectCheckbox:SetLabel(L["Keep Aspect Ratio"])
+    keepAspectCheckbox:SetValue(BCDM.db.profile.CooldownManager[viewerType].KeepAspectRatio ~= false)
+    keepAspectCheckbox:SetRelativeWidth(1)
+    iconContainer:AddChild(keepAspectCheckbox)
+
     local iconSizeSlider = AG:Create("Slider")
     iconSizeSlider:SetLabel(L["Icon Size"])
     iconSizeSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].IconSize)
     iconSizeSlider:SetSliderValues(16, 128, 0.1)
-    iconSizeSlider:SetCallback("OnValueChanged", function(self, _, value) BCDM.db.profile.CooldownManager[viewerType].IconSize = value BCDM:UpdateCooldownViewer(viewerType) end)
-    iconSizeSlider:SetRelativeWidth(isCustomViewer and 0.25 or 0.33)
-    layoutContainer:AddChild(iconSizeSlider)
+    iconSizeSlider:SetCallback("OnValueChanged", function(self, _, value)
+        BCDM.db.profile.CooldownManager[viewerType].IconSize = value
+        BCDM:UpdateCooldownViewer(viewerType)
+    end)
+    iconSizeSlider:SetRelativeWidth(0.3333)
+    iconContainer:AddChild(iconSizeSlider)
+
+    local iconWidthSlider = AG:Create("Slider")
+    iconWidthSlider:SetLabel(L["Icon Width"])
+    iconWidthSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].IconWidth or BCDM.db.profile.CooldownManager[viewerType].IconSize)
+    iconWidthSlider:SetSliderValues(16, 128, 0.1)
+    iconWidthSlider:SetCallback("OnValueChanged", function(self, _, value)
+        BCDM.db.profile.CooldownManager[viewerType].IconWidth = value
+        BCDM:UpdateCooldownViewer(viewerType)
+    end)
+    iconWidthSlider:SetRelativeWidth(0.3333)
+    iconContainer:AddChild(iconWidthSlider)
+
+    local iconHeightSlider = AG:Create("Slider")
+    iconHeightSlider:SetLabel(L["Icon Height"])
+    iconHeightSlider:SetValue(BCDM.db.profile.CooldownManager[viewerType].IconHeight or BCDM.db.profile.CooldownManager[viewerType].IconSize)
+    iconHeightSlider:SetSliderValues(16, 128, 0.1)
+    iconHeightSlider:SetCallback("OnValueChanged", function(self, _, value)
+        BCDM.db.profile.CooldownManager[viewerType].IconHeight = value
+        BCDM:UpdateCooldownViewer(viewerType)
+    end)
+    iconHeightSlider:SetRelativeWidth(0.3333)
+    iconContainer:AddChild(iconHeightSlider)
+
 
     if viewerType == "Essential" or viewerType == "Utility" or viewerType == "Buffs" then
-        local infoTag = CreateInformationTag(layoutContainer, L["Updates To Sizes will be applied on closing BetterCooldownManager Configuration Window"])
+        local infoTag = CreateInformationTag(iconContainer, L["Icon Size changes will be applied on closing the Configuration Window"], "LEFT")
         infoTag:SetRelativeWidth(0.7)
         local forceUpdateButton = AG:Create("Button")
-        forceUpdateButton:SetText(L["Force Update"])
+        forceUpdateButton:SetText(L["Update"])
         forceUpdateButton:SetRelativeWidth(0.3)
         forceUpdateButton:SetCallback("OnClick", function() BCDM:SafeApplyChanges() end)
         layoutContainer:AddChild(forceUpdateButton)
     end
+
+    local function UpdateIconSizeControlState()
+        local keepAspect = BCDM.db.profile.CooldownManager[viewerType].KeepAspectRatio ~= false
+        DeepDisable(iconSizeSlider, not keepAspect)
+        DeepDisable(iconWidthSlider, keepAspect)
+        DeepDisable(iconHeightSlider, keepAspect)
+    end
+
+    keepAspectCheckbox:SetCallback("OnValueChanged", function(self, _, value)
+        local viewerDB = BCDM.db.profile.CooldownManager[viewerType]
+        viewerDB.KeepAspectRatio = value
+        local fallbackSize = viewerDB.IconSize or viewerDB.IconWidth or viewerDB.IconHeight or 32
+        if value then
+            viewerDB.IconSize = viewerDB.IconWidth or viewerDB.IconHeight or fallbackSize
+        else
+            viewerDB.IconWidth = viewerDB.IconWidth or fallbackSize
+            viewerDB.IconHeight = viewerDB.IconHeight or fallbackSize
+        end
+        UpdateIconSizeControlState()
+        BCDM:UpdateCooldownViewer(viewerType)
+        LEMO:ApplyChanges()
+    end)
+
+    UpdateIconSizeControlState()
 
     if isCustomViewer then
         local frameStrataDropdown = AG:Create("Dropdown")
@@ -1836,7 +2150,7 @@ local function CreatePowerBarSettings(parentContainer)
     heightSliderWithoutSecondary:SetRelativeWidth(0.25)
     heightSliderWithoutSecondary:SetCallback("OnEnter", function(self)
         GameTooltip:SetOwner(self.frame, "ANCHOR_CURSOR")
-        GameTooltip:AddLine("This height is used when the player does |cFFFF4040NOT|r have a Secondary Power Bar, such as |cFFC79C6EWarrior|r or |cFFABD473Hunter|r")
+        GameTooltip:AddLine(L["Secondary Power Bar Height Description"])
         GameTooltip:Show()
     end)
     heightSliderWithoutSecondary:SetCallback("OnLeave", function() GameTooltip:Hide() end)
