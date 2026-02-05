@@ -2,6 +2,7 @@ local _, BCDM = ...
 local LibCustomGlow = LibStub("LibCustomGlow-1.0")
 
 local activeGlows = {}
+local cachedGlowSettings = nil
 
 local function NormalizeValue(value, defaultValue)
     if value == nil then
@@ -95,7 +96,11 @@ function BCDM:NormalizeGlowSettings()
 end
 
 function BCDM:GetCustomGlowSettings()
-    return self:NormalizeGlowSettings()
+    if cachedGlowSettings then
+        return cachedGlowSettings
+    end
+    cachedGlowSettings = self:NormalizeGlowSettings()
+    return cachedGlowSettings
 end
 
 local function IsCooldownViewerChild(frame)
@@ -184,6 +189,7 @@ function BCDM:StopAllCustomGlows()
 end
 
 function BCDM:RefreshCustomGlows()
+    cachedGlowSettings = nil
     local glow = self:GetCustomGlowSettings()
     if not glow or not glow.Enabled then
         self:StopAllCustomGlows()

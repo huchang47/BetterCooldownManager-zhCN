@@ -252,6 +252,7 @@ function BCDM:UpdateBCDM()
     BCDM:UpdateTrinketBar()
     BCDM:RefreshCustomGlows()
     BCDM:RefreshAuraOverlayRemoval()
+    BCDM:UpdateCombatVisibility()
 end
 
 function BCDM:CreateCooldownViewerOverlays()

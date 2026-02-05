@@ -105,7 +105,14 @@ end
 -- 全局透明度函数，根据战斗状态和设置状态决定透明度
 function BCDM:GetDesiredAlpha()
     local inCombat = InCombatLockdown()
+    local isMounted = IsMounted()
     local hideOutOfCombat = (BCDM.db and BCDM.db.profile and BCDM.db.profile.General and BCDM.db.profile.General.HideOutOfCombat) or false
+    local hideWhileMounted = (BCDM.db and BCDM.db.profile and BCDM.db.profile.General and BCDM.db.profile.General.HideWhileMounted) or false
+    
+    -- 如果设置了骑乘时隐藏且当前在骑乘中，则透明度设为0
+    if hideWhileMounted and isMounted then
+        return 0.0
+    end
     
     -- 如果设置了战斗外隐藏且当前不在战斗中，则透明度设为0
     if hideOutOfCombat and not inCombat then
@@ -237,8 +244,7 @@ function BCDM:UpdateAllFramesAlpha()
     for _, frameName in ipairs(framesToUpdate) do
         local frame = _G[frameName]
         if frame and BCDM:IsFrameAlphaControlled(frameName) then
-            -- 总是应用透明度，但确保框架可见以使透明度变化有效
-            frame:Show()
+            -- 总是应用透明度
             frame:SetAlpha(BCDM.CurrentAlpha)
         end
     end

@@ -8,6 +8,7 @@ local Defaults = {
     profile = {
         General = {
             HideOutOfCombat = false,
+            HideWhileMounted = false,
             Fonts = {
                 Font = "Friz Quadrata TT",
                 FontFlag = "OUTLINE",

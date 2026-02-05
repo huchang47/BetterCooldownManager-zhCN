@@ -827,6 +827,17 @@ local function CreateGlobalSettings(parentContainer)
     hideOutOfCombatCheckbox:SetRelativeWidth(0.33)
     globalSettingsContainer:AddChild(hideOutOfCombatCheckbox)
 
+    -- 骑乘时隐藏开关
+    local hideWhileMountedCheckbox = AG:Create("CheckBox")
+    hideWhileMountedCheckbox:SetLabel(L["Hide While Mounted"])
+    hideWhileMountedCheckbox:SetValue(BCDM.db.profile.General.HideWhileMounted)
+    hideWhileMountedCheckbox:SetCallback("OnValueChanged", function(_, _, value)
+        BCDM.db.profile.General.HideWhileMounted = value
+        BCDM:UpdateCombatVisibility()
+    end)
+    hideWhileMountedCheckbox:SetRelativeWidth(0.33)
+    globalSettingsContainer:AddChild(hideWhileMountedCheckbox)
+
     local iconZoomSlider = AG:Create("Slider")
     iconZoomSlider:SetLabel(L["Icon Zoom"])
     iconZoomSlider:SetValue(CooldownManagerDB.General.IconZoom)
