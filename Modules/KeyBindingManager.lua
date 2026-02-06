@@ -21,10 +21,10 @@ for i = 1, 12 do slotToCommand[96 + i] = "MULTIACTIONBAR7BUTTON" .. i end -- 97-
 function KBM:GetAbbreviatedKey(key)
     if not key then return "" end
     key = key:upper()
-    key = key:gsub("SHIFT%-", "S-")
-    key = key:gsub("CTRL%-", "C-")
-    key = key:gsub("ALT%-", "A-")
-    key = key:gsub("STRG%-", "C-")
+    key = key:gsub("SHIFT%-", "S")
+    key = key:gsub("CTRL%-", "C")
+    key = key:gsub("ALT%-", "A")
+    key = key:gsub("STRG%-", "C")
     key = key:gsub("NUMPAD", "N")
     key = key:gsub("PLUS", "+")
     key = key:gsub("MINUS", "-")
@@ -86,13 +86,38 @@ end
 
 function KBM:GetKeyBinding(id, type)
     if not id then return "" end
+    
+    -- 确保 id 是一个数字，以防止传递受保护值时出现 "table index is secret" 错误。
+    local numericId = tonumber(id)
+    if not numericId then return "" end
+    
     type = type or "spell"
-    return self.SpellBindingCache[type .. ":" .. id] or ""
+    
+    -- 使用 pcall 处理 numericId 可能是秘密值的情况，
+    -- 这种情况在用作表键时会导致 "table index is secret" 错误。
+    local success, binding = pcall(function() 
+        return self.SpellBindingCache[type .. ":" .. numericId] 
+    end)
+    
+    if success then
+        return binding or ""
+    end
+    
+    return ""
 end
 
 function KBM:GetKeyBindingByTexture(texture)
     if not texture then return "" end
-    return self.TextureBindingCache[texture] or ""
+    
+    local success, binding = pcall(function()
+        return self.TextureBindingCache[texture]
+    end)
+    
+    if success then
+        return binding or ""
+    end
+    
+    return ""
 end
 
 -- Initialize event handling

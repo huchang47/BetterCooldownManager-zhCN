@@ -250,7 +250,7 @@ end
 local function StartRuneOnUpdate(runeBar, runeIndex)
     -- 不再使用独立的 OnUpdate，由统一的 UpdateAllPowerBars 处理
     -- 确保更新框架正在运行
-    if not powerBarUpdateFrame:GetScript("OnUpdate") then
+    if powerBarUpdateFrame and not powerBarUpdateFrame:GetScript("OnUpdate") then
         StartPowerBarUpdate()
     end
 end
