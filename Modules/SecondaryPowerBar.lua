@@ -248,11 +248,31 @@ local function LayoutEssenceTicks()
 end
 
 local function StartRuneOnUpdate(runeBar, runeIndex)
-    -- 不再使用独立的 OnUpdate，由统一的 UpdateAllPowerBars 处理
-    -- 确保更新框架正在运行
-    if powerBarUpdateFrame and not powerBarUpdateFrame:GetScript("OnUpdate") then
-        StartPowerBarUpdate()
-    end
+    local generalDB = BCDM.db.profile.General
+
+    runeBar:SetScript("OnUpdate", function(self)
+        local runeStartTime, runeDuration, runeReady = GetRuneCooldown(runeIndex)
+
+        if runeReady then
+            self:SetScript("OnUpdate", nil)
+            self:SetValue(1)
+            local r, g, b, a = GetPowerBarColor()
+            self:SetStatusBarColor(r, g, b, a)
+            return
+        end
+
+        if runeDuration and runeDuration > 0 then
+            local now = GetTime()
+            local elapsed = now - runeStartTime
+            local progress = math.min(1, elapsed / runeDuration)
+            self:SetValue(progress)
+
+            local rechargeColour = generalDB.Colours.SecondaryPower["RUNE_RECHARGE"]
+            if rechargeColour then
+                self:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
+            end
+        end
+    end)
 end
 
 local function UpdateRuneDisplay()
@@ -350,95 +370,27 @@ local function UpdateComboDisplay()
     end
 end
 
--- 合并所有符文和精华的 OnUpdate 为一个统一的更新函数
-local powerBarUpdateThrottle = 0.05
-local nextPowerBarUpdate = 0
-local function UpdateAllPowerBars()
-    local now = GetTime()
-    if now < nextPowerBarUpdate then return end
-    nextPowerBarUpdate = now + powerBarUpdateThrottle
-    
-    -- 更新符文
-    if #runeBars > 0 then
-        local r, g, b, a = GetPowerBarColor()
-        for i = 1, 6 do
-            local runeBar = runeBars[i]
-            if runeBar then
-                local _, _, runeReady = GetRuneCooldown(i)
-                if runeReady then
-                    runeBar:SetValue(1)
-                    runeBar:SetStatusBarColor(r, g, b, a)
-                else
-                    local runeStartTime, runeDuration = GetRuneCooldown(i)
-                    if runeStartTime and runeDuration and runeDuration > 0 then
-                        local elapsed = now - runeStartTime
-                        local progress = math.min(1, elapsed / runeDuration)
-                        runeBar:SetValue(progress)
-                        
-                        local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["RUNE_RECHARGE"]
-                        if rechargeColour then
-                            runeBar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
-                        end
-                    end
-                end
-            end
-        end
-    end
-    
-    -- 更新精华
-    if #essenceTicks > 0 then
-        local powerCurrent = UnitPower("player", Enum.PowerType.Essence) or 0
-        local r, g, b, a = GetPowerBarColor()
-        local parent = BCDM.SecondaryPowerBar
-        
-        for i = 1, #essenceTicks do
-            local tick = essenceTicks[i]
-            local bar = tick.bar
-            
-            if i <= powerCurrent then
-                bar:SetValue(1)
-                bar:SetStatusBarColor(r, g, b, a)
-            elseif i == powerCurrent + 1 and parent and parent._NextEssenceTick then
-                local remaining = math.max(0, parent._NextEssenceTick - now)
-                local regen = GetPowerRegenForPowerType(Enum.PowerType.Essence) or 0.2
-                local tickDuration = 1 / regen
-                
-                if remaining <= 0 then
-                    bar:SetValue(1)
-                    bar:SetStatusBarColor(r, g, b, a)
-                else
-                    local value = 1 - (remaining / tickDuration)
-                    bar:SetValue(value)
-                    
-                    local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["ESSENCE_RECHARGE"]
-                    if rechargeColour then
-                        bar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
-                    end
-                end
-            else
-                bar:SetValue(0)
-                bar:SetStatusBarColor(0, 0, 0, 1)
-            end
-        end
-    end
-end
-
-local powerBarUpdateFrame = CreateFrame("Frame")
-
-local function StartPowerBarUpdate()
-    powerBarUpdateFrame:SetScript("OnUpdate", UpdateAllPowerBars)
-end
-
-local function StopPowerBarUpdate()
-    powerBarUpdateFrame:SetScript("OnUpdate", nil)
-end
-
 local function StartEssenceOnUpdate(tick, tickDuration, nextTickTime)
-    -- 不再使用独立的 OnUpdate，由统一的 UpdateAllPowerBars 处理
-    -- 确保更新框架正在运行
-    if not powerBarUpdateFrame:GetScript("OnUpdate") then
-        StartPowerBarUpdate()
-    end
+    tick.bar:SetScript("OnUpdate", function(self)
+        local now = GetTime()
+        local remaining = math.max(0, nextTickTime - now)
+
+        if remaining <= 0 then
+            self:SetScript("OnUpdate", nil)
+            tick.bar:SetValue(1)
+            local r, g, b, a = GetPowerBarColor()
+            tick.bar:SetStatusBarColor(r, g, b, a)
+            return
+        end
+
+        local value = 1 - (remaining / tickDuration)
+        tick.bar:SetValue(value)
+
+        local rechargeColour = BCDM.db.profile.General.Colours.SecondaryPower["ESSENCE_RECHARGE"]
+        if rechargeColour then
+            tick.bar:SetStatusBarColor(rechargeColour[1], rechargeColour[2], rechargeColour[3], rechargeColour[4] or 1)
+        end
+    end)
 end
 
 local function UpdateEssenceDisplay()
@@ -690,8 +642,15 @@ local function UpdateBarWidth()
         resizeTimer:Cancel()
     end
 
+    -- 延迟读取锚点宽度，避免布局刷新时的瞬时抖动
     resizeTimer = C_Timer.After(0.5, function()
         local anchorWidth = anchorFrame:GetWidth()
+        local currentWidth = secondaryPowerBar:GetWidth() or 0
+        -- 宽度变化太小则不触发重排，避免反复抖动
+        if math.abs(anchorWidth - currentWidth) < 0.5 then
+            resizeTimer = nil
+            return
+        end
         secondaryPowerBar:SetWidth(anchorWidth)
         local powerType = DetectSecondaryPower()
 
@@ -730,9 +689,18 @@ function BCDM:CreateSecondaryPowerBar()
         secondaryPowerBar:SetBackdropBorderColor(0, 0, 0, 0)
     end
     secondaryPowerBar:SetBackdropColor(secondaryPowerBarDB.BackgroundColour[1], secondaryPowerBarDB.BackgroundColour[2], secondaryPowerBarDB.BackgroundColour[3], secondaryPowerBarDB.BackgroundColour[4])
-    secondaryPowerBar:SetSize(secondaryPowerBarDB.Width, secondaryPowerBarDB.Height)
+    -- 初始化时优先取锚点宽度，避免先用配置宽度再被刷新覆盖导致跳变
+    local initialWidth = secondaryPowerBarDB.Width
+    if secondaryPowerBarDB.MatchWidthOfAnchor then
+        local anchorFrame = _G[secondaryPowerBarDB.Layout[2]]
+        if anchorFrame and anchorFrame.GetWidth then
+            initialWidth = anchorFrame:GetWidth() or initialWidth
+        end
+    end
+    secondaryPowerBar:SetSize(initialWidth, secondaryPowerBarDB.Height)
 
-    if BCDM:RepositionSecondaryBar() then
+    -- 仅在需要互换且开启互换时才使用 HeightWithoutPrimary，避免刷新时高度来回切换
+    if BCDM:RepositionSecondaryBar() and BCDM.db.profile.SecondaryPowerBar.SwapToPowerBarPosition then
         BCDM.PowerBar:Hide()
         secondaryPowerBar:ClearAllPoints()
         secondaryPowerBar:SetPoint(powerBarDB.Layout[1], _G[powerBarDB.Layout[2]], powerBarDB.Layout[3], powerBarDB.Layout[4], powerBarDB.Layout[5])
@@ -851,8 +819,17 @@ function BCDM:UpdateSecondaryPowerBar()
         secondaryPowerBar:SetBackdropBorderColor(0, 0, 0, 0)
     end
     secondaryPowerBar:SetBackdropColor(secondaryPowerBarDB.BackgroundColour[1], secondaryPowerBarDB.BackgroundColour[2], secondaryPowerBarDB.BackgroundColour[3], secondaryPowerBarDB.BackgroundColour[4])
-    secondaryPowerBar:SetSize(secondaryPowerBarDB.Width, secondaryPowerBarDB.Height)
+    -- 刷新阶段保持与锚点宽度一致，避免先用配置宽度造成二次变化
+    local targetWidth = secondaryPowerBarDB.Width
+    if secondaryPowerBarDB.MatchWidthOfAnchor then
+        local anchorFrame = _G[secondaryPowerBarDB.Layout[2]]
+        if anchorFrame and anchorFrame.GetWidth then
+            targetWidth = anchorFrame:GetWidth() or targetWidth
+        end
+    end
+    secondaryPowerBar:SetSize(targetWidth, secondaryPowerBarDB.Height)
 
+    -- 与创建阶段一致，避免刷新时高度抖动
     if BCDM:RepositionSecondaryBar() and BCDM.db.profile.SecondaryPowerBar.SwapToPowerBarPosition then
         BCDM.PowerBar:Hide()
         secondaryPowerBar:ClearAllPoints()

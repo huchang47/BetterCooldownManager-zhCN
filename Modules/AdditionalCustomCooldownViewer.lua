@@ -42,44 +42,7 @@ local function ApplyCooldownText()
 end
 
 local function ApplyKeyBindingText()
-    local CooldownManagerDB = BCDM.db.profile
-    local GeneralDB = CooldownManagerDB.General
-    local KeyBindingTextDB = CooldownManagerDB.CooldownManager.General.KeyBindingText
-    local Viewer = _G["BCDM_AdditionalCustomCooldownViewer"]
-    if not Viewer then return end
-
-    for _, icon in ipairs({ Viewer:GetChildren() }) do
-        local spellId = icon.spellId
-        if spellId then
-            local bindingText = BCDM.KeyBindingManager:GetKeyBinding(spellId, "spell")
-            
-            if not icon.KeyBindingText then
-                local parent = icon.HighLevelContainer or icon
-                icon.KeyBindingText = parent:CreateFontString(nil, "OVERLAY")
-            end
-            
-            local keyBindingText = icon.KeyBindingText
-
-            if KeyBindingTextDB.Enabled and bindingText ~= "" then
-                keyBindingText:Show()
-                keyBindingText:SetText(bindingText)
-                keyBindingText:SetFont(BCDM.Media.Font, KeyBindingTextDB.FontSize, GeneralDB.Fonts.FontFlag)
-                keyBindingText:SetTextColor(KeyBindingTextDB.Colour[1], KeyBindingTextDB.Colour[2], KeyBindingTextDB.Colour[3], 1)
-                keyBindingText:ClearAllPoints()
-                keyBindingText:SetPoint(KeyBindingTextDB.Layout[1], icon, KeyBindingTextDB.Layout[2], KeyBindingTextDB.Layout[3], KeyBindingTextDB.Layout[4])
-                
-                if GeneralDB.Fonts.Shadow.Enabled then
-                    keyBindingText:SetShadowColor(GeneralDB.Fonts.Shadow.Colour[1], GeneralDB.Fonts.Shadow.Colour[2], GeneralDB.Fonts.Shadow.Colour[3], GeneralDB.Fonts.Shadow.Colour[4])
-                    keyBindingText:SetShadowOffset(GeneralDB.Fonts.Shadow.OffsetX, GeneralDB.Fonts.Shadow.OffsetY)
-                else
-                    keyBindingText:SetShadowColor(0, 0, 0, 0)
-                    keyBindingText:SetShadowOffset(0, 0)
-                end
-            else
-                keyBindingText:Hide()
-            end
-        end
-    end
+    -- KeyBindingText functionality is removed for AdditionalCustomCooldownViewer as it only supports Essential and Utility modules now.
 end
 
 local function IsCooldownFrameActive(customIcon)

@@ -128,12 +128,6 @@ local Defaults = {
                     Layout = {"CENTER", "CENTER", 0, 0},
                     ScaleByIconSize = false
                 },
-                KeyBindingText = {
-                    Enabled = true,
-                    FontSize = 12,
-                    Colour = {1, 1, 1},
-                    Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
-                },
             },
             Essential = {
                 IconSize = 42,
@@ -149,6 +143,12 @@ local Defaults = {
                     Colour = {1, 1, 1},
                     Layout = {"BOTTOMRIGHT", "BOTTOMRIGHT", 0, 3}
                 },
+                KeyBindingText = {
+                    Enabled = true,
+                    FontSize = 12,
+                    Colour = {1, 1, 1},
+                    Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                },
             },
             Utility = {
                 IconSize = 36,
@@ -163,6 +163,12 @@ local Defaults = {
                     FontSize = 15,
                     Colour = {1, 1, 1},
                     Layout = {"BOTTOMRIGHT", "BOTTOMRIGHT", 0, 3}
+                },
+                KeyBindingText = {
+                    Enabled = true,
+                    FontSize = 12,
+                    Colour = {1, 1, 1},
+                    Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
                 },
             },
             Buffs = {

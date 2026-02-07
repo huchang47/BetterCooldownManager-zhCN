@@ -127,10 +127,29 @@ frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 frame:RegisterEvent("ACTIONBAR_PAGE_CHANGED")
 frame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:SetScript("OnEvent", function(self, event, ...)
+
+local UPDATE_THROTTLE = 0.2 -- 更新节流时间，单位：秒
+
+local function PerformUpdate()
     KBM:UpdateKeyBindings()
-    -- Also refresh the cooldown text when bindings change
-    if BCDM.UpdateCooldownViewers and BCDM.Media then
+    -- 仅更新按键绑定文本，避免全量刷新带来的性能开销
+    if BCDM.UpdateKeyBindingTexts and BCDM.Media then
+        BCDM:UpdateKeyBindingTexts()
+    -- 如果轻量级更新函数不可用，则回退到全量更新（需要 Media 模块加载完成）
+    elseif BCDM.UpdateCooldownViewers and BCDM.Media then
         BCDM:UpdateCooldownViewers()
     end
+end
+
+local function OnUpdate(self, elapsed)
+    self.timeSinceEvent = (self.timeSinceEvent or 0) + elapsed
+    if self.timeSinceEvent >= UPDATE_THROTTLE then
+        self:SetScript("OnUpdate", nil) -- 停止 OnUpdate 脚本
+        PerformUpdate()      -- 执行实际更新
+    end
+end
+
+frame:SetScript("OnEvent", function(self, event, ...)
+    self.timeSinceEvent = 0 -- 重置计时器
+    self:SetScript("OnUpdate", OnUpdate) -- 开启 OnUpdate 脚本进行倒计时
 end)

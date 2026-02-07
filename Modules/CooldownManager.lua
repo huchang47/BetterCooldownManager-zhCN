@@ -71,15 +71,26 @@ local function ApplyCooldownText(cooldownViewer)
     end
 end
 
-local function ApplyKeyBindingText(cooldownViewer)
+-- 更新单个冷却查看器的按键绑定文本
+function BCDM:ApplyKeyBindingText(cooldownViewer)
     local CooldownManagerDB = BCDM.db.profile
     local GeneralDB = CooldownManagerDB.General
-    local KeyBindingTextDB = CooldownManagerDB.CooldownManager.General.KeyBindingText
+    
+    local KeyBindingTextDB
+    if cooldownViewer == "EssentialCooldownViewer" then
+        KeyBindingTextDB = CooldownManagerDB.CooldownManager.Essential.KeyBindingText
+    elseif cooldownViewer == "UtilityCooldownViewer" then
+        KeyBindingTextDB = CooldownManagerDB.CooldownManager.Utility.KeyBindingText
+    else
+        return
+    end
+
     local Viewer = _G[cooldownViewer]
     if not Viewer then return end
 
     for _, icon in ipairs({ Viewer:GetChildren() }) do
-        -- Try to find spellId from icon (custom icons store it) or check if it's a known frame type
+        -- 尝试从图标中获取 SpellID（自定义图标会存储它）或检查是否为已知框架类型
+        -- 优先使用 icon.spellId/icon.spellID 属性，其次尝试调用 GetSpellID 方法
         local spellId = icon.spellId or icon.spellID
         if not spellId and icon.GetSpellID then
             spellId = icon:GetSpellID()
@@ -90,13 +101,14 @@ local function ApplyKeyBindingText(cooldownViewer)
         end
         
         local bindingText = ""
+        -- 根据 SpellID 或 ItemID 获取绑定的按键
         if spellId then
             bindingText = BCDM.KeyBindingManager:GetKeyBinding(spellId, "spell")
         elseif itemId then
             bindingText = BCDM.KeyBindingManager:GetKeyBinding(itemId, "item")
         end
         
-        -- Try to find binding by texture if not found by ID
+        -- 如果通过 ID 找不到绑定，则尝试通过图标纹理路径进行匹配（主要用于宏）
         if bindingText == "" and icon.Icon and icon.Icon.GetTexture then
             local texture = icon.Icon:GetTexture()
             if texture then
@@ -106,7 +118,7 @@ local function ApplyKeyBindingText(cooldownViewer)
         
         if bindingText ~= "" or spellId or itemId then
             if not icon.KeyBindingText then
-                -- Attach to HighLevelContainer if available (Custom Icons), otherwise icon itself
+                -- 如果可用，附加到 HighLevelContainer（自定义图标），否则附加到图标本身
                 local parent = icon.HighLevelContainer or icon
                 icon.KeyBindingText = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                 icon.KeyBindingText:SetDrawLayer("OVERLAY", 7)
@@ -654,7 +666,7 @@ function BCDM:SkinCooldownManager()
     for _, viewerName in ipairs(BCDM.CooldownManagerViewers) do
         C_Timer.After(0.1, function() 
             ApplyCooldownText(viewerName) 
-            ApplyKeyBindingText(viewerName)
+            BCDM:ApplyKeyBindingText(viewerName)
         end)
     end
 
@@ -716,7 +728,7 @@ function BCDM:UpdateCooldownViewer(viewerType)
     StyleChargeCount()
 
     ApplyCooldownText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
-    ApplyKeyBindingText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
+    BCDM:ApplyKeyBindingText(BCDM.DBViewerToCooldownManagerViewer[viewerType])
 
     -- 重新应用居中布局，确保使用最新的设置
     if viewerType == "Essential" and cooldownManagerSettings.Essential.CenterEssential then
@@ -772,4 +784,17 @@ function BCDM:UpdateCooldownViewers()
     
     -- 应用同步设置
     SyncWithOfficialSettings()
+end
+
+-- 专门用于更新所有查看器的按键绑定文本
+-- 这是一个轻量级更新函数，不会触发布局重排或皮肤重绘
+function BCDM:UpdateKeyBindingTexts()
+    local viewers = {
+        "EssentialCooldownViewer",
+        "UtilityCooldownViewer",
+    }
+    
+    for _, viewerName in ipairs(viewers) do
+        BCDM:ApplyKeyBindingText(viewerName)
+    end
 end

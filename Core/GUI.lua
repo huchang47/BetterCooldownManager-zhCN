@@ -265,9 +265,7 @@ local function CreateInformationTag(containerParent, labelDescription, textJusti
     return informationLabel
 end
 
-local function CreateKeyBindingTextSettings(containerParent)
-    local KeyBindingTextDB = BCDM.db.profile.CooldownManager.General.KeyBindingText
-
+local function CreateKeyBindingTextSettings(containerParent, KeyBindingTextDB)
     local keyBindingTextContainer = AG:Create("InlineGroup")
     keyBindingTextContainer:SetTitle(L["Keybinding Text Settings"])
     keyBindingTextContainer:SetFullWidth(true)
@@ -916,9 +914,6 @@ local function CreateGlobalSettings(parentContainer)
     hideWhileMountedCheckbox:SetRelativeWidth(0.33)
     globalSettingsContainer:AddChild(hideWhileMountedCheckbox)
 
-    keyBindingTextGroup = CreateKeyBindingTextSettings(globalSettingsContainer)
-    DeepDisable(keyBindingTextGroup, not BCDM.db.profile.CooldownManager.General.KeyBindingText.Enabled)
-
     local iconZoomSlider = AG:Create("Slider")
     iconZoomSlider:SetLabel(L["Icon Zoom"])
     iconZoomSlider:SetValue(CooldownManagerDB.General.IconZoom)
@@ -1538,6 +1533,8 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         end)
         centerUtilityCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(centerUtilityCheckbox)
+
+        local keyBindingGroup = CreateKeyBindingTextSettings(ScrollFrame, BCDM.db.profile.CooldownManager.Utility.KeyBindingText)
     end
 
     if viewerType == "Essential" then
@@ -1579,6 +1576,8 @@ local function CreateCooldownViewerSettings(parentContainer, viewerType)
         end)
         highlightEssentialCheckbox:SetRelativeWidth(1)
         toggleContainer:AddChild(highlightEssentialCheckbox)
+
+        local keyBindingGroup = CreateKeyBindingTextSettings(ScrollFrame, BCDM.db.profile.CooldownManager.Essential.KeyBindingText)
     end
 
     if viewerType == "Buffs" then
